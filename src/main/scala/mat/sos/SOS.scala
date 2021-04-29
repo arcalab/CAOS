@@ -1,5 +1,6 @@
 package mat.sos
 
+//import choreo.syntax.Choreo.{Action, In, Out, Tau}
 
 
 trait SOS[Act,State]:
@@ -7,32 +8,32 @@ trait SOS[Act,State]:
   def accepting(s:State): Boolean
 
 trait HasTaus:
-  def isTau: Boolean
+  val isTau: Boolean
 
 trait WSOS[Act<:HasTaus,State] extends SOS[Act,State]:
-  def nextWeak(s:State): Set[(Act,State)]
+  def nextWeak(s:State): Set[(Act,State,Option[State])] =
+    SOS.nextWeak(this,s,None)
 
 
 object SOS:
-  ///////////////////////////
-  //// auxiliary functions //
-  ///////////////////////////
-  //
-  ///** All (a,s'') such that: s -tau->* s' -a-> s''  */
-  //def nextWeak[S](sos:SOS[Action,S], s:S, last:Option[S]=None): Set[(In | Out,S,Option[S])] =
-  //  (for (a,s2)<-sos.next(s) yield
-  //    a match
-  //      case Tau => nextWeak(sos,s2,Some(s2))
-  //      case x:(In|Out) => Set((x,s2,last))
-  //  ).flatten
+  /////////////////////////
+  // auxiliary functions //
+  /////////////////////////
 
-  def taus[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
+  /** All (a,s'') such that: s -tau->* s' -a-> s''  */
+  def nextWeak[A<:HasTaus,S](sos:WSOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
     (for (a,s2)<-sos.next(s) yield
-      a match
-        //case Tau => taus(sos,s2) + s
-        case x if x.isTau => taus(sos,s2) + s
-        case x => Set(s))
-    .flatten + s
+  a match
+    case x:HasTaus if x.isTau => nextWeak(sos,s2,Some(s2))
+    case x => Set((x,s2,last))
+  ).flatten
+
+  def byTau[S](sos:WSOS[_,S], s:S): Set[S] =
+    (for (a,s2)<-sos.next(s) yield
+  a match
+    case t:HasTaus if t.isTau => byTau(sos,s2) + s
+    case x => Set(s))
+  .flatten + s
 
   //  def transBy(a:Action): LTS[S]
   def nextPP[A,S](lts:SOS[A,S], s:S): String = lts.next(s)
@@ -62,5 +63,5 @@ object SOS:
       done ++= next2
       next ++= next2
     done
-        
+          
 

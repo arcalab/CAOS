@@ -11,29 +11,30 @@
     <title>Title</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
-    <link href="../css/bootstrap-theme.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
-    <link rel="stylesheet" href="../css/codemirror/codemirror.css">
-    <link rel="stylesheet" href="../css/codemirror/theme/neat.css">
-    <link rel="stylesheet" href="../css/codemirror/theme/elegant.css">
+    <link href="css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/codemirror/codemirror.css">
+    <link rel="stylesheet" href="css/codemirror/theme/neat.css">
+    <link rel="stylesheet" href="css/codemirror/theme/elegant.css">
 </head>
 
 <body>
 <div id="contentWrap"></div>
 </body>
 
-<script type="text/javascript" src="../js/static/jquery-1.10.2.min.js"></script>
-<script type="text/javascript" src="../js/static/bootstrap.min.js"></script>
-<script type="text/javascript" src="../js/static/d3.v4.min.js"></script>
-<script type="text/javascript" src="../js/static/d3-zoom.min.js"></script>
-<script type="text/javascript" src="../js/static/d3-selection.min.js"></script>
-<script type="text/javascript" src="../js/static/codemirror/codemirror.js"></script>
-<script type="text/javascript" src="../js/static/codemirror/addon/edit/matchbrackets.js"></script>
-<script type="text/javascript" src="../js/static/codemirror/mode/choreo/choreo.js"></script>
-<script type="text/javascript" src="../js/gen/mat_js-fastopt.js"></script>
-<script type="text/javascript" src="../js/static/mermaid.min.js"></script>
+<script type="text/javascript" src="js/static/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" src="js/static/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/static/d3.v4.min.js"></script>
+<script type="text/javascript" src="js/static/d3-zoom.min.js"></script>
+<script type="text/javascript" src="js/static/d3-selection.min.js"></script>
+<script type="text/javascript" src="js/static/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="js/static/codemirror/addon/edit/matchbrackets.js"></script>
+<script type="text/javascript" src="js/static/codemirror/mode/choreo/choreo.js"></script>
+<script type="text/javascript" src="js/gen/main.js"></script>
+<script type="text/javascript" src="js/gen/main.js.map"></script>
+<script type="text/javascript" src="js/static/mermaid.min.js"></script>
 <script>
     var config = {
         startOnLoad:false,
@@ -43,7 +44,8 @@
     mermaid.mermaidAPI.initialize(config);
 </script>
 <script>
-    mat_main(document.getElementById('contentWrap'));
+    // this should be a function in mat
+    // choreo_frontend_widgets_Main_main("");
 </script>
-<script type="text/javascript" src="../js/static/resizeCols.js"></script>
+<script type="text/javascript" src="js/static/resizeCols.js"></script>
 </html>
