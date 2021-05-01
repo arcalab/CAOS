@@ -15,6 +15,7 @@ trait Arcatools[Stx]:
   val name: String
   type T = Stx
   val parser: String=>Stx
+  val examples: Iterable[(String,Stx)]
   val widgets: Iterable[(Widget[Stx],String)]
   val smallWidgets: Iterable[(Widget[Stx],String)]
 
@@ -29,16 +30,16 @@ object Arcatools:
   case class Compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, pre1:Stx=>S1, pre2:Stx=>S2)
     extends Widget[Stx]
 
-//  def branchBisim[Stx](S)
-//  case class Project[Stx,S](p:Projection[_,S],v:View[S,_],pre:Stx=>S)            extends Widget[Stx]
-//  case class Realisability[Stx,G](real:(G,Projection[_,G],SOS[Action,G]) => String, pre:Stx=>G)
-//                                                                                extends Widget[Stx]
 
-  // constructors for no pre-processing
-  object Visualize:
-    def apply[Stx](v:Stx=>View): Visualize[Stx,Stx] = Visualize(v,c=>c)
-  object Simulate:
-    def apply[Stx,A](sos:SOS[A,Stx],v:Stx=>View): Simulate[Stx,A,Stx] = Simulate(sos,v,c=>c)
+  // constructors for no pre-processing (id)
+  def visualize[Stx](v:Stx=>View): Visualize[Stx,Stx] = Visualize(v,c=>c)
+  def simulate[Stx,A](sos:SOS[A,Stx],v:Stx=>View): Simulate[Stx,A,Stx] = Simulate(sos,v,c=>c)
+
+  // compare 2 SOSs using branching bisimulation
+  def compareBranchBisim[Stx,A<:HasTaus,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
+    Compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),mat.view.Text,pre1,pre2)
+  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
+    Compare[Stx,String,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),mat.view.Text,pre1,pre2)
 
 
 //  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =

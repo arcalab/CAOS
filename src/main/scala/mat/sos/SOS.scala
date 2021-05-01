@@ -10,9 +10,9 @@ trait SOS[Act,State]:
 trait HasTaus:
   val isTau: Boolean
 
-trait WSOS[Act<:HasTaus,State] extends SOS[Act,State]:
-  def nextWeak(s:State): Set[(Act,State,Option[State])] =
-    SOS.nextWeak(this,s,None)
+//trait WSOS[Act<:HasTaus,State] extends SOS[Act,State]:
+//  def nextWeak(s:State): Set[(Act,State,Option[State])] =
+//    SOS.nextWeak(this,s,None)
 
 
 object SOS:
@@ -21,17 +21,17 @@ object SOS:
   /////////////////////////
 
   /** All (a,s'') such that: s -tau->* s' -a-> s''  */
-  def nextWeak[A<:HasTaus,S](sos:WSOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
+  def nextWeak[A<:HasTaus,S](sos:SOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
     (for (a,s2)<-sos.next(s) yield
   a match
-    case x:HasTaus if x.isTau => nextWeak(sos,s2,Some(s2))
+    case x if x.isTau => nextWeak(sos,s2,Some(s2))
     case x => Set((x,s2,last))
   ).flatten
 
-  def byTau[S](sos:WSOS[_,S], s:S): Set[S] =
+  def byTau[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
     (for (a,s2)<-sos.next(s) yield
   a match
-    case t:HasTaus if t.isTau => byTau(sos,s2) + s
+    case t if t.isTau => byTau(sos,s2) + s
     case x => Set(s))
   .flatten + s
 
