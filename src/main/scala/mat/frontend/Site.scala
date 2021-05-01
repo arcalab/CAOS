@@ -1,3 +1,22 @@
+package mat.frontend
+
+import mat.frontend.widgets.DomNode
+import org.scalajs.dom.{document, html}
+
+import scala.scalajs.js
+import scala.scalajs.js.annotation._
+
+object Site:
+
+  def main(args: Array[String]): Unit =
+    println("Hello world in the console!")
+
+    val contentDiv = DomNode.select("contentWrap").append("div")
+      .attr("class", "content")
+
+    contentDiv.text("I'm in the browser!")
+
+
 //package mat.frontend.widgets
 //
 //import mat.frontend.Arcatools.{Visualize, Widget}

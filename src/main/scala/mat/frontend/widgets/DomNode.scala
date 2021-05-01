@@ -80,5 +80,9 @@ object DomNode {
   def select(div: html.Div): DomElem = {
     new DomElem(div)
   }
+  def select(div: String): DomElem = {
+    val c = document.getElementById(div)
+    new DomElem(c)
+  }
 }
 
