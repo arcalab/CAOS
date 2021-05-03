@@ -1,7 +1,7 @@
 package mat.frontend
 
-import mat.frontend.Configurator.{Visualize, Widget}
-import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, OutputArea, VisualiseMermaid}
+import mat.frontend.Configurator.{Simulate, Visualize, Widget}
+import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, OutputArea, VisualiseMermaid, SimulateText}
 import mat.view._
 import org.scalajs.dom.{document, html}
 
@@ -30,20 +30,24 @@ object Site:
     val title = document.getElementById("title")
     title.textContent = config.name
 
-    // todo: iterate trough all widgets
-    val x = config.widgets.head
-    val y = mkBox(x,()=>code.get,errorArea)
-    y.init(rightColumn,true)
-    toReload = List(y.update)
-    //globalReload()
+    //val boxes = config.widgets.take(1).map(w => mkBox(w,()=>code.get,errorArea))
+    //boxes.foreach(b=>b.init(rightColumn,true))
+    //toReload = boxes.map(b => ()=>b.update()).toList
+    val b = mkBox(config.widgets.head,()=>code.get,errorArea)
+    toReload = List(()=>b.update())
+
 
   private def mkBox[Stx](w: (Widget[Stx], String),get:()=>Stx,out:OutputArea): Box[Unit] =
     w._1 match {
         //todo: nicer way to achieve this type check?
-      case vis@Visualize(view,pre):Visualize[Stx,_] => view(pre(get())) match {
-        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._2,out)//(view) compose (pre ) compose get,w._2,out)
+      case Visualize(view,pre):Visualize[Stx,_] => view(pre(get())) match {
+        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._2,out)
         case _: Text => sys.error("Text visualiser not supported")
         case _: Html => sys.error("HTML visualiser not supported")
+      }
+      case sim@Simulate(sos, view, pre):Simulate[Stx,_,_] => view(pre(get())) match {
+        case v:Text => new SimulateText(get,sim, w._2, out)
+        case _=> throw new RuntimeException("case not covered...")
       }
       case _ => throw new RuntimeException("case not covered...")
     }
