@@ -34,6 +34,7 @@ object Site:
     //boxes.foreach(b=>b.init(rightColumn,true))
     //toReload = boxes.map(b => ()=>b.update()).toList
     val b = mkBox(config.widgets.head,()=>code.get,errorArea)
+    b.init(rightColumn,false)
     toReload = List(()=>b.update())
 
 
