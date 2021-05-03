@@ -1,6 +1,8 @@
 package mat.frontend.widgets
 
 
+import mat.frontend.Configurator.Visualize
+import mat.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 
@@ -11,13 +13,15 @@ import scala.runtime.Nothing$
  */
 
 
-class VisualiseMermaid(mermaid: ()=>String, parentName:String, errorBox: OutputArea)
-  extends Box[Unit]("Sequence diagram of the choreography", List()) {
+class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
+  extends Box[Unit](name, List()) {
 
   val diagram:String = ""
   private var box:Block = _
+  protected val svgBox = name.replace(' ','_') + "Svg"
+  protected val divBox = name.replace(' ','_') + "Box"
 
-  override def get: Unit = {} //mermaid()
+  override val get: Unit = () //mermaid()
 
   /**
    * Executed once at creation time, to append the content to the inside of this box
@@ -27,14 +31,14 @@ class VisualiseMermaid(mermaid: ()=>String, parentName:String, errorBox: OutputA
    */
   override def init(div: Block, visible: Boolean): Unit = {
     box = panelBox(div, visible,buttons=List(
-      Right("download")-> (() => Utils.downloadSvg("svgChoreography"), "Download SVG")
+      Right("download")-> (() => Utils.downloadSvg(svgBox), "Download SVG")
     )).append("div")
       .attr("class","mermaid")
-      .attr("id", "choreographyBox")
+      .attr("id", divBox)
       .style("text-align","center")
-      .append("div").attr("id","svgChoreography")
+      .append("div").attr("id",svgBox)
 
-    dom.document.getElementById("Sequence diagram of the choreography").firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) showChoreo() }
   }
 
@@ -47,8 +51,8 @@ class VisualiseMermaid(mermaid: ()=>String, parentName:String, errorBox: OutputA
 
   def showChoreo():Unit = {
     try {
-      val diagram = mermaid()
-      val mermaidJs = MermaidJS(diagram,parentName,"svg"+parentName)
+      val diagram = mermaid().code//view(pre(mermaid()))
+      val mermaidJs = MermaidJS(diagram,divBox,svgBox)
       scalajs.js.eval(mermaidJs)
     } catch Box.checkExceptions(errorBox)
   }

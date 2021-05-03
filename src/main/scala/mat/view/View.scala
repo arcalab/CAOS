@@ -7,8 +7,14 @@ package mat.view
  *
  * @tparam A is the type of the argument that can be viewed as a String.
  */
-sealed trait View(code:String)
+sealed trait View:
+  val code:String
 
-case class Mermaid(code:String) extends View(code)
-case class Text(code:String)    extends View(code)
-case class Html(code:String)    extends View(code)
+case class Mermaid(code:String) extends View
+case class Text(code:String)    extends View
+case class Html(code:String)    extends View
+
+// sealed trait View(code:String)
+// case class Mermaid(code:String) extends View(code)
+// case class Text(code:String)    extends View(code)
+// case class Html(code:String)    extends View(code)
