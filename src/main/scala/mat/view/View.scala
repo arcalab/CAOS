@@ -18,11 +18,12 @@ package mat.view
 //  val code2:String
 //
 //}
-sealed trait View(code:String)
+sealed trait View:
+  val code:String
 
-case class Mermaid(code:String) extends View(code)
-case class Text(code:String)    extends View(code)
-case class Html(code:String)    extends View(code)
+case class Mermaid(code:String) extends View //(code)
+case class Text(code:String)    extends View //(code)
+case class Html(code:String)    extends View //(code)
 
 //trait MermaidView[-A] extends View[A]
 //trait TextView[-A] extends View[A]
