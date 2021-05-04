@@ -1,7 +1,7 @@
 package mat.frontend.widgets
 
-import mat.frontend.widgets.{Box, OutputArea,MermaidJS}
-import mat.frontend.Configurator.{Simulate}
+import mat.frontend.Configurator.Simulate
+import mat.frontend.widgets.{Box, MermaidJS, OutputArea}
 import mat.sos.HasTaus
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -10,20 +10,23 @@ import org.scalajs.dom.{MouseEvent, html}
  * Created by guillecledou on 16/03/2021
  */
 
-class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)
+class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)
   extends Box[Unit](name,Nil) {
 
   private var container:Block = _
   private var left:Block = _
   private var right:Block = _
   private var top:Block = _
-  private val simBox = name.replace(' ','_')+"Box"
+  //private val simBox = name.replace(' ','_')+"Box"
+  protected val svgBox = name.replace(' ','_') + "Svg"
+  protected val divBox = name.replace(' ','_') + "Box"
 
   override def get: Unit = ()
 
   protected var traceActs:List[Act] = List()
   protected var lastStx:St = _
   protected var traceStx:List[St] = List()
+
 
   /**
    * Executed once at creation time, to append the content to the inside of this box
@@ -59,8 +62,10 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
     right = container.append("div")
       .style("display:inline; width:100%;")
     right.append("div")
-      .attr("id", simBox)
-      .style("text-align", "left")
+      .attr("class","mermaid")
+      .attr("id", divBox)
+      .style("text-align","center")
+      .append("div").attr("id",svgBox)
   }
   /**
    * Block of code that should read the dependencies and:
@@ -129,29 +134,15 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
   }
 
   protected def updateSimulationSteps(sim: List[(Option[Act],St)]):Unit = {
-    right.text("")
-    right.html(sim.map(s => showStep(s)).mkString(""))
+    if sim.nonEmpty then showSt(sim.last._2)
   }
 
-  protected def showStep(step:(Option[Act],St)):String =
-    s"""<div style="display:flex;justify-content:flex-start;padding:0px 1px 5px 15px;">
-       |  ${showActStep(step._1)}
-       |  ${showStStep(step._2)}
-       |</div>""".stripMargin
 
-  protected def showStStep(c:St):String =
-    s"""<div style="display:inline;width:100%;text-align:left;">
-       |${simulate.v(c).code}
-       |</div>""".stripMargin
-
-  protected def showActStep(a:Option[Act]):String = {
-    s"""<div style="text-align:left;width:15%;font-weight:bold;">
-       |  ${if (a.isDefined)  s"""${a.get} &#8594;""" else "&#8594;"}
-       |</div>""".stripMargin
-  }
-
-  //protected def htmlChoreo(c:Choreo):String =
-  //  c.toString.replace("->","&#8594;")
+  protected def showSt(st:St):Unit = try {
+    val mermaid = simulate.v(st).code
+    val mermaidJs = MermaidJS(mermaid,divBox,svgBox)
+    scalajs.js.eval(mermaidJs)
+  } catch Box.checkExceptions(errorBox)
 
 }
 
