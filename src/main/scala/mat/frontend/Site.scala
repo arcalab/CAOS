@@ -30,7 +30,7 @@ object Site:
     val title = document.getElementById("title")
     title.textContent = config.name
 
-    val boxes = config.widgets.take(5).map(w => mkBox(w,()=>code.get,errorArea))
+    val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
     boxes.foreach(b=>b.init(rightColumn,true))
     toReload = boxes.map(b => ()=>b.update()).toList
 
@@ -90,7 +90,7 @@ object Site:
 
       override def get: config.T = config.parser(input)
 
-      override protected val codemirror: String = config.name
+      override protected val codemirror: String = config.name.toLowerCase()
 
       override def reload(): Unit =
         update()
