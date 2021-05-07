@@ -98,7 +98,7 @@ object Site:
       protected var input: String = config.examples.headOption match
         case Some(_,c) => c.toString
         case _ => ""
-      
+
       override protected val boxId: String = config.name + "Box"
 
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
