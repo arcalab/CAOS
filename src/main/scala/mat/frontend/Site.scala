@@ -1,7 +1,7 @@
 package mat.frontend
 
-import mat.frontend.Configurator.{Simulate, Visualize, Widget}
-import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid}
+import mat.frontend.Configurator.{Compare, Simulate, Visualize, Widget}
+import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText}
 import mat.view._
 import org.scalajs.dom.{document, html}
 
@@ -53,16 +53,18 @@ object Site:
   protected def mkBox[Stx](w: (Widget[Stx], String),get:()=>Stx,out:OutputArea): Box[Unit] =
     w._1 match {
         //todo: nicer way to achieve this type check?
-      case Visualize(view,pre):Visualize[Stx,_] => view(pre(get())) match {
+      case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
         case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._2,out)
-        case _: Text => sys.error("Text visualiser not supported")
+        case _: Text => new VisualiseText(()=>view(pre(get())),w._2,out) //sys.error("Text visualiser not supported")
         case _: Html => sys.error("HTML visualiser not supported")
       }
-      case sim@Simulate(sos, view, pre):Simulate[Stx,_,_] => view(pre(get())) match {
+      case sim@Simulate(sos, view, pre): Simulate[Stx, _, _] => view(pre(get())) match {
         case v:Text => new SimulateText(get,sim, w._2, out)
         case v:Mermaid => new SimulateMermaid(get,sim,w._2,out)
         case _ => throw new RuntimeException("case not covered...")
       }
+      case com@Compare(comp, v, pre1, pre2) =>
+        mkBox((Visualize(v,(c:Stx) => comp(pre1(c),pre2(c))),w._2),get,out)
       case _ => throw new RuntimeException("case not covered...")
     }
 
