@@ -2,6 +2,7 @@ package mat.frontend.widgets
 
 import org.scalajs.dom
 import org.scalajs.dom.html
+import mat.frontend.widgets.Setable
 
 abstract class CodeBox[A](title: String, dep: List[Box[_]])
   extends Box[A](title,dep) with Setable[String]{

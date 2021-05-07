@@ -1,7 +1,7 @@
 package mat.frontend
 
 import mat.frontend.Configurator.{Simulate, Visualize, Widget}
-import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, OutputArea, VisualiseMermaid, SimulateText, SimulateMermaid}
+import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid}
 import mat.view._
 import org.scalajs.dom.{document, html}
 
@@ -30,11 +30,26 @@ object Site:
     val title = document.getElementById("title")
     title.textContent = config.name
 
+    // todo make proper example class
+    val ex = (for ((n,e) <- config.examples) yield n::e.toString::n::Nil).toSeq
+    val examples = new ExampleBox("Examples",ex,globalReload(),List(code))
+
     val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
-    boxes.foreach(b=>b.init(rightColumn,true))
-    toReload = boxes.map(b => ()=>b.update()).toList
+    boxes.foreach(b=>b.init(rightColumn,false))
 
+    val smallBoxes = List(examples)//++config.smallWidgets.map(w=>mkBox(w,()=>code.get,errrorArea)
+    smallBoxes.foreach(b=>b.init(leftColumn,false))
 
+    toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update()).toList
+
+  /**
+   * Make widget box
+   * @param w widget
+   * @param get function to get program
+   * @param out output box to output errors
+   * @tparam Stx Type of the program to process
+   * @return a box
+   */
   protected def mkBox[Stx](w: (Widget[Stx], String),get:()=>Stx,out:OutputArea): Box[Unit] =
     w._1 match {
         //todo: nicer way to achieve this type check?
@@ -50,7 +65,6 @@ object Site:
       }
       case _ => throw new RuntimeException("case not covered...")
     }
-
 
   protected def initialiseContainers():Unit =
     val contentDiv = DomNode.select("contentWrap").append("div")
