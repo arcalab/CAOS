@@ -18,8 +18,13 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   private var right:Block = _
   private var top:Block = _
   //private val simBox = name.replace(' ','_')+"Box"
-  protected val svgBox = name.replace(' ','_') + "Svg"
-  protected val divBox = name.replace(' ','_') + "Box"
+  protected val svgBox = fix(name) + "Svg"
+  protected val divBox = fix(name) + "Box"
+
+  private def fix(s:String) = s
+    .replace(' ','_')
+    .replace('(','_')
+    .replace(')','_')
 
   override def get: Unit = ()
 

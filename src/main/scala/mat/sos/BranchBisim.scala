@@ -39,11 +39,11 @@ object BranchBisim :
   //// Actual implementtion of branching bisimulation search ////
 
   /** Find a branching bisimulation and returns an explanation */
-  def findBisimPP[A<:HasTaus,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L]): String =
+  def findBisimPP[A<:HasTaus,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L],stopAt:Int=5000): String =
     pp(findWBisim2Aux(Map(),Map((g,l)->Nil),Set(),Nil,1))
 
   /** Find a branching bisimulation. */
-  def findBisim[A<:HasTaus,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L]): BResult[A,G,L] =
+  def findBisim[A<:HasTaus,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L],stopAt:Int=5000): BResult[A,G,L] =
     findWBisim2Aux(Map(),Map((g,l)->Nil),Set(),Nil,1)
 
   private def findWBisim2Aux[A<:HasTaus,G,L](visited:RT[A,G,L],
@@ -52,10 +52,10 @@ object BranchBisim :
                                   //                                          lastError:List[String],
                                   history:List[Int],
                                   i:Int) // to count how many runs
-                                 (using gs:SOS[A,G],ls:SOS[A,L])
+                                 (using gs:SOS[A,G],ls:SOS[A,L],stopAt:Int)
   : BResult[A,G,L] =
     //    println(s"[Sim] $visited  --  $missing")
-    if i >= 5000/*800000*/ then
+    if i >= stopAt /*5000/800000*/ then
       return Left(BEvid(Set(List("timeout",s"visited: $visited",s"missing: $missing")),triedHash,i))
     missing.headOption match
       // Success!

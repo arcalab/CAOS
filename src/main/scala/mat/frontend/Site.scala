@@ -1,6 +1,6 @@
 package mat.frontend
 
-import mat.frontend.Configurator.{Compare, Simulate, Visualize, Widget}
+import mat.frontend.Configurator.{Simulate, Visualize, Widget}
 import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText}
 import mat.view._
 import org.scalajs.dom.{document, html}
@@ -63,8 +63,6 @@ object Site:
         case v:Mermaid => new SimulateMermaid(get,sim,w._2,out)
         case _ => throw new RuntimeException("case not covered...")
       }
-      case com@Compare(comp, v, pre1, pre2) =>
-        mkBox((Visualize(v,(c:Stx) => comp(pre1(c),pre2(c))),w._2),get,out)
       case _ => throw new RuntimeException("case not covered...")
     }
 
