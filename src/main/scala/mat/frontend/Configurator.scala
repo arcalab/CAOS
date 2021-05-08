@@ -14,7 +14,7 @@ trait Configurator[Stx]:
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(Widget[Stx],String)]
   /** Secondary widgets, below the code */
-  val smallWidgets: Iterable[(Widget[Stx],String)]
+  val smallWidgets: Iterable[(Widget[Stx],String)]=Nil
 
 object Configurator:
   sealed trait Widget[Stx]
@@ -30,7 +30,7 @@ object Configurator:
 
   // compare 2 SOSs using branching bisimulation
   def compareBranchBisim[Stx,A<:HasTaus,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
-    compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2,10),Text,pre1,pre2)
+    compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),Text,pre1,pre2)
   def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
     compare[Stx,String,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),Text,pre1,pre2)
 
