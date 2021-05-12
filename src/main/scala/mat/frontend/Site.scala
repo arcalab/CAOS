@@ -28,7 +28,9 @@ object Site:
     descriptionArea.init(leftColumn)
 
     val title = document.getElementById("title")
+    val tootTitle = document.getElementById("tool-title")
     title.textContent = config.name
+    tootTitle.textContent = config.name
 
     // todo make proper example class
     val ex = (for ((n,e) <- config.examples) yield n::e.toString::n::Nil).toSeq
