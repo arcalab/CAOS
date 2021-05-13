@@ -1,4 +1,4 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
 import org.scalajs.dom
 import org.scalajs.dom.{document, html}

@@ -1,4 +1,4 @@
-package mat.sos
+package caos.sos
 
 //import choreo.syntax.Choreo.{Action, In, Out, Tau}
 

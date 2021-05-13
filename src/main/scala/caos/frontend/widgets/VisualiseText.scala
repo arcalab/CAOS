@@ -1,7 +1,7 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
-import mat.frontend.Configurator.Visualize
-import mat.view.{Mermaid, View}
+import caos.frontend.Configurator.Visualize
+import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 

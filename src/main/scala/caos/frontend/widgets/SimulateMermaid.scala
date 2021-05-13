@@ -1,8 +1,8 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
-import mat.frontend.Configurator.Simulate
-import mat.frontend.widgets.{Box, MermaidJS, OutputArea}
-import mat.sos.HasTaus
+import caos.frontend.Configurator.Simulate
+import caos.frontend.widgets.{Box, MermaidJS, OutputArea}
+import caos.sos.HasTaus
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 

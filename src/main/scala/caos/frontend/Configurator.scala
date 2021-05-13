@@ -1,9 +1,9 @@
-package mat.frontend
+package caos.frontend
 
-import mat.frontend.Configurator.Widget
-import mat.sos
-import mat.sos._
-import mat.view.{Text, View}
+import caos.frontend.Configurator.Widget
+import caos.sos
+import caos.sos._
+import caos.view.{Text, View}
 
 trait Configurator[Stx]:
   val name: String

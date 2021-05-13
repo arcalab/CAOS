@@ -1,8 +1,8 @@
-package mat.frontend
+package caos.frontend
 
-import mat.frontend.Configurator.{Simulate, Visualize, Widget}
-import mat.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText}
-import mat.view._
+import caos.frontend.Configurator.{Simulate, Visualize, Widget}
+import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText}
+import caos.view._
 import org.scalajs.dom.{document, html}
 
 import scala.scalajs.js

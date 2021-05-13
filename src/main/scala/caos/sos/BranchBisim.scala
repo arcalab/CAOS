@@ -1,8 +1,8 @@
-package mat.sos
+package caos.sos
 
-import mat.common.Multiset._
-import mat.sos.SOS._
-import mat.sos._
+import caos.common.Multiset._
+import caos.sos.SOS._
+import caos.sos._
 
 
 object BranchBisim :

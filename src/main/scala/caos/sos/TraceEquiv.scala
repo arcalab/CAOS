@@ -1,4 +1,4 @@
-package mat.sos
+package caos.sos
 
 object TraceEquiv:
 

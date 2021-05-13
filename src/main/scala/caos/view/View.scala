@@ -1,4 +1,4 @@
-package mat.view
+package caos.view
 
 /**
  * A `View` is an object that, given an argument, can produce a string that represents it.
@@ -13,8 +13,3 @@ sealed trait View:
 case class Mermaid(code:String) extends View
 case class Text(code:String)    extends View
 case class Html(code:String)    extends View
-
-// sealed trait View(code:String)
-// case class Mermaid(code:String) extends View(code)
-// case class Text(code:String)    extends View(code)
-// case class Html(code:String)    extends View(code)

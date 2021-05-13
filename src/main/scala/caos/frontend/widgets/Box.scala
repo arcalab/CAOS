@@ -1,6 +1,6 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
-import mat.frontend.widgets.{DomElem, DomNode}
+import caos.frontend.widgets.{DomElem, DomNode}
 import Box.Block
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, MouseEvent, html}

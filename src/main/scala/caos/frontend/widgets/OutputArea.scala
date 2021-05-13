@@ -1,4 +1,4 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
 import org.scalajs.dom
 //import org.singlespaced.d3js.Selection

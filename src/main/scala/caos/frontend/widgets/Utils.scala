@@ -1,4 +1,4 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
 object Utils {
   def downloadSvg(element:String): Unit = {

@@ -1,4 +1,4 @@
-package mat.common
+package caos.common
 
 case class Multiset[A](var data: Map[A,Int] = Map()):
   //    protected var data: Map[A,Int] = Map()

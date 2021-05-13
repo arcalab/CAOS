@@ -1,6 +1,6 @@
-package mat.frontend.widgets
+package caos.frontend.widgets
 
-import mat.frontend.widgets.Setable
+import caos.frontend.widgets.Setable
 
 /**
  * Created by guillecledou on 07/05/2021
