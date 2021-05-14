@@ -10,7 +10,7 @@ trait Configurator[Stx]:
   type T = Stx
   val parser: String=>Stx
   def id(c:Stx):Stx = c
-  val examples: Map[String,String] // name -> value
+  val examples: Iterable[(String,String)] // name -> value
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,Widget[Stx])]
   /** Secondary widgets, below the code */
