@@ -33,7 +33,7 @@ object Site:
     tootTitle.textContent = config.name
 
     // todo make proper example class
-    val ex = (for ((n,e) <- config.examples) yield n::e.toString::n::Nil).toSeq
+    val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleBox("Examples",ex,globalReload(),List(code))
 
     val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
@@ -52,17 +52,17 @@ object Site:
    * @tparam Stx Type of the program to process
    * @return a box
    */
-  protected def mkBox[Stx](w: (Widget[Stx], String),get:()=>Stx,out:OutputArea): Box[Unit] =
-    w._1 match {
+  protected def mkBox[Stx](w: (String,Widget[Stx]),get:()=>Stx,out:OutputArea): Box[Unit] =
+    w._2 match {
         //todo: nicer way to achieve this type check?
       case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
-        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._2,out)
-        case _: Text => new VisualiseText(()=>view(pre(get())),w._2,out) //sys.error("Text visualiser not supported")
+        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
+        case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")
         case _: Html => sys.error("HTML visualiser not supported")
       }
       case sim@Simulate(sos, view, pre): Simulate[Stx, _, _] => view(pre(get())) match {
-        case v:Text => new SimulateText(get,sim, w._2, out)
-        case v:Mermaid => new SimulateMermaid(get,sim,w._2,out)
+        case v:Text => new SimulateText(get,sim, w._1, out)
+        case v:Mermaid => new SimulateMermaid(get,sim,w._1,out)
         case _ => throw new RuntimeException("case not covered...")
       }
       case _ => throw new RuntimeException("case not covered...")
@@ -90,7 +90,9 @@ object Site:
       .attr("id", "rightbar")
       .attr("class", "rightside")
 
-  protected def globalReload(): Unit = toReload.foreach(f=>f())
+  protected def globalReload(): Unit =
+    errorArea.clear()
+    toReload.foreach(f=>f())
 
   protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeBox[A] =
     new CodeBox[config.T](config.name,Nil) {
@@ -112,6 +114,6 @@ object Site:
 
       override def reload(): Unit =
         update()
-        out.clear()
+        //out.clear() // now already in globalReload()
         globalReload()
     }

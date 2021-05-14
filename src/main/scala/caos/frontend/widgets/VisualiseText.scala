@@ -49,7 +49,7 @@ class VisualiseText(text:()=>View, name:String, errorBox: OutputArea)
     try {
       val toShow = text().code//view(pre(mermaid()))
       box.text(toShow) //.replace("\n","\\n"))
-    } catch Box.checkExceptions(errorBox)
+    } catch Box.checkExceptions(errorBox,name)
   }
 
 }

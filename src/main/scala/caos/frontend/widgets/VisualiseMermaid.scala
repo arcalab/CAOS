@@ -59,7 +59,7 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
       val diagram = mermaid().code//view(pre(mermaid()))
       val mermaidJs = MermaidJS(diagram,divBox,svgBox)
       scalajs.js.eval(mermaidJs)
-    } catch Box.checkExceptions(errorBox)
+    } catch Box.checkExceptions(errorBox,name)
   }
 
 }

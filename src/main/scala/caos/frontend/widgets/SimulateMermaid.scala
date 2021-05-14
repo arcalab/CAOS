@@ -83,7 +83,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   def initialise():Unit = try {
     val c = simulate.pre(stx())//DSL.pomset(choreography)
     initialiseWith(c,Nil,c::Nil)
-  } catch Box.checkExceptions(errorBox)
+  } catch Box.checkExceptions(errorBox,name)
 
   def initialiseWith(c:St, t:List[Act], s:List[St]):Unit = {
     lastStx = c
@@ -147,7 +147,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     val mermaid = simulate.v(st).code
     val mermaidJs = MermaidJS(mermaid,divBox,svgBox)
     scalajs.js.eval(mermaidJs)
-  } catch Box.checkExceptions(errorBox)
+  } catch Box.checkExceptions(errorBox,name)
 
 }
 

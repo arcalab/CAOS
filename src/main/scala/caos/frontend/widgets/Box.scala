@@ -192,7 +192,7 @@ object Box {
    * @return the function to be placed at a catch point.
    */
   def checkExceptions(errorBox: OutputArea, source:String = ""): PartialFunction[Throwable,Unit] = {
-    val by = if (source.nonEmpty) s" by $source" else source
+    val by = if (source.nonEmpty) s" by '$source''" else source
     val f: PartialFunction[Throwable,Unit] = {
       // type error
       case e: JavaScriptException => {

@@ -73,7 +73,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
   def initialise():Unit = try {
     val c = simulate.pre(stx())//DSL.pomset(choreography)
     initialiseWith(c,Nil,c::Nil)
-  } catch Box.checkExceptions(errorBox)
+  } catch Box.checkExceptions(errorBox,name)
 
   def initialiseWith(c:St, t:List[Act], s:List[St]):Unit = {
     lastStx = c
