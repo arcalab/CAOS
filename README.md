@@ -68,6 +68,12 @@ lazy val rootProject = project.in(file("."))
 
 Note that the scalaVersion of your project should typically match the one of CAOS.
 
+You will also need to add the plugin for ScalaJS by appending to the file `project/plugins.sbt` (create file if it does not exist yet):
+
+```scala
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
+```
+
 # Instantiating CAOS 
 
 CAOS provides an interface (formally a `trait` in Scala) called `Configurator`:
