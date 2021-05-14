@@ -57,7 +57,7 @@ lazy val rootProject = project.in(file("."))
         ...,
         scalaJSUseMainModuleInitializer := true,
         // replace rootProject.Main by the correct path to your Main.scala class
-        Compile / mainClass := Some("rootProject.Main"),
+        Compile / mainClass := Some("my.root.project.Main"),
         Compile / fastLinkJS / scalaJSLinkerOutputDirectory := 
             baseDirectory.value / "lib" / "caos"/ "tool" / "js" / "gen",
         libraryDependencies ++= Seq(
@@ -65,6 +65,8 @@ lazy val rootProject = project.in(file("."))
         )
   ).dependsOn(caos)
 ```
+
+Note that the scalaVersion of your project should typically match the one of CAOS.
 
 # Instantiating CAOS 
 
@@ -80,9 +82,9 @@ trait Configurator[Stx]:
   def id(c:Stx):Stx = c
   val examples: Iterable[(String,Stx)]
   /** Main widgets, on the right hand side of the screen */
-  val widgets: Iterable[(Widget[Stx],String)]
+  val widgets: Iterable[(String,Widget[Stx])]
   /** Secondary widgets, below the code */
-  val smallWidgets: Iterable[(Widget[Stx],String)]=Nil
+  val smallWidgets: Iterable[(String,Widget[Stx])]=Nil
 
 object Configurator:
   sealed trait Widget[Stx]
@@ -105,10 +107,13 @@ for example in a class:
 class ConcreteConfigurator extends Configurator[ConcreteStx]: 
     ...
 ```
-and call from your `Main` class to the `initSite` mehtod in CAOS. 
+A full example can be found, e.g., in the [configurator in Choreo's project](https://github.com/arcalab/choreo/blob/196f751eafb07f26910220085759cc458bd01f07/src/main/scala/choreo/frontend/ChoreoSOSme.scala).
+
+Finally, you need to call from your `Main` class to the `initSite` mehtod in CAOS. 
 
 ```scala 
 // Root Project Main class 
+package my.root.project
 import caos.frontend.Site.initSite
 
 object Main {
@@ -117,3 +122,13 @@ object Main {
   }
 }
 ```
+
+# Compiling CAOS 
+
+In your project you need to run `sbt` to compile using ScalaJS's compiler:
+
+```bash
+sbt fastLinkJS
+```
+
+The resulting web page, already linked to the compiled JavaScript, can be found in `lib/tool/index.html`.
