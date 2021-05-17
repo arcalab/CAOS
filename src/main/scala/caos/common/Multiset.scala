@@ -4,7 +4,7 @@ case class Multiset[A](var data: Map[A,Int] = Map()):
   //    protected var data: Map[A,Int] = Map()
 
   override def toString: String =
-    (for e<-data yield (e._1.toString+",").repeat(e._2))
+    (for e<-data yield (e._1.toString+",") * (e._2))
       .mkString("").dropRight(1)
 
   def isEmpty: Boolean = data.isEmpty
