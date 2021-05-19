@@ -19,7 +19,20 @@ A live website of the generated site by CAOS can be found at
 * Scala building tools ([sbt](https://www.scala-sbt.org)) 
 * Java Runtime Environment ([JRE](https://www.java.com/en/download/))  
 
-# Importing CAOS
+# Using CAOS 
+
+There are currently two ways to start using CAOS: 
+- starting a new project from a template 
+- importing CAOS on an ongoing Scala project 
+
+We explain both approaches below
+
+## Starting a new CAOS project 
+
+To start a new project that uses CAOS we recommend starting from a 
+caos template, following the instructions described [here](https://github.com/arcalab/caos.g8).
+
+## Importing CAOS
 
 We recommend to define CAOS as a git submodule of your own Scala project.
 Under your project folder run the following command. 
@@ -41,7 +54,6 @@ lazy val rootProject = project.in(file("."))
         ...
     )
   )
-
 ```
 you can import and set CAOS by adding the following definitions:
 
@@ -131,10 +143,12 @@ object Main {
 
 # Compiling CAOS 
 
-In your project you need to run `sbt` to compile using ScalaJS's compiler:
+In root project you need to run `sbt` to compile using ScalaJS's compiler:
 
 ```bash
 sbt fastLinkJS
 ```
 
-The resulting web page, already linked to the compiled JavaScript, can be found in `lib/tool/index.html`.
+The resulting web page, already linked to the compiled JavaScript, can be found in 
+`lib/tool/index.html`, if you imported CAOS, or in the select `<tool_path>/index.html`, 
+if you used the CAOS template.
