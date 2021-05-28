@@ -53,8 +53,14 @@ object Site:
    * @return a box
    */
   protected def mkBox[Stx](w: (String,Widget[Stx]),get:()=>Stx,out:OutputArea): Box[Unit] =
-    w._2 match {
+    try w._2 match {
         //todo: nicer way to achieve this type check?
+//      case Visualize(view:Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
+//      case Visualize(view:Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
+//      case Visualize(view:Html,_) =>
+//        out.setValue("HTML visualiser not supported")
+//        sys.error("HTML visualiser not supported")
+
       case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
         case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
         case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")
@@ -66,6 +72,10 @@ object Site:
         case _ => throw new RuntimeException("case not covered...")
       }
       case _ => throw new RuntimeException("case not covered...")
+    } catch {
+      case e: Throwable =>
+        out.error(e.getMessage)
+        throw e
     }
 
   protected def initialiseContainers():Unit =

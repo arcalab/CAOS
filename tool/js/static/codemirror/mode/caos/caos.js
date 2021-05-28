@@ -11,14 +11,14 @@
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("choreo", function(_config, modeConfig) {
+CodeMirror.defineMode("caos", function(_config, modeConfig) {
 
   function switchState(source, setState, f) {
     setState(f);
     return f(source, setState);
   }
 
-  // based om Haskell
+  // based on Haskell -- adapt as needed
 
   // These should all be Unicode extended, as per the Haskell 2010 report
   var smallRE = /[a-z_]/;
