@@ -120,7 +120,7 @@ object Site:
 
       override def get: config.T = config.parser(input)
 
-      override protected val codemirror: String = config.name.toLowerCase()
+      override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
       override def reload(): Unit =
         update()
