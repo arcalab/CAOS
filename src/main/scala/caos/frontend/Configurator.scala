@@ -3,6 +3,7 @@ package caos.frontend
 import caos.frontend.Configurator.Widget
 import caos.sos
 import caos.sos._
+import caos.common.Example
 import caos.view.{Text, View}
 
 trait Configurator[Stx]:
@@ -10,7 +11,7 @@ trait Configurator[Stx]:
   type T = Stx
   val parser: String=>Stx
   def id(c:Stx):Stx = c
-  val examples: Iterable[(String,String)] // name -> value
+  val examples: Iterable[Example] // name -> value
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,Widget[Stx])]
   /** Secondary widgets, below the code */

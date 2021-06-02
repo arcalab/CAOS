@@ -33,8 +33,8 @@ object Site:
     tootTitle.textContent = config.name
 
     // todo make proper example class
-    val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleBox("Examples",ex,globalReload(),List(code))
+    //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
+    val examples = new ExampleBox("Examples",config.examples,globalReload(),code)
 
     val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
     boxes.foreach(b=>b.init(rightColumn,false))
@@ -98,7 +98,7 @@ object Site:
     new CodeBox[config.T](config.name,Nil) {
 
       protected var input: String = config.examples.headOption match
-        case Some(_,c) => c.toString
+        case Some(ex) => ex.example
         case _ => ""
 
       override protected val boxId: String = config.name + "Box"

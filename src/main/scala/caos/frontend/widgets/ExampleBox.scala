@@ -1,16 +1,16 @@
 package caos.frontend.widgets
 
 import caos.frontend.widgets.Setable
+import caos.common.Example
 
 /**
  * Created by guillecledou on 07/05/2021
  */
-
-//todo: create Example class with string fields: name, example, desc, buttonName
 class ExampleBox(title:String
-                 , examples:Seq[List[String]]
+                 , examples:Iterable[Example] //Seq[List[String]]
                  , reload: => Unit
-                 , toSet: List[Setable[String]])
+                 , setableExample:Setable[String]
+                 , setableDescription:Option[Setable[String]]=None)
   extends Box[Unit](title, Nil) {
 
 
@@ -30,7 +30,7 @@ class ExampleBox(title:String
     buttonsDiv
       .style("display:block; padding:2pt")
 
-    for (ops <- examples ) yield genButton(ops,buttonsDiv)
+    for (ex <- examples ) yield genButton(ex,buttonsDiv)
   }
 
 
@@ -41,29 +41,25 @@ class ExampleBox(title:String
    */
   override def update(): Unit = ()
 
-  protected def genButton(ss:List[String],buttonsDiv:Block): Unit = {
-    ss match {
-      case hd::tl =>
-        val button = buttonsDiv.append("button")
-          .textEl(hd)
-
-        button.on("click", () => {
-          toSet.zip(tl).foreach(pair => pair._1.setValue(pair._2))
-          toSet.drop(tl.size).foreach(_.setValue(""))
-          reload
-        })
-      case Nil =>
-    }
+  protected def genButton(ex:Example,buttonsDiv:Block): Unit = {
+    val button = buttonsDiv.append("button").textEl(ex.name)
+    button.on("click",() => {
+      setableExample.setValue(ex.example)
+      for sd <- setableDescription yield
+        sd.setValue(ex.description)
+      reload
+    })
   }
 
   /** Applies a button, if it exists.
    * @param button name of the button to be applied
    */
   def loadButton(button:String): Boolean = {
-    examples.find(l=>l.headOption.getOrElse(false) == button) match {
-      case Some(_::fields) =>
-        toSet.zip(fields).foreach(pair => pair._1.setValue(pair._2))
-        toSet.drop(fields.size).foreach(_.setValue(""))
+    examples.find(ex=>ex.name == button) match {
+      case Some(ex) =>
+        setableExample.setValue(ex.example)
+        for sd <- setableDescription yield
+          sd.setValue(ex.description)
         reload
         true
       case _ => false
