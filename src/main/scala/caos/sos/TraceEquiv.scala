@@ -2,6 +2,8 @@ package caos.sos
 
 object TraceEquiv:
 
+  /** Checks if the traces of `s1` and `s2` are the same,
+   * ignoring taus when `A` implements `HasTaus`. */
   def apply[A,S1,S2](s1:S1,s2:S2, sos1:SOS[A,S1], sos2:SOS[A,S2]) =
     pp(findTraceEq(Set(s1),Set(s2),"",10000)(using sos1,sos2))
   //  case class TEvid[A,B](t1:A,t2:B)
@@ -18,14 +20,19 @@ object TraceEquiv:
 
     val n1 = toMap(s1.flatMap(sos1.next))
     val n2 = toMap(s2.flatMap(sos2.next))
-    if n1.keySet!=n2.keySet then
-      Some(Some(s"after [$done] options differ: [${n1.keySet.mkString(",")}] vs. [${n2.keySet.mkString(",")}]"))
+    val n1v = n1.keySet.filter(visible)
+    val n2v = n2.keySet.filter(visible)
+    if n1v!=n2v then
+      Some(Some(s"after [$done] options differ - [${n1v.mkString(",")}] vs. [${n2v.mkString(",")}]"))
     else
       for a<-n1.keys do
         val res = findTraceEq(n1(a),n2(a),done+"."+a, maxActions-1)
         if res!=Some(None) then return res
       Some(None)
 
+  private def visible[A](a:A) = a match
+    case at: HasTaus if at.isTau => false
+    case _ => true
 
   private def toMap[A,B](set: Set[(A,B)]): Map[A,Set[B]] = set.headOption match
     case None => Map()
