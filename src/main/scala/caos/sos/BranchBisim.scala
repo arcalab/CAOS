@@ -54,7 +54,7 @@ object BranchBisim :
                                   i:Int) // to count how many runs
                                  (using gs:SOS[A,G],ls:SOS[A,L],stopAt:Int)
   : BResult[A,G,L] =
-    //    println(s"[Sim] $visited  --  $missing")
+    // println(s"[Sim] $visited  --  $missing")
     if i >= stopAt /*5000/800000*/ then
       return Left(BEvid(Set(List("timeout",s"visited: $visited",s"missing: $missing")),triedHash,i))
     missing.headOption match

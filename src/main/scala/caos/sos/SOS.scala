@@ -20,7 +20,9 @@ object SOS:
   // auxiliary functions //
   /////////////////////////
 
-  /** All (a,s'') such that: s -tau->* s' -a-> s''  */
+  /** All (a,s',Some(s_prev)) such that: s -tau-> ... -tau-> s_prev -a-> s',
+   *  or all (a,s',None) such that s -tau-> s'
+   */
   def nextWeak[A<:HasTaus,S](sos:SOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
     (for (a,s2)<-sos.next(s) yield
   a match
@@ -63,5 +65,15 @@ object SOS:
       done ++= next2
       next ++= next2
     done
+
+  /** Replace `next` by the weak version, possibly precedded by taus but NOT being a tau. */
+  def postponeTaus[A<:HasTaus,S](sos:SOS[A,S]): SOS[A,S] =
+    new SOS[A,S]:
+      override def next(s: S): Set[(A, S)] =
+        for (a2,s2,_) <- SOS.nextWeak(sos,s)
+        yield (a2,s2)
+      override def accepting(s: S): Boolean =
+        sos.accepting(s)
+
           
 

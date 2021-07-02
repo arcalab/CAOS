@@ -109,7 +109,14 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
 
   def updateEnabledActions(c: St):Unit = {
     showTrace()
+    showTerminal(c)
     showEnabled(c)
+  }
+
+  def showTerminal(from:St):Unit = {
+    if simulate.sos.accepting(from)
+    then top.append("p").append("span")
+      .style("font-weight:bold;").textEl("- Terminal -")
   }
 
   def showTrace():Unit = {

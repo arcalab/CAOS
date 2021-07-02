@@ -99,6 +99,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
 
   def updateEnabledActions(c: St):Unit = {
     showTrace()
+    showTerminal(c)
     showEnabled(c)
   }
 
@@ -107,6 +108,12 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
     top.append("span").style("font-weight:bold;").textEl("Trace:")
       .append("span").style("font-weight:normal")
       .text(s""" ${traceActs.mkString(", ")}""")
+  }
+
+  def showTerminal(from:St):Unit = {
+    if simulate.sos.accepting(from)
+    then top.append("p").append("span")
+            .style("font-weight:bold;").textEl("- Terminal -")
   }
 
   def showEnabled(from:St):Unit = {
