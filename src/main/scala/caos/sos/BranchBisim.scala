@@ -65,7 +65,7 @@ object BranchBisim :
       case Some(ab,t) if visited contains ab =>
         findWBisim2Aux(visited,missing-ab,triedHash,history,i)
 
-      // Fail: not equally accepting
+      // Fail: not equally accepting // todo: FIX: allow taus until it is accepting
       case Some(((g:G,l:L),t)) if gs.accepting(g) != ls.accepting(l) =>
         if gs.accepting(g) then
           Left(BEvid(Set(List(s"after ${if t.isEmpty then "[]" else t.reverse.mkString(",")}",s"$g is accepting",s"$l is not")),triedHash,i)) else
