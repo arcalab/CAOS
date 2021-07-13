@@ -1,8 +1,9 @@
 package caos.frontend
 
-import caos.frontend.Configurator.{Simulate, Visualize, Widget}
-import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText}
+import caos.frontend.Configurator.{Simulate, Visualize, Widget,VisualizeOpt}
+import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText,VisualiseOptMermaid}
 import caos.view._
+import caos.view.OptionView._
 import org.scalajs.dom.{document, html}
 
 import scala.scalajs.js
@@ -32,7 +33,7 @@ object Site:
     title.textContent = config.name
     tootTitle.textContent = config.name
 
-    // todo make proper example class
+
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleBox("Examples",config.examples,globalReload(),code)
 
@@ -65,6 +66,10 @@ object Site:
         case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
         case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")
         case _: Html => sys.error("HTML visualiser not supported")
+      }
+      case VisualizeOpt(view, pre): VisualizeOpt[Stx, _] => view(pre(get())) match {
+        case v:OptMermaid => new VisualiseOptMermaid(()=>view(pre(get())),w._1,out)
+        case _ => throw new RuntimeException("case not covered...")
       }
       case sim@Simulate(sos, view, pre): Simulate[Stx, _, _] => view(pre(get())) match {
         case v:Text => new SimulateText(get,sim, w._1, out)

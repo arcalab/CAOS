@@ -17,11 +17,11 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
   extends Box[Unit](name, List()) {
 
   val diagram:String = ""
-  private var box:Block = _
+  protected var box:Block = _
   protected val svgBox = fix(name) + "Svg"
   protected val divBox = fix(name) + "Box"
 
-  private def fix(s:String) = s
+  protected def fix(s:String) = s
     .replace(' ','_')
     .replace('(','_')
     .replace(')','_')

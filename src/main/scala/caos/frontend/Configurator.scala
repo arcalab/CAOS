@@ -5,6 +5,7 @@ import caos.sos
 import caos.sos._
 import caos.common.Example
 import caos.view.{Text, View}
+import caos.view.OptionView
 
 trait Configurator[Stx]:
   val name: String
@@ -37,3 +38,7 @@ object Configurator:
 
 //  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =
 //    Visualize(v, stx => p.allProj(pre(stx)))
+
+  // experiment
+  case class VisualizeOpt[Stx,S](v:S=>OptionView,pre:Stx=>S)
+    extends Widget[Stx]

@@ -13,3 +13,4 @@ sealed trait View:
 case class Mermaid(code:String) extends View
 case class Text(code:String)    extends View
 case class Html(code:String)    extends View
+
