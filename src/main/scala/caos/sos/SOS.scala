@@ -10,6 +10,13 @@ trait SOS[Act,State]:
 trait HasTaus:
   val isTau: Boolean
 
+//// experiment: SOS with ints
+//object ISOS extends SOS[Int,Int]:
+//  def next(s:Int): Set[(Int,Int)] =
+//    if s>6 then Set()
+//    else (for i <- 1 to 3 yield (i,s+i)).toSet
+//  def accepting(s:Int): Boolean = s>6
+
 //trait WSOS[Act<:HasTaus,State] extends SOS[Act,State]:
 //  def nextWeak(s:State): Set[(Act,State,Option[State])] =
 //    SOS.nextWeak(this,s,None)
@@ -23,12 +30,12 @@ object SOS:
   /** All (a,s',Some(s_prev)) such that: s -tau-> ... -tau-> s_prev -a-> s',
    *  or all (a,s',None) such that s -tau-> s'
    */
-  def nextWeak[A<:HasTaus,S](sos:SOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
+  def nextWeak[A,S](sos:SOS[A,S], s:S, last:Option[S]=None): Set[(A,S,Option[S])] =
     (for (a,s2)<-sos.next(s) yield
-  a match
-    case x if x.isTau => nextWeak(sos,s2,Some(s2))
-    case x => Set((x,s2,last))
-  ).flatten
+      a match
+        case x:HasTaus if x.isTau => nextWeak(sos,s2,Some(s2))
+        case x => Set((x,s2,last))
+    ).flatten
 
   def byTau[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
     (for (a,s2)<-sos.next(s) yield

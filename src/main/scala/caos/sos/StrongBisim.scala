@@ -4,13 +4,15 @@ import caos.common.Multiset._
 import caos.sos.SOS._
 import caos.sos._
 
+/** Strong bisimulation.
+ * Built based on simplifications of BranchBisim.
+ * In the future it could extend BranchBisim. */
+object StrongBisim extends Bisimulation:
+  ///////////////////////////
+  /// Strong bisimulation ///
+  ///////////////////////////
 
-object BranchBisim extends Bisimulation:
-  //////////////////////////////
-  /// Branching bisimulation ///
-  //////////////////////////////
-
-/** Find a branching bisimulation. */
+  /** Find a strong bisimulation. */
   def findBisim[A,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L],stopAt:Int=5000): BResult[A,G,L] =
     findWBisim2Aux(Map(),Map((g,l)->Nil),Set(),Nil,1)
 
@@ -33,7 +35,7 @@ object BranchBisim extends Bisimulation:
       case Some(ab,t) if visited contains ab =>
         findWBisim2Aux(visited,missing-ab,triedHash,history,i)
 
-      // Fail: not equally accepting // FIXME: allow taus until it is accepting (ok if no taus)
+      // Fail: not equally accepting
       case Some(((g:G,l:L),t)) if gs.accepting(g) != ls.accepting(l) =>
         if gs.accepting(g) then
           Left(BEvid(Set(List(s"after ${if t.isEmpty then "[]" else t.reverse.mkString(",")}",s"$g is accepting",s"$l is not")),triedHash,i)) else
@@ -119,18 +121,13 @@ object BranchBisim extends Bisimulation:
     // for every g--a->g2
     for (a,g2)<- gs.next(g) do
     //      println(s"\n### doing $a\n[Sim] G $g ")
-      if isTau(a) then more = add(more,g2,l,t) //a::t)
-      else
         // find matching l--a1->* s2
-        val tr = nextWeak(ls,l) //SOS.nextWeak(ls,l)
+        val tr = ls.next(l) //SOS.nextWeak(ls,l)
         ///// more = set([])
-        val mbMatch = for (a2,l2,l3opt)<-tr if a==a2
-          yield l3opt match
+        val mbMatch = for (a2,l2)<-tr if a==a2
+          yield
             // found l--a->l2 to match g--a->g2
-            case None => one(g2,l2,a::t)
-            // found l--tau+->l3--a->l2
-            case Some(l3) => and( one(g,l3,t) , one(g2,l2,a::t) )
-                             //and( one(g,l3,Tau::t) , one(g2,l2,a::Tau::t) )
+            one(g2,l2,a::t)
         if mbMatch.isEmpty then
         //              println(s"[Sim] L $l FAILS")
           return Left(List(s"after ${if t.isEmpty then "[]" else t.reverse.mkString(",")}",
@@ -143,39 +140,6 @@ object BranchBisim extends Bisimulation:
       //            m => m.toList.map(x=>s" - ${x._2} -> ${x._1._1} <-> ${x._1._2} )").mkString("\n")).mkString("\n-----\n"))
       //            println(s"[B] new mbMatch: $mbMatch")
     Right(more)
-
-  private def isTau[A](a:A): Boolean =
-    a match
-      case at: HasTaus => at.isTau
-      case _ => false
-
-  private def nextWeak[A,S](sos:SOS[A,S], s:S): Set[(A,S,Option[S])] =
-    SOS.nextWeak(sos, s)
-
-  //  private def nextWeak[A,S](sos:SOS[A,S], s:S): Set[(A,S,Option[S])] =
-//    type AT <: A & HasTaus
-//    sos match
-//      case sosW:SOS[AT,S]  => SOS.nextWeak[AT,S](sosW,s)
-//      case _ => sos.next(s).map(x => (x._1,x._2,None))
-
-  // terrible, but I found no work around the try-catch
-//  private def nextWeak[A,S](sos:SOS[A,S], s:S): Set[(A,S,Option[S])] =
-//    try
-//      //if isSubty
-//      type AT <: A & HasTaus
-//      val sosW = sos.asInstanceOf[SOS[AT, S]]
-//      SOS.nextWeak[AT, S](sosW, s).map(x=> (x._1,x._2,x._3))
-//    catch case e: ClassCastException =>
-//      sos.next(s).map(x => (x._1,x._2,None))
-
-//  private def nextWeak[A,S](sos:SOS[A,S], s:S): Set[(A,S,Option[S])] =
-//    type AT <: A & HasTaus
-//    if sos.isInstanceOf[SOS[AT,S]]
-//    then
-//      val sosW = sos.asInstanceOf[SOS[AT, S]]
-//      SOS.nextWeak[AT, S](sosW, s).map(x=> (x._1,x._2,x._3))
-//    else
-//      sos.next(s).map(x => (x._1,x._2,None))
 
 
 
