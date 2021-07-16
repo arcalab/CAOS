@@ -22,6 +22,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
     .replace(' ','_')
     .replace('(','_')
     .replace(')','_')
+    .replace(':','_')
 
   override val get: Unit = () //mermaid()
 
@@ -63,7 +64,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       val mbox = box.append("div")
         .style("text-align","center")
       mbox.append("h4")
-        .text(s"${namefix}")
+        .text(s"${name}")
       mbox.append("div")
         .attr("class","mermaid")
         .attr("id", divBox+namefix)
