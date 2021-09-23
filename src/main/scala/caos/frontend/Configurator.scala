@@ -2,10 +2,9 @@ package caos.frontend
 
 import caos.frontend.Configurator.Widget
 import caos.sos
-import caos.sos._
+import caos.sos.*
 import caos.common.Example
-import caos.view.{Text, View}
-import caos.view.OptionView
+import caos.view.{OptionView, Text, View, ViewType}
 
 trait Configurator[Stx]:
   val name: String
@@ -20,25 +19,25 @@ trait Configurator[Stx]:
 
 object Configurator:
   sealed trait Widget[Stx]
-  case class Visualize[Stx,S](v:S=>View,pre:Stx=>S)
+  case class Visualize[Stx,S](v:S=>View, typ:ViewType, pre:Stx=>S)
     extends Widget[Stx]
-  case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,pre:Stx=>S)
+  case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,typ:ViewType,pre:Stx=>S)
     extends Widget[Stx]
 //  case class Compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, pre1:Stx=>S1, pre2:Stx=>S2)
 //    extends Widget[Stx]
 
-  def compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, pre1:Stx=>S1, pre2:Stx=>S2) =
-    Visualize[Stx,R](v,(c:Stx) => comp(pre1(c),pre2(c)))
+  def compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2) =
+    Visualize[Stx,R](v,t,(c:Stx) => comp(pre1(c),pre2(c)))
 
   // compare 2 SOSs using branching bisimulation
   def compareBranchBisim[Stx,A<:HasTaus,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
-    compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),Text.apply,pre1,pre2)
+    compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),View.apply,Text,pre1,pre2)
   def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
-    compare[Stx,String,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),Text.apply,pre1,pre2)
+    compare[Stx,String,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),View.apply,Text,pre1,pre2)
 
 //  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =
 //    Visualize(v, stx => p.allProj(pre(stx)))
 
   // experiment
-  case class VisualizeOpt[Stx,S](v:S=>OptionView,pre:Stx=>S)
+  case class VisualizeOpt[Stx,S](v:S=>OptionView,t:ViewType,pre:Stx=>S)
     extends Widget[Stx]

@@ -7,10 +7,20 @@ package caos.view
  *
  * @tparam A is the type of the argument that can be viewed as a String.
  */
-sealed trait View:
-  val code:String
+case class View(code: String)
+// viewtype cannot be hardcoded in the type, since it can be lost by erasure.
 
-case class Mermaid(code:String) extends View
-case class Text(code:String)    extends View
-case class Html(code:String)    extends View
+//sealed trait View:
+//  val code:String
+
+//case class Mermaid(code:String) extends View
+//case class Text(code:String)    extends View
+//case class Html(code:String)    extends View
+
+sealed abstract class ViewType
+case object Mermaid extends ViewType
+case object Text    extends ViewType
+case object Html    extends ViewType
+
+
 

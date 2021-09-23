@@ -279,11 +279,12 @@
 .rightside{
     float: right;
     width: 75%;
-    padding-left: 15px;
+    padding-left: 7px;
 }
 .leftside{
     width:25%;
     float: left;
+    padding-right: 7px;
     overflow-y: hidden;
 }
 
@@ -293,7 +294,7 @@
     height: 100%;
     float: right;
     width: 15px;
-    position: absolute;
+    position: fixed;
     cursor: col-resize;
     margin-left: 25%;
 }
@@ -302,7 +303,7 @@
     height: 100%;
     background-color:#000;
     opacity:0.5;
-    position:absolute;
+    position:fixed;
     cursor: col-resize;
     z-index:999}
 
