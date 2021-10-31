@@ -2,7 +2,8 @@
 //var id = "";
 var dragging = false;
 
-$('#dragbar').css("margin-left", (window.innerWidth*0.25-7) + "px");
+// $('#dragbar').css("margin-left", (window.innerWidth*0.25-7) + "px");
+$('#dragbar').css("margin-left", (25-((4/window.innerWidth)*100)) + "%");
 
 $('#dragbar').mousedown(function(e){
     e.preventDefault();
@@ -24,14 +25,15 @@ $('#dragbar').mousedown(function(e){
 $(document).mouseup(function(e){
     if (dragging)
     {
-        //var percentage = ((e.pageX-2) / window.innerWidth) * 100;
         var percentage = ((e.pageX-2) / window.innerWidth) * 100;
+        var percentagec = ((e.pageX-5) / window.innerWidth) * 100;
         var mainPercentage = 100-percentage;
         // $('#console').text("side:" + percentage + " main:" + mainPercentage);
 
         $('#leftbar').css("width",percentage + "%");
         $('#rightbar').css("width",mainPercentage + "%");
-        $('#dragbar').css("margin-left",e.pageX-9 + "px");//(percentageDB) + "%");
+        $('#dragbar').css("margin-left", percentagec + "%");
+                                    //e.pageX-9 + "px");//(percentageDB) + "%");
         $('#ghostbar').remove();
         $(document).unbind('mousemove');
         dragging = false;

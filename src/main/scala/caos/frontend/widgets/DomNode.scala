@@ -62,6 +62,17 @@ class DomElem(elem: dom.Element) extends DomNode(elem) {
     elem.addEventListener(`type`, {(_:dom.Event) => f()})
   }
 
+  // does not seem to work
+  def deleteChildren: DomElem = {
+    val ns = elem.childNodes
+    for (i <- 0 to ns.length) {
+      val node: dom.Node = ns(i)
+      elem.removeChild(node)
+    }
+    this
+  }
+
+  // does not seem to work
   def deleteAll(el:String): DomElem = {
     val ls = elem.querySelectorAll(el)
     for (i <- 0 until ls.length) {

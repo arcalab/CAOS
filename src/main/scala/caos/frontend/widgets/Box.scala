@@ -65,8 +65,15 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
         .style("float","right")
         .style("margin-top","-15.5pt")
         .style("max-height","18pt")
-        .style("margin-left","2pt")
+        .style("margin-left","0pt")
         .style("display","flex")
+        .style("border", "none")
+        .style("background-image", "none")
+        .style("text-shadow", "none")
+        .style("box-shadow", "none")
+        .style("background-color", "transparent")
+        .style("padding", "5px 6px 5px 4px")
+
       if (name==Right("help")) button
         .style("margin-left","-2pt")
         .style("border", "none")
@@ -91,6 +98,8 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
         val b = button.append("span")
         b.style("line-height","9pt")
         b.html(str)
+      case Right("upload") =>
+        Box.uploadSvg(button)
       case Right("download") =>
         Box.downloadSvg(button)
       //        val svg = button.append("img")
@@ -169,7 +178,7 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
 object Box {
   type Block = DomElem //Selection[dom.EventTarget]
 
-  def downloadSvg(block: Block): Unit = {
+  def downloadSvgOld(block: Block): Unit = {
     val svg = block.append("svg")
       .attr("xmlns","http://www.w3.org/2000/svg")
       .attr("width","20")
@@ -183,8 +192,40 @@ object Box {
       .attr("fill","none")
     svg.append("path")
       .attr("d","M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z")
-
   }
+
+  def downloadSvg(block: Block): Unit = {
+    val svg = block.append("svg")
+      .attr("xmlns","http://www.w3.org/2000/svg")
+      .attr("width","20")
+      .attr("height","20")
+      .attr("viewBox","0 0 24 24")
+      .attr("class", "svgIcon")
+    svg.style("margin","-3pt -2pt 0pt")
+    //svg.style("fill","#505050")
+    svg.append("path")
+      .attr("d","M0 0h24v24H0z")
+      .attr("fill","none")
+    svg.append("path")
+      .attr("d","M 11 2 C 10.448 2 10 2.448 10 3 L 10 11 L 6 11 L 12 17 L 18 11 L 14 11 L 14 3 C 14 2.448 13.552 2 13 2 L 11 2 z M 2 20 L 2 22 L 22 22 L 22 20 L 2 20 z")
+  }
+
+  def uploadSvg(block: Block): Unit = {
+    val svg = block.append("svg")
+      .attr("xmlns","http://www.w3.org/2000/svg")
+      .attr("width","20")
+      .attr("height","20")
+      .attr("viewBox","0 0 24 24")
+      .attr("class", "svgIcon")
+    svg.style("margin","-3pt -2pt 0pt")
+    //svg.style("fill","#505050")
+    svg.append("path")
+      .attr("d","M0 0h24v24H0z")
+      .attr("fill","none")
+    svg.append("path")
+      .attr("d","M 12 2 A 1 1 0 0 0 11.292969 2.2949219 L 6.1601562 7.1347656 A 0.5 0.5 0 0 0 6.1484375 7.1445312 L 6.1464844 7.1464844 A 0.5 0.5 0 0 0 6 7.5 A 0.5 0.5 0 0 0 6.5 8 L 10 8 L 10 16 C 10 16.552 10.448 17 11 17 L 12 17 L 13 17 C 13.552 17 14 16.552 14 16 L 14 8 L 17.5 8 A 0.5 0.5 0 0 0 18 7.5 A 0.5 0.5 0 0 0 17.853516 7.1464844 L 17.822266 7.1171875 L 12.716797 2.3027344 A 1 1 0 0 0 12.683594 2.2714844 A 1 1 0 0 0 12 2 z M 3 20 A 1.0001 1.0001 0 1 0 3 22 L 21 22 A 1.0001 1.0001 0 1 0 21 20 L 3 20 z")
+  }
+
 
   /**
    * Default function that catches exceptions and produces an error message based on the type of exception.

@@ -2,6 +2,13 @@ package caos.frontend.widgets
 
 import caos.frontend.widgets.Setable
 import caos.common.Example
+import org.scalajs.dom
+import org.scalajs.dom.{DOMException, Event, FileReader, UIEvent}
+//import org.w3c.dom.DOMError
+
+//import scala.concurrent.{Future, Promise}
+import scala.scalajs.js
+import scala.scalajs.js.annotation.JSExportTopLevel
 
 /**
  * Created by guillecledou on 07/05/2021
@@ -23,9 +30,52 @@ class ExampleBox(title:String
    * @param visible is true when this box is initially visible (i.e., expanded).
    */
   override def init(div: Block, visible: Boolean): Unit = {
-    val buttonsDiv = super.panelBox(div,visible).append("div")
+    val buttonsDiv = super.panelBox(div,visible,buttons=buttons).append("div")
       .attr("id", "buttons")
       .attr("style","padding: 2pt;")
+
+//    val inp = buttonsDiv.append("input")
+//      .attr("type","file")
+//      .attr("id","file")
+//      .attr("name","files[]")
+//
+//    import concurrent.ExecutionContext.Implicits.global
+//    def printFileContent(file: dom.File) =
+//      readTextFile(file).map {
+//        case Right(fileContent) => println(s"File content: $fileContent")
+//        case Left(error) => println(s"Could not read file ${file.name}. Error: $error")
+//      }
+//
+//    /** In the future, returns either the file's content or an error,
+//    if something went wrong */
+//    def readTextFile(fileToRead: dom.File): Future[Either[DOMException, String]] = {
+//
+//      // Used to create the Future containing either the file content or an error
+//      val promisedErrorOrContent = Promise[Either[DOMException, String]]
+//
+//      val reader = new FileReader()
+//      reader.readAsText(fileToRead, "UTF-8")
+//
+//      reader.onload = (_) => {
+//        val resultAsString = s"${reader.result}"
+//        promisedErrorOrContent.success(Right(resultAsString))
+//      }
+//      reader.onerror = (_: Event) => promisedErrorOrContent.success(Left(reader.error))
+//
+//      promisedErrorOrContent.future
+//    }
+////    val reader = new dom.FileReader()
+////    reader.readAsText(e.currentTarget.files.item(0))
+////    reader.onload(
+////    scalajs.js.eval(
+////      """function startRead(evt) {
+////        |    var file = document.getElementById('file').files[0];
+////        |    if (file) {
+////        |        //  getAsText(file);
+////        |        alert("Name: " + file.name + "\n" + "Last Modified Date :" + file.lastModifiedDate);
+////        |    }
+////        |}""".stripMargin
+////    )
 
     buttonsDiv
       .style("display:block; padding:2pt")
@@ -33,6 +83,24 @@ class ExampleBox(title:String
     for (ex <- examples ) yield genButton(ex,buttonsDiv)
   }
 
+//  @JSExportTopLevel("loadedFile")
+//  def loadedFile(ev: dom.Event): Unit = {
+//    println("File Loaded Successfully");
+//    var fileString = ev.target.toString;
+//    println(fileString);
+////    $$("#op").text(fileString);
+////    appendPar(document.body, "You clicked the button!")
+//  }
+
+  private def buttons = List(
+    Right("upload")-> (
+      () => Utils.uploadTxt() , //Utils.downloadTxt(s"examples: ${examples.map(_.name).mkString(", ")}", "examples.txt"),
+      "Upload Examples"),
+    Right("download")-> (
+      () => Utils.downloadTxt(ExampleBox.examplesToTxt(examples),
+        "examples.txt"),
+      "Download Examples")
+  )
 
   /**
    * Block of code that should read the dependencies and:
@@ -65,5 +133,44 @@ class ExampleBox(title:String
       case _ => false
     }
   }
+
+}
+
+object ExampleBox {
+  def updateExamples(): Unit = {
+    val bt = dom.document.getElementById("buttons")
+    val btt = DomNode(bt)
+//    btt.append()
+  }
+
+  def txtToExamples(str:String): Iterable[Example] = {
+    val list = str.split("module *")
+      for (ex <- list if ex != "") yield {
+        try {
+          val (name, rest) = unfix(ex).span(_ != ':')
+          val rest2 = rest.drop(18) // drop "description"
+          val (desc, rest3) = rest2.span(_ != '\n')
+          val code = rest3.tail
+          Example(code, name, desc)
+        } catch {
+          case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
+        }
+      }
+  }
+
+  def examplesToTxt(examples:Iterable[Example]): String =
+    examples.map(e => s"module ${e.name}:\\n// description: ${
+      fix(e.description)}\\n${fix(e.example)}").mkString("\\n\\n")
+
+  private def fix(s:String): String =
+    s .replaceAll("\\n","\\\\n")
+      .replaceAll("\"","\\\"")
+      .replaceAll("module","mo§ule")
+
+  private def unfix(s:String): String =
+    s .replaceAll("\\\\n","\\n")
+      .replaceAll("\\\"","\"")
+      .replaceAll("mo§ule","module")
+
 
 }

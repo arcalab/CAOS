@@ -293,10 +293,11 @@
     opacity: 0;
     height: 100%;
     float: right;
-    width: 15px;
+    top: 0pt;
+    width: 8px;
     position: fixed;
     cursor: col-resize;
-    margin-left: 25%;
+    /*margin-left: 25%;*/
 }
 #ghostbar{
     width:3px;
@@ -306,6 +307,10 @@
     position:fixed;
     cursor: col-resize;
     z-index:999}
+
+.middlebar:hover{
+    opacity: 0.2;
+}
 
 button {
     margin: 1px;
@@ -330,5 +335,10 @@ button {
   }
   #ghostbar{
     display: none;
+    cursor: auto;
+  }
+  .middlebar:hover{
+    opacity: 0;
+    cursor: auto;
   }
 }

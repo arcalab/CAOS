@@ -1,13 +1,15 @@
 package caos.frontend
 
-import caos.frontend.Configurator.{Simulate, Visualize, Widget,VisualizeOpt}
-import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, VisualiseMermaid, VisualiseText,VisualiseOptMermaid}
-import caos.view._
-import caos.view.OptionView._
-import org.scalajs.dom.{document, html}
+import caos.common.Example
+import caos.frontend.Configurator.{Simulate, Visualize, VisualizeOpt, Widget}
+import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText}
+import caos.view.*
+import caos.view.OptionView.*
+import org.scalajs.dom
+import org.scalajs.dom.{FileReader, document, html}
 
 import scala.scalajs.js
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.annotation.*
 
 object Site:
 
@@ -16,8 +18,10 @@ object Site:
   var errorArea:OutputArea = _
   var descriptionArea: OutputArea = _
   var toReload:List[()=>Unit] = _
+  var lastConfig: Option[Configurator[_]] = None
 
   def initSite[A](config:Configurator[A]):Unit =
+    lastConfig = Some(config)
     initialiseContainers()
 
     errorArea = new OutputArea
@@ -89,9 +93,19 @@ object Site:
         throw e
     }
 
+  protected def cleanContainers():Unit = {
+    //    val contentDiv = DomNode.select("contentWrap")
+    //    contentDiv.deleteChildren
+    val d = document.getElementById("contentWrap")
+    val d_nested = document.getElementById("content")
+    d.removeChild(d_nested)
+  }
+
+
   protected def initialiseContainers():Unit =
     val contentDiv = DomNode.select("contentWrap").append("div")
       .attr("class", "content")
+      .attr("id", "content")
 
     val rowDiv = contentDiv.append("div")
       //      .attr("class", "row")
@@ -105,11 +119,15 @@ object Site:
     leftColumn.append("div")
       .attr("id", "dragbar")
       .attr("class", "middlebar")
+//      .style("margin-left","24%")
 
     rightColumn = rowDiv.append("div")
       //      .attr("class", "col-sm-8")
       .attr("id", "rightbar")
       .attr("class", "rightside")
+
+    Utils.resizeCols
+
 
   protected def globalReload(): Unit =
     errorArea.clear()
@@ -138,3 +156,38 @@ object Site:
         //out.clear() // now already in globalReload()
         globalReload()
     }
+
+//  @JSExportTopLevel("loadedFile")
+//  def loadedFile(ev: dom.UIEvent): Unit = {
+//    println("File Loaded Successfully...");
+//    var fileString = ev.target; // result
+//    println(fileString);
+////    $$("#op").text(fileString);
+////    appendPar(document.body, "You clicked the button!")
+//  }
+
+  @JSExportTopLevel("getFileAsText")
+  def getFileAsText(ev: dom.File): Unit = {
+    val reader = new dom.FileReader()
+    reader.readAsText(ev)
+    reader.onload = (_) => {
+      val resultAsString = reader.result.toString
+      //println("Loaded?")
+      val c2 = lastConfig match {
+        case Some(c:Configurator[_]) =>
+          val c2 = new Configurator[c.T] {
+            override val parser = c.parser
+            override val name: String = c.name
+            override val widgets = c.widgets
+            override val examples: Iterable[Example] =
+              ExampleBox.txtToExamples(resultAsString)
+          }
+          //println("init site again")
+          cleanContainers()
+          initSite(c2)
+        case None =>
+          //println("no config...")
+      }
+      //println(resultAsString)
+    }
+  }
