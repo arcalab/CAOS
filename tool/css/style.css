@@ -99,10 +99,10 @@
     background: -webkit-linear-gradient(0deg, rgba(52,59,34,1) 0%, rgba(180,227,122,1) 100%);
     background: linear-gradient(0deg, rgba(52,59,34,1) 0%, rgba(180,227,122,1) 100%);
 */
-    background: -moz-linear-gradient(to top, rgba(82, 84, 97, 1), rgba(184, 202, 237, 1));
-    background: -webkit-llinear-gradient(to top, rgba(82, 84, 97, 1), rgba(184, 202, 237, 1));
-    background: linear-gradient(to top, rgba(82, 84, 97, 1), rgba(184, 202, 237, 1));
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#343b22",endColorstr="#b4e37a",GradientType=1);
+    background: -moz-linear-gradient(to top, rgba(184, 202, 237, 1), rgba(82, 84, 97, 1));
+    background: -webkit-llinear-gradient(to top, rgba(184, 202, 237, 1), rgba(82, 84, 97, 1));
+    background: linear-gradient(to top, rgba(184, 202, 237, 1), rgba(82, 84, 97, 1));
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#b4e37a",endColorstr="#343b22",GradientType=1);
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
     border-radius: 0px;
     border: 0px;
