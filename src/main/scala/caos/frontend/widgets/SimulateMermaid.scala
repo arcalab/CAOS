@@ -98,14 +98,14 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     if (traceActs.size<=1) initialise()
     else initialiseWith(traceStx.init.last,traceActs.init,traceStx.init)
 
-  protected def takeStep(a:Act,goesTo:St):Unit = {
+  protected def takeStep(a:Act,goesTo:St):Unit = try {
     lastStx = goesTo
     traceStx :+= goesTo
     //if (!a.isTau) traceActs :+=a
     traceActs :+=a // todo: extend SOS[A<:HasTaus,S]
     updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
     updateEnabledActions(goesTo)
-  }
+  } catch Box.checkExceptions(errorBox,name)
 
   def updateEnabledActions(c: St):Unit = {
     showTrace()
