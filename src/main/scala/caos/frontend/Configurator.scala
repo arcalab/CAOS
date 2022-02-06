@@ -23,8 +23,14 @@ object Configurator:
     extends Widget[Stx]
   case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,typ:ViewType,pre:Stx=>S)
     extends Widget[Stx]
-//  case class Compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, pre1:Stx=>S1, pre2:Stx=>S2)
-//    extends Widget[Stx]
+
+
+  // shorthands/helpers
+  def view[Stx](calc:Stx=>String, typ:ViewType) =
+    Visualize[Stx,Stx](x=>View(calc(x)),typ, x=>x)
+  def steps[Stx,A,S](prepare:Stx=>S,sos:SOS[A,S], calc:S=>String, typ:ViewType) =
+    Simulate[Stx,A,S](sos, x=>View(calc(x)), typ, prepare)
+
 
   def compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2) =
     Visualize[Stx,R](v,t,(c:Stx) => comp(pre1(c),pre2(c)))
