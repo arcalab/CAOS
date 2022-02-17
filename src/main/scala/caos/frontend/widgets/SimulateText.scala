@@ -107,7 +107,9 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
     top.text("")
     top.append("span").style("font-weight:bold;").textEl("Trace:")
       .append("span").style("font-weight:normal")
-      .text(s""" ${traceActs.mkString(", ")}""")
+      .html(s""" ${traceActs.map(act=>
+        s"<pre style=\"font-size: 1.2rem; width: fit-content; display: inline-grid; padding: 2.5px;\">${
+          cleanHtml(act.toString)}</pre>").mkString(",")}""")
   }
 
   def showTerminal(from:St):Unit = {
@@ -147,13 +149,20 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
        |</div>""".stripMargin
 
   protected def showStStep(c:St):String =
-    s"""<div style="display:inline;width:100%;text-align:left;">
-       |${simulate.v(c).code}
-       |</div>""".stripMargin
+    s"""<pre style="font-size: 1.2rem; width: fit-content; display: inline-grid; padding: 2.5px; overflow:visible;">
+       |${cleanHtml(simulate.v(c).code)}
+       |</pre>""".stripMargin
+//    s"""<div style="display:inline;width:100%;text-align:left;">
+//       |${simulate.v(c).code}
+//       |</div>""".stripMargin
+
+  private def cleanHtml(str: String): String =
+    str.replaceAll("<","&#60;")
+      .replaceAll(">","&#62;")
 
   protected def showActStep(a:Option[Act]):String = {
     s"""<div style="text-align:left;width:15%;font-weight:bold;">
-       |  ${if (a.isDefined)  s"""${a.get} &#8594;""" else "&#8594;"}
+       |  ${if (a.isDefined)  s"""${cleanHtml(a.get.toString)} &#8594;""" else "&#8594;"}
        |</div>""".stripMargin
   }
 
