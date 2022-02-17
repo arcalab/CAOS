@@ -23,7 +23,8 @@ object Configurator:
     extends Widget[Stx]
   case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,typ:ViewType,pre:Stx=>S)
     extends Widget[Stx]
-
+  case class VisualizeTab[Stx,S](v:S=>List[View],typ:ViewType,t:S=>List[String],pre:Stx=>S)
+    extends Widget[Stx]
 
   // shorthands/helpers
   def view[Stx](calc:Stx=>String, typ:ViewType) =
