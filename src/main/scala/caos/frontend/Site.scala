@@ -45,7 +45,7 @@ object Site:
     boxes.foreach(b=>b.init(rightColumn,false))
 
     val smallBoxes = List(examples)//++config.smallWidgets.map(w=>mkBox(w,()=>code.get,errrorArea)
-    smallBoxes.foreach(b=>b.init(leftColumn,false))
+    smallBoxes.foreach(b=>b.init(leftColumn,true))
 
     toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update()).toList
 
