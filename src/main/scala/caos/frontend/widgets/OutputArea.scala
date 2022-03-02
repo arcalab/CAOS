@@ -28,7 +28,7 @@ class OutputArea extends Setable[String]:
     clear()
     if (msg.nonEmpty) {
       val out = outputs.append("div").attr("class", "alert alert-warning")
-      for (s <- msg.split('\n'))
+      for (s <- msg.split("\n\n"))
         out.append("p").attr("style", "margin-top: 0px;").html(s)
     }}
 
