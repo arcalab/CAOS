@@ -30,12 +30,11 @@ object Site:
 
     code.init(leftColumn,true)
     errorArea.init(leftColumn)
-    descriptionArea.init(leftColumn)
 
     val title = document.getElementById("title")
-    val tootTitle = document.getElementById("tool-title")
+    val toolTitle = document.getElementById("tool-title")
     title.textContent = config.name
-    tootTitle.textContent = config.name
+    toolTitle.textContent = config.name
 
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
@@ -46,6 +45,12 @@ object Site:
 
     val smallBoxes = List(examples)//++config.smallWidgets.map(w=>mkBox(w,()=>code.get,errrorArea)
     smallBoxes.foreach(b=>b.init(leftColumn,true))
+
+    descriptionArea.init(leftColumn) // after the examples
+
+    config.examples.headOption match
+      case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
+      case _ =>
 
     toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update()).toList
 
