@@ -8,6 +8,7 @@ import caos.view.{OptionView, Text, View, ViewType}
 
 trait Configurator[Stx]:
   val name: String
+  val languageName: String = name // override to rename the input widget
   type T = Stx
   val parser: String=>Stx
   def id(c:Stx):Stx = c

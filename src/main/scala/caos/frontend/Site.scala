@@ -135,7 +135,7 @@ object Site:
     toReload.foreach(f=>f())
 
   protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeBox[A] =
-    new CodeBox[config.T](config.name,Nil) {
+    new CodeBox[config.T](config.languageName,Nil) {
 
       protected var input: String = config.examples.headOption match
         case Some(ex) => ex.example
@@ -179,6 +179,7 @@ object Site:
           val c2 = new Configurator[c.T] {
             override val parser = c.parser
             override val name: String = c.name
+            override val languageName: String = c.languageName
             override val widgets = c.widgets
             override val examples: Iterable[Example] =
               ExampleBox.txtToExamples(resultAsString)
