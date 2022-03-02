@@ -39,7 +39,7 @@ object Site:
 
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleBox("Examples",config.examples,globalReload(),code)
+    val examples = new ExampleBox("Examples",config.examples,globalReload(),code,Some(descriptionArea))
 
     val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
     boxes.foreach(b=>b.init(rightColumn,false))
