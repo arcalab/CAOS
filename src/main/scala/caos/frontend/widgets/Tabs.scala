@@ -58,7 +58,7 @@ case class Tabs(
             .attr("class",if i==0 then "active" else "")
             .append("a")
             .attr("data-toggle","tab")
-            .attr("href",s"#tab$i")
+            .attr("href",s"#tab${i+Tabs.index}")
             .text(titles(i))
         )
         val tabContent = box.append("div")
@@ -66,9 +66,14 @@ case class Tabs(
         val toShow =
           for (tabView,i) <- views.zipWithIndex yield
             val tab = tabContent.append("div")
-              .attr("id",s"tab$i")
+              .attr("id",s"tab${i+Tabs.index}")
               .attr("class","tab-pane fade" ++ (if i==0 then "in active" else ""))
             tab.append("pre").text(tabView.code)
+        Tabs.index += views.size
       } catch Box.checkExceptions(errorBox,name)
     }
   }
+
+object Tabs {
+  private var index = 0
+}

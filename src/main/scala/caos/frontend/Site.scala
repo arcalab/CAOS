@@ -158,6 +158,7 @@ object Site:
       override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
       override def reload(): Unit =
+        descriptionArea.clear()
         update()
         //out.clear() // now already in globalReload()
         globalReload()

@@ -42,6 +42,10 @@
     /*border: 1px solid lightgray;*/
 }
 
+.language-scala {
+    font-size: 1.1rem;
+}
+
 .full {
     width: 100%;
     height: 100%;
