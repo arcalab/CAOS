@@ -9,7 +9,7 @@ import org.scalajs.dom.{MouseEvent, html}
 import scala.runtime.Nothing$
 
 /**
- * Created by guillecledou on 02/11/2020
+ * Created by   on 02/11/2020
  */
 
 

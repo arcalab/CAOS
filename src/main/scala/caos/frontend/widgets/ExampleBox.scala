@@ -11,7 +11,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 /**
- * Created by guillecledou on 07/05/2021
+ * Created by   on 07/05/2021
  */
 class ExampleBox(title:String
                  , examples:Iterable[Example] //Seq[List[String]]
