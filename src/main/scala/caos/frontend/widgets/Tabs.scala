@@ -68,7 +68,10 @@ case class Tabs(
             val tab = tabContent.append("div")
               .attr("id",s"tab${i+Tabs.index}")
               .attr("class","tab-pane fade" ++ (if i==0 then "in active" else ""))
-            tab.append("pre").text(tabView.code)
+            tab.append("pre")
+              .append("code")
+              .attr("class","language-scala")
+              .text(tabView.code)
         Tabs.index += views.size
       } catch Box.checkExceptions(errorBox,name)
     }
