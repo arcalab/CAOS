@@ -1,8 +1,8 @@
 package caos.frontend
 
 import caos.common.Example
-import caos.frontend.Configurator.{Simulate, Visualize, VisualizeOpt, VisualizeTab, Widget}
-import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText}
+import caos.frontend.Configurator.{Simulate, Visualize, VisualizeOpt, VisualizeTab, VisualizeWarning, Widget}
+import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning}
 import caos.view.*
 import caos.view.OptionView.*
 import org.scalajs.dom
@@ -78,6 +78,8 @@ object Site:
         sys.error("HTML visualiser not supported")
       case VisualizeTab(views,Text,titles,pre) =>
         new Tabs(()=>views(pre(get())),w._1,()=>titles(pre(get())),out)
+      case VisualizeWarning(view, Text, pre) => 
+        new VisualiseWarning(()=>view(pre(get())),w._1,out)  
 //      case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
 //        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
 //        case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")

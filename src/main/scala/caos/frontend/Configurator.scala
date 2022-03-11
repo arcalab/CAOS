@@ -27,6 +27,8 @@ object Configurator:
     extends Widget[Stx]
   case class VisualizeTab[Stx,S](v:S=>List[View],typ:ViewType,t:S=>List[String],pre:Stx=>S)
     extends Widget[Stx]
+  case class VisualizeWarning[Stx,S](v:S=>View, typ:ViewType, pre:Stx=>S)
+    extends Widget[Stx]
 
   // shorthands/helpers
   /** Generates a Visualize widget */
@@ -41,6 +43,9 @@ object Configurator:
   /** Generates a VisualizeOpt widget */
   def viewMerms[Stx](calc:Stx=>List[(String,String)]): Widget[Stx] =
     VisualizeOpt[Stx,Stx](c => OptMermaid(calc(c).toMap), Mermaid, x=>x)
+
+  def viewWarn[Stx](calc:Stx=>String,typ: ViewType):Widget[Stx] =
+    VisualizeWarning[Stx,Stx](x=>View(calc(x)),typ,x=>x)
 
   def compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): Widget[Stx] =
     Visualize[Stx,R](v,t,(c:Stx) => comp(pre1(c),pre2(c)))
