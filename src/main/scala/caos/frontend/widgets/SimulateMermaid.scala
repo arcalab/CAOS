@@ -7,7 +7,7 @@ import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 
 /**
- * Created by guillecledou on 16/03/2021
+ * Created by   on 16/03/2021
  */
 
 class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)

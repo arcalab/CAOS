@@ -7,7 +7,7 @@ import org.scalajs.dom.{MouseEvent, html}
 
 
 /**
- * Created by guillecledou on 13/07/2021
+ * Created by   on 13/07/2021
  */
 
 class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputArea)

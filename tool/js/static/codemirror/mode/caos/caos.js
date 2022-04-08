@@ -68,9 +68,9 @@ CodeMirror.defineMode("caos", function(_config, modeConfig) {
 
     if (largeRE.test(ch)) {
       source.eatWhile(idRE);
-      if (source.eat('.')) {
-        return "qualifier";
-      }
+      // if (source.eat('.')) {
+      //   return "qualifier";
+      // }
       return "variable-2";
     }
 

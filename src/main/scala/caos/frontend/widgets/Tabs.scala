@@ -28,7 +28,10 @@ case class Tabs(
      * @param visible is true when this box is initially visible (i.e., expanded).
      */
     override def init(div: Block, visible: Boolean): Unit = {
-      box = panelBox(div, visible,buttons=Nil).append("div")
+      box = panelBox(div, visible,buttons= Nil).append("div")
+//        List(
+//        Right("copy")-> (() => Utils.copyText(divBox,Some("tab-content active")), "copy text from active tab")
+//        )
         //.attr("class","text")
         .attr("id", divBox)
         //.append("pre")
@@ -58,7 +61,7 @@ case class Tabs(
             .attr("class",if i==0 then "active" else "")
             .append("a")
             .attr("data-toggle","tab")
-            .attr("href",s"#tab$i")
+            .attr("href",s"#tab${i+Tabs.index}")
             .text(titles(i))
         )
         val tabContent = box.append("div")
@@ -66,9 +69,20 @@ case class Tabs(
         val toShow =
           for (tabView,i) <- views.zipWithIndex yield
             val tab = tabContent.append("div")
-              .attr("id",s"tab$i")
+              .attr("id",s"tab${i+Tabs.index}")
               .attr("class","tab-pane fade" ++ (if i==0 then "in active" else ""))
-            tab.append("pre").text(tabView.code)
+            tab.append("pre")
+              .attr("class","language-scala line-numbers")
+              .append("code")
+              .attr("class","""language-scala data-prismjs-copy="copy" match-braces""")
+              .attr("id",s"pretab${i+Tabs.index}")
+              .text(tabView.code)
+              scalajs.js.eval(s"""Prism.highlightElement(document.getElementById("pretab${i+Tabs.index}"))""")
+        Tabs.index += views.size
       } catch Box.checkExceptions(errorBox,name)
     }
   }
+
+object Tabs {
+  private var index = 0
+}
