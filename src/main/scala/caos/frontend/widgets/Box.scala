@@ -38,7 +38,8 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
     for ((s,v)<-headerStyle)
       expander.style(s,v)
     expander = expander
-      .append("a").attr("data-toggle", "collapse")
+      .append("a")
+      .attr("data-toggle", "collapse")
       .attr("href", "#collapse-1" + title.hashCode)
       .attr("aria-expanded", visible.toString)
     if(!visible)
