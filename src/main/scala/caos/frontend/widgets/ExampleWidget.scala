@@ -13,12 +13,12 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 /**
  * Created by   on 07/05/2021
  */
-class ExampleBox(title:String
-                 , examples:Iterable[Example] //Seq[List[String]]
-                 , reload: => Unit
-                 , setableExample:Setable[String]
-                 , setableDescription:Option[Setable[String]]=None)
-  extends Box[Unit](title, Nil) {
+class ExampleWidget(title:String
+                    , examples:Iterable[Example] //Seq[List[String]]
+                    , reload: => Unit
+                    , setableExample:Setable[String]
+                    , setableDescription:Option[Setable[String]]=None)
+  extends Widget[Unit](title, Nil) {
 
 
   override def get: Unit = ()
@@ -97,7 +97,7 @@ class ExampleBox(title:String
       () => Utils.uploadTxt() , //Utils.downloadTxt(s"examples: ${examples.map(_.name).mkString(", ")}", "examples.txt"),
       "Upload Examples"),
     Right("download")-> (
-      () => Utils.downloadTxt(ExampleBox.examplesToTxt(examples),
+      () => Utils.downloadTxt(ExampleWidget.examplesToTxt(examples),
         "examples.txt"),
       "Download Examples")
   )
@@ -136,7 +136,7 @@ class ExampleBox(title:String
 
 }
 
-object ExampleBox {
+object ExampleWidget {
   def updateExamples(): Unit = {
     val bt = dom.document.getElementById("buttons")
     val btt = DomNode(bt)

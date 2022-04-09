@@ -1,6 +1,6 @@
 package caos.frontend.widgets
 
-import caos.frontend.Configurator.Visualize
+import WidgetInfo.Visualize
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -13,7 +13,7 @@ import scala.runtime.Nothing$
 
 
 class VisualiseText(text:()=>View, name:String, errorBox: OutputArea)
-  extends Box[Unit](name, List()) {
+  extends Widget[Unit](name, List()) {
 
   private var box:Block = _
   private var txt:Block = _
@@ -49,7 +49,7 @@ class VisualiseText(text:()=>View, name:String, errorBox: OutputArea)
     try {
       val toShow = text().code//view(pre(mermaid()))
       box.text(toShow) //.replace("\n","\\n"))
-    } catch Box.checkExceptions(errorBox,name)
+    } catch Widget.checkExceptions(errorBox,name)
   }
 
 }

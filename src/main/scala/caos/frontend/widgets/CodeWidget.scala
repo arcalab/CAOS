@@ -4,8 +4,8 @@ import org.scalajs.dom
 import org.scalajs.dom.html
 import caos.frontend.widgets.Setable
 
-abstract class CodeBox[A](title: String, dep: List[Box[_]])
-  extends Box[A](title,dep) with Setable[String]{
+abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
+  extends Widget[A](title,dep) with Setable[String]{
 
   /// needed to be defined
   protected var input: String

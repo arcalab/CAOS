@@ -9,7 +9,7 @@ import concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 case class VisualiseWarning(text:()=>View, name:String, errorBox: OutputArea)
-  extends Box[Unit](name, List()) {
+  extends Widget[Unit](name, List()) {
 
   private var box: Block = _
   private var txt: Block = _
@@ -50,6 +50,6 @@ case class VisualiseWarning(text:()=>View, name:String, errorBox: OutputArea)
       }
       //      val toShow = text().code//view(pre(mermaid()))
       //      box.text(toShow) //.replace("\n","\\n"))
-    } catch Box.checkExceptions(errorBox, name)
+    } catch Widget.checkExceptions(errorBox, name)
   }
 }

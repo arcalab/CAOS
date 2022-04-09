@@ -1,7 +1,7 @@
 package caos.frontend.widgets
 
 import caos.frontend.widgets.{DomElem, DomNode}
-import Box.Block
+import Widget.Block
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, MouseEvent, html}
 
@@ -9,7 +9,7 @@ import scala.scalajs.js.{JavaScriptException, UndefOr}
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
-abstract class Box[A](val title: String, dependency: List[Box[_]]){
+abstract class Widget[A](val title: String, dependency: List[Widget[_]]){
   type Block = DomElem //Selection[dom.EventTarget]
 
   var wrap:DomElem = _
@@ -100,9 +100,9 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
         b.style("line-height","9pt")
         b.html(str)
       case Right("upload") =>
-        Box.uploadSvg(button)
+        Widget.uploadSvg(button)
       case Right("download") =>
-        Box.downloadSvg(button)
+        Widget.downloadSvg(button)
       //        val svg = button.append("img")
       //          .attr("src","assets/content/svg/cloud_download.svg")
       //          .style("width","15pt")
@@ -176,7 +176,7 @@ abstract class Box[A](val title: String, dependency: List[Box[_]]){
 
 }
 
-object Box {
+object Widget {
   type Block = DomElem //Selection[dom.EventTarget]
 
   def downloadSvgOld(block: Block): Unit = {

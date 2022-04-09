@@ -39,10 +39,10 @@ object SOS:
 
   def byTau[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
     (for (a,s2)<-sos.next(s) yield
-  a match
-    case t if t.isTau => byTau(sos,s2) + s
-    case x => Set(s))
-  .flatten + s
+      a match
+        case t if t.isTau => byTau(sos,s2) + s
+        case x => Set(s))
+      .flatten + s
 
   //  def transBy(a:Action): LTS[S]
   def nextPP[A,S](lts:SOS[A,S], s:S): String = lts.next(s)
@@ -81,6 +81,39 @@ object SOS:
         yield (a2,s2)
       override def accepting(s: S): Boolean =
         sos.accepting(s)
+
+  def toMermaid[A,S](sos:SOS[A,S],s:S,showSt:S=>String,
+                     showAct:A=>String, max:Int = 150): String =
+    var i = 0
+    var _ids: Map[S,Int] = Map()
+    def ids(s:S): Int =
+      if _ids.contains(s) then
+        _ids(s)
+      else
+        _ids+=s->i
+        i+=1
+        i-1
+    def fix(s:String): String = s"\"$s\""
+      .replaceAll("\n","<br>")
+//      .replaceAll("\\[|\\]|\\(|\\)","_")
+//      .replaceAll(";",",")
+//      .replaceAll("\\|","#")
+    def aux(next:Set[S],done:Set[S],limit:Int): String =
+      if limit <=0 then
+        return (for n<-next yield s"\n  style ${ids(n)} fill:#f87,stroke:#633,stroke-width:4px;").mkString
+      next.headOption match
+        case Some(st) if done contains st => aux(next-st,done,limit)
+        case Some(st) =>
+          var done2 = done+st
+          var next2 = next-st
+          var res = s"\n  ${ids(st)}[${fix(showSt(st))}];"
+          for (a,s2) <- sos.next(st) do
+            next2 += s2
+            res += s"\n  ${ids(s2)}[${fix(showSt(s2))}];\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
+          res + aux(next2,done2,limit-1)
+        case None => ""
+    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),max)
+
 
           
 

@@ -1,7 +1,6 @@
 package caos.frontend.widgets
 
-import caos.frontend.Configurator.Simulate
-import caos.frontend.widgets.{Box, MermaidJS, OutputArea}
+import WidgetInfo.Simulate
 import caos.sos.HasTaus
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -11,7 +10,7 @@ import org.scalajs.dom.{MouseEvent, html}
  */
 
 class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)
-  extends Box[Unit](name,Nil) {
+  extends Widget[Unit](name,Nil) {
 
   private var container:Block = _
   private var left:Block = _
@@ -83,7 +82,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   def initialise():Unit = try {
     val c = simulate.pre(stx())//DSL.pomset(choreography)
     initialiseWith(c,Nil,c::Nil)
-  } catch Box.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,name)
 
   def initialiseWith(c:St, t:List[Act], s:List[St]):Unit = {
     lastStx = c
@@ -105,7 +104,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     traceActs :+=a // todo: extend SOS[A<:HasTaus,S]
     updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
     updateEnabledActions(goesTo)
-  } catch Box.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,name)
 
   def updateEnabledActions(c: St):Unit = {
     showTrace()
@@ -154,7 +153,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     val mermaid = simulate.v(st).code
     val mermaidJs = MermaidJS(mermaid,divBox,svgBox)
     scalajs.js.eval(mermaidJs)
-  } catch Box.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,name)
 
 }
 

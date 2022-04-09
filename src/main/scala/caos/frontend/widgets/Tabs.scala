@@ -13,7 +13,7 @@ case class Tabs(
   name:String,
   tabsTitle:()=>List[String],
   errorBox: OutputArea
-) extends Box[Unit](name, List()) {
+) extends Widget[Unit](name, List()) {
 
     private var box:Block = _
     protected val divBox = name.replace(' ','_') + "Box"
@@ -79,7 +79,7 @@ case class Tabs(
               .text(tabView.code)
               scalajs.js.eval(s"""Prism.highlightElement(document.getElementById("pretab${i+Tabs.index}"))""")
         Tabs.index += views.size
-      } catch Box.checkExceptions(errorBox,name)
+      } catch Widget.checkExceptions(errorBox,name)
     }
   }
 

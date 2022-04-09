@@ -11,7 +11,7 @@ import org.scalajs.dom.{MouseEvent, html}
  */
 
 class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputArea)
-  extends Box[Unit](name, List()) {
+  extends Widget[Unit](name, List()) {
 
   val diagram:String = ""
   protected var box:Block = _
@@ -56,7 +56,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       box.text("")
       for ((name,code)<-mermaid().options) do
         showOption(name,code)
-    } catch Box.checkExceptions(errorBox)
+    } catch Widget.checkExceptions(errorBox)
 
   def showOption(name:String,code:String):Unit = {
     try {
@@ -72,7 +72,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
         .append("div").attr("id",svgBox+namefix)
       val mermaidJs = MermaidJS(code,divBox+namefix,svgBox+namefix)
       scalajs.js.eval(mermaidJs)
-    } catch Box.checkExceptions(errorBox,this.name)
+    } catch Widget.checkExceptions(errorBox,this.name)
   }
 
 }

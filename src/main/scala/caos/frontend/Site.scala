@@ -1,8 +1,9 @@
 package caos.frontend
 
 import caos.common.Example
-import caos.frontend.Configurator.{Simulate, Visualize, VisualizeOpt, VisualizeTab, VisualizeWarning, Widget}
-import caos.frontend.widgets.{Box, CodeBox, DomElem, DomNode, ExampleBox, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning}
+import widgets.WidgetInfo
+import WidgetInfo.*
+import caos.frontend.widgets.{Widget, CodeWidget, DomElem, DomNode, ExampleWidget, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning}
 import caos.view.*
 import caos.view.OptionView.*
 import org.scalajs.dom
@@ -38,9 +39,9 @@ object Site:
 
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleBox("Examples",config.examples,globalReload(),code,Some(descriptionArea))
+    val examples = new ExampleWidget("Examples",config.examples,globalReload(),code,Some(descriptionArea))
 
-    val boxes = config.widgets.map(w => mkBox(w,()=>code.get,errorArea))
+    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,errorArea))
     boxes.foreach(b=>b.init(rightColumn,false))
 
     val smallBoxes = List(examples)//++config.smallWidgets.map(w=>mkBox(w,()=>code.get,errrorArea)
@@ -56,13 +57,13 @@ object Site:
 
   /**
    * Make widget box
-   * @param w widget
+   * @param w widget info
    * @param get function to get program
    * @param out output box to output errors
    * @tparam Stx Type of the program to process
    * @return a box
    */
-  protected def mkBox[Stx](w: (String,Widget[Stx]),get:()=>Stx,out:OutputArea): Box[Unit] =
+  protected def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx, out:OutputArea): Widget[Unit] =
     try w._2 match {
         //todo: nicer way to achieve this type check?
 //      case Visualize(view:Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
@@ -141,8 +142,8 @@ object Site:
     errorArea.clear()
     toReload.foreach(f=>f())
 
-  protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeBox[A] =
-    new CodeBox[config.T](config.languageName,Nil) {
+  protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeWidget[A] =
+    new CodeWidget[config.T](config.languageName,Nil) {
 
       protected var input: String = config.examples.headOption match
         case Some(ex) => ex.example
@@ -190,7 +191,7 @@ object Site:
             override val languageName: String = c.languageName
             override val widgets = c.widgets
             override val examples: Iterable[Example] =
-              ExampleBox.txtToExamples(resultAsString)
+              ExampleWidget.txtToExamples(resultAsString)
           }
           //println("init site again")
           cleanContainers()
