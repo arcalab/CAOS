@@ -27,9 +27,9 @@ Alternatively, it is possible to start from a CAOS template, following the instr
 
 Examples of projects that use CAOS include:
 
- - [MPST APIs](https://github.com/arcalab/mpst-api) - [Snapshot](https://arcalab.github.io/mpst-api)
- - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) - [Snapshot](http://arcalab.github.io/choreo/)
  - [Simple While-language](https://github.com/cister-labs/whilelang-scala) - [Snapshot](https://cister-labs.github.io/whilelang-scala/)
+ - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) - [Snapshot](http://arcalab.github.io/choreo/)
+ - [MPST APIs](https://github.com/arcalab/mpst-api) <!-- - [Snapshot](https://arcalab.github.io/mpst-api) -->
 
 ## Importing CAOS
 
