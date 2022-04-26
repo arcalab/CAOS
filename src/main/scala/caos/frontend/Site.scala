@@ -143,7 +143,7 @@ object Site:
     toReload.foreach(f=>f())
 
   protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeWidget[A] =
-    new CodeWidget[config.T](config.languageName,Nil) {
+    new CodeWidget[A](config.languageName,Nil) {
 
       protected var input: String = config.examples.headOption match
         case Some(ex) => ex.example
@@ -156,7 +156,7 @@ object Site:
           Right("refresh") -> (() => reload(), s"Load the ${config.name} program (shift-enter)")
         )
 
-      override def get: config.T = config.parser(input)
+      override def get: A = config.parser(input)
 
       override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
@@ -177,15 +177,15 @@ object Site:
 //  }
 
   @JSExportTopLevel("getFileAsText")
-  def getFileAsText(ev: dom.File): Unit = {
+  def getFileAsText[A](ev: dom.File): Unit = {
     val reader = new dom.FileReader()
     reader.readAsText(ev)
     reader.onload = (_) => {
       val resultAsString = reader.result.toString
       //println("Loaded?")
       val c2 = lastConfig match {
-        case Some(c:Configurator[_]) =>
-          val c2 = new Configurator[c.T] {
+        case Some(c:Configurator[A]) =>
+          val c2 = new Configurator[A] {
             override val parser = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName

@@ -1,24 +1,43 @@
 package caos.frontend
 
-import widgets.WidgetInfo
-import WidgetInfo.*
+import caos.common.Example
+import caos.frontend.widgets.WidgetInfo
+import caos.frontend.widgets.WidgetInfo.*
 import caos.sos
 import caos.sos.*
-import caos.common.Example
 import caos.view.OptionView.OptMermaid
-import caos.view.{Mermaid, OptionView, Text, View, ViewType}
+import caos.view.*
 
+import scala.language.implicitConversions
+
+/**
+ * A configurator instance, extending `Configurator`, describes all elements to
+ * generate a web-frontend for CAOS to analyse a data structure of type `Stx`.
+ *
+ * The abstract methods and values include a `name`, a `parser:String=>Stx`,
+ * a sequence of `examples`, and a sequence of `widgets`.
+ * @tparam Stx Type of the data structure to be analysed.
+ */
 trait Configurator[Stx]:
+  /** Name of the header of the web frontend. */
   val name: String
+  /** Possible alternative name for the input widget. */
   def languageName: String = name // override to rename the input widget
-  type T = Stx
+  /** Parser to build the data structure under analysis */
   val parser: String=>Stx
-  def id(c:Stx):Stx = c
+  /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
+
+  /** Helper to build examples as `examples = List("name" -> "code")` */
+  implicit def toExample(nameCode:(String,String)): Example =
+    Example(nameCode._2,nameCode._1,"")
+  /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
+  implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
+    Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
 
 /**
  * Provides functions that produce WidgetInfos, which describe widgets.
@@ -90,7 +109,7 @@ object Configurator:
    * @tparam S is the type of states
    * @return the WidgetInfo describing how to create the LTS widget
    */
-  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=150): WidgetInfo[Stx] =
+  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
   /**
@@ -119,7 +138,7 @@ object Configurator:
    * @tparam S2 is the type of the second element
    * @return the WidgetInfo describing how to create the comparator widget
    */
-  def compareBranchBisim[Stx,A<:HasTaus,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
     compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),Text,pre1,pre2)
 
   /**

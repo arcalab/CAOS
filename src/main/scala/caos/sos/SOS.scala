@@ -82,8 +82,8 @@ object SOS:
       override def accepting(s: S): Boolean =
         sos.accepting(s)
 
-  def toMermaid[A,S](sos:SOS[A,S],s:S,showSt:S=>String,
-                     showAct:A=>String, max:Int = 150): String =
+  def toMermaid[A,S](sos:SOS[A,S], s:S, showSt:S=>String,
+                     showAct:A=>String, maxNodes:Int): String =
     var i = 0
     var _ids: Map[S,Int] = Map()
     def ids(s:S): Int =
@@ -104,7 +104,7 @@ object SOS:
       next.headOption match
         case Some(st) if done contains st => aux(next-st,done,limit)
         case Some(st) =>
-          var done2 = done+st
+          val done2 = done+st
           var next2 = next-st
           var res = s"\n  ${ids(st)}[${fix(showSt(st))}];"
           for (a,s2) <- sos.next(st) do
@@ -112,7 +112,7 @@ object SOS:
             res += s"\n  ${ids(s2)}[${fix(showSt(s2))}];\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
           res + aux(next2,done2,limit-1)
         case None => ""
-    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),max)
+    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),maxNodes)
 
 
           

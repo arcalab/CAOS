@@ -3,6 +3,10 @@ package caos.frontend.widgets
 import caos.sos.SOS
 import caos.view.{OptionView, View, ViewType}
 
+/**
+ * Description of a widget to be created by CAOS.
+ * @tparam Stx Type of the data structure being analysed.
+ */
 sealed abstract class WidgetInfo[Stx]
 
 object WidgetInfo:
