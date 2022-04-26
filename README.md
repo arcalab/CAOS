@@ -1,4 +1,4 @@
-# CAOS 
+# CAOS
 
 CAOS is a framework to support **c**omputer **a**ided design of 
 structural **o**perational **s**emantics for formal models.
@@ -13,24 +13,23 @@ which provides an example of how to import and use CAOS.
 A live website of the generated site by CAOS can be found at 
 [http://arcalab.github.io/choreo/](http://arcalab.github.io/choreo/) 
 
-# Requirements 
+# Requirements
 
 * Scala version 2.13 or higher (to work with Scala 3)
 * Scala building tools ([sbt](https://www.scala-sbt.org)) 
 * Java Runtime Environment ([JRE](https://www.java.com/en/download/))  
 
-# Using CAOS 
+# Using CAOS
 
-There are currently two ways to start using CAOS: 
-- starting a new project from a template 
-- importing CAOS on an ongoing Scala project 
+CAOS is meant to be imported by an ongoing Scala project with a concrete Abstract Syntax Tree.
 
-We explain both approaches below
+Alternatively, it is possible to start from a CAOS template, following the instructions described [here](https://github.com/arcalab/caos.g8) (this template uses an older version of CAOS).
 
-## Starting a new CAOS project 
+Examples of projects that use CAOS include:
 
-To start a new project that uses CAOS we recommend starting from a 
-caos template, following the instructions described [here](https://github.com/arcalab/caos.g8).
+ - [MPST APIs](https://github.com/arcalab/mpst-api) - [Snapshot](https://arcalab.github.io/mpst-api)
+ - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) - [Snapshot](http://arcalab.github.io/choreo/)
+ - [Simple While-language](https://github.com/cister-labs/whilelang-scala) - [Snapshot](https://cister-labs.github.io/whilelang-scala/)
 
 ## Importing CAOS
 
@@ -60,7 +59,7 @@ you can import and set CAOS by adding the following definitions:
 ```scala
 lazy val caos = project.in(file("lib/caos"))
   .enablePlugins(ScalaJSPlugin)
-  .settings(scalaVersion := "3.0.0-M1")
+  .settings(scalaVersion := "3.1.1")
 
 lazy val rootProject = project.in(file("."))
     .settings(
@@ -83,10 +82,10 @@ Note that the scalaVersion of your project should typically match the one of CAO
 You will also need to add the plugin for ScalaJS by appending to the file `project/plugins.sbt` (create file if it does not exist yet):
 
 ```scala
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.5.1")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.7.1")
 ```
 
-# Instantiating CAOS 
+# Instantiating CAOS
 
 CAOS provides an interface (formally a `trait` in Scala) called `Configurator`:
 
@@ -95,9 +94,7 @@ CAOS provides an interface (formally a `trait` in Scala) called `Configurator`:
 
 trait Configurator[Stx]:
   val name: String
-  type T = Stx
   val parser: String=>Stx
-  def id(c:Stx):Stx = c
   val examples: Iterable[(String,Stx)]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,Widget[Stx])]
@@ -105,19 +102,21 @@ trait Configurator[Stx]:
   val smallWidgets: Iterable[(String,Widget[Stx])]=Nil
 
 object Configurator:
-  sealed trait Widget[Stx]
-  case class Visualize[Stx,S](v:S=>View,pre:Stx=>S) extends Widget[Stx]
-  case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,pre:Stx=>S) extends Widget[Stx]
 
-  def compare[Stx,R,S1,S2](comp:(S1,S2)=>R, v:R=>View, pre1:Stx=>S1, pre2:Stx=>S2) =
-    Visualize[Stx,R](v,(c:Stx) => comp(pre1(c),pre2(c)))
+  // Visualisers
+  def view[Stx](viewProg:Stx=>String, typ:ViewType): WidgetInfo[Stx]
+  def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx] =
+  def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx] =
+  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx] =
 
-  // compare two SOSs using branching bisimulation
-  def compareBranchBisim[Stx,A<:HasTaus,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
-    compare[Stx,String,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),Text,pre1,pre2)
-  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2) =
-    compare[Stx,String,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),Text,pre1,pre2)
+  // Animators
+  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx] =
+  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
 
+  // Comparing semantics
+  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
+  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
 ```
 To use CAOS you need to instantiate the `Configurator[A]` trait, 
 for example in a class:
@@ -141,7 +140,7 @@ object Main {
 }
 ```
 
-# Compiling CAOS 
+# Compiling CAOS
 
 In root project you need to run `sbt` to compile using ScalaJS's compiler:
 

@@ -184,7 +184,7 @@ object Site:
       val resultAsString = reader.result.toString
       //println("Loaded?")
       val c2 = lastConfig match {
-        case Some(c:Configurator[A]) =>
+        case Some(c:Configurator[A] @unchecked)  =>
           val c2 = new Configurator[A] {
             override val parser = c.parser
             override val name: String = c.name
@@ -196,7 +196,7 @@ object Site:
           //println("init site again")
           cleanContainers()
           initSite(c2)
-        case None =>
+        case _ =>
           //println("no config...")
       }
       //println(resultAsString)
