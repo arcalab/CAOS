@@ -97,12 +97,14 @@ trait Configurator[Stx]:
   val parser: String=>Stx
   val examples: Iterable[(String,Stx)]
   /** Main widgets, on the right hand side of the screen */
-  val widgets: Iterable[(String,Widget[Stx])]
+  val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
-  val smallWidgets: Iterable[(String,Widget[Stx])]=Nil
+  val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=Nil
 
 object Configurator:
 
+  ///// Constructors for widgets //////
+  
   // Visualisers
   def view[Stx](viewProg:Stx=>String, typ:ViewType): WidgetInfo[Stx]
   def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx] =
