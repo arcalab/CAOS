@@ -126,7 +126,7 @@ for example in a class:
 class ConcreteConfigurator extends Configurator[ConcreteStx]: 
     ...
 ```
-A full example can be found, e.g., in the [configurator in Choreo's project](https://github.com/arcalab/choreo/blob/196f751eafb07f26910220085759cc458bd01f07/src/main/scala/choreo/frontend/ChoreoSOSme.scala).
+A full example can be found, e.g., in the [configurator in Choreo's project](https://github.com/arcalab/choreo/blob/8e5cb787595da87266956741bc77c72dac7eab9a/src/main/scala/choreo/frontend/ChoreoSOSme.scala).
 
 Finally, you need to call from your `Main` class to the `initSite` mehtod in CAOS. 
 
