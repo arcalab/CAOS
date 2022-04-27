@@ -9,7 +9,7 @@ import scala.scalajs.js.{JavaScriptException, UndefOr}
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
-abstract class Widget[A](val title: String, dependency: List[Widget[_]]){
+abstract class Widget[A](val title: String){
   type Block = DomElem //Selection[dom.EventTarget]
 
   var wrap:DomElem = _
@@ -245,7 +245,7 @@ object Widget {
       }
       //            instanceInfo.append("p").text("-")
       case e: java.lang.AssertionError => errorBox.error(e.getMessage)
-      case e: RuntimeException => errorBox.error(s"Runtime error$by: " + e)
+      case e: RuntimeException => errorBox.error(s"Error raised by $by: " + e.getMessage)
       case e: Throwable => errorBox.error(s"Error$by: " + e + " - " + e.getClass +"\n ### "+e.getStackTrace.mkString("\n - "))
     }
     f

@@ -149,6 +149,15 @@ object Configurator:
   def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
     compare[Stx,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),Text,pre1,pre2)
 
+  /**
+   * Run some analysis that only produces runtime errors (thrown) or a set of warnings.
+   * @param a
+   * @tparam Stx
+   * @return
+   */
+  def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
+    Analyse(a)
+
 //  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =
 //    Visualize(v, stx => p.allProj(pre(stx)))
 

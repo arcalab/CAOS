@@ -18,7 +18,7 @@ class ExampleWidget(title:String
                     , reload: => Unit
                     , setableExample:Setable[String]
                     , setableDescription:Option[Setable[String]]=None)
-  extends Widget[Unit](title, Nil) {
+  extends Widget[Unit](title) {
 
 
   override def get: Unit = ()

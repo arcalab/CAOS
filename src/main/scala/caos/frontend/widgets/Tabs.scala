@@ -13,7 +13,7 @@ case class Tabs(
   name:String,
   tabsTitle:()=>List[String],
   errorBox: OutputArea
-) extends Widget[Unit](name, List()) {
+) extends Widget[Unit](name) {
 
     private var box:Block = _
     protected val divBox = name.replace(' ','_') + "Box"

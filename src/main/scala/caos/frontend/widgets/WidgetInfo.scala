@@ -18,6 +18,8 @@ object WidgetInfo:
     extends WidgetInfo[Stx]
   case class VisualizeWarning[Stx,S](v:S=>View, typ:ViewType, pre:Stx=>S)
     extends WidgetInfo[Stx]
+  case class Analyse[Stx](a:Stx=>Seq[String])
+    extends WidgetInfo[Stx]
   // experiment
   case class VisualizeOpt[Stx,S](v:S=>OptionView,t:ViewType,pre:Stx=>S)
     extends WidgetInfo[Stx]

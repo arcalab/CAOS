@@ -1,9 +1,8 @@
 package caos.frontend
 
 import caos.common.Example
-import widgets.WidgetInfo
+import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning, Widget, WidgetInfo}
 import WidgetInfo.*
-import caos.frontend.widgets.{Widget, CodeWidget, DomElem, DomNode, ExampleWidget, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning}
 import caos.view.*
 import caos.view.OptionView.*
 import org.scalajs.dom
@@ -44,16 +43,18 @@ object Site:
     val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,errorArea))
     boxes.foreach(b=>b.init(rightColumn,false))
 
-    val smallBoxes = List(examples)//++config.smallWidgets.map(w=>mkBox(w,()=>code.get,errrorArea)
-    smallBoxes.foreach(b=>b.init(leftColumn,true))
-
+    examples.init(leftColumn,true)
     descriptionArea.init(leftColumn) // after the examples
+
+    val smallBoxes = config.smallWidgets.map(w => mkWidget(w,()=>code.get,errorArea))
+    smallBoxes.foreach(b=>b.init(leftColumn,false))
+
 
     config.examples.headOption match
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
-    toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update()).toList
+    toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update())
 
   /**
    * Make widget box
@@ -74,13 +75,13 @@ object Site:
 
       case Visualize(view,Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
       case Visualize(view,Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
-      case Visualize(view,Html,_) =>
+      case Visualize(_,Html,_) =>
         out.setValue("HTML visualiser not supported")
         sys.error("HTML visualiser not supported")
       case VisualizeTab(views,Text,titles,pre) =>
         new Tabs(()=>views(pre(get())),w._1,()=>titles(pre(get())),out)
       case VisualizeWarning(view, Text, pre) => 
-        new VisualiseWarning(()=>view(pre(get())),w._1,out)  
+        VisualiseWarning(()=>view(pre(get())),w._1,out)
 //      case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
 //        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
 //        case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")
@@ -90,11 +91,13 @@ object Site:
         case Mermaid => new VisualiseOptMermaid(()=>view(pre(get())),w._1,out)
         case _ => throw new RuntimeException("case not covered...")
       }
-      case sim@Simulate(sos, view, t, pre): Simulate[Stx, _, _] => t match { // view(pre(get())) match {
+      case sim@Simulate(_, _, t, _): Simulate[Stx, _, _] => t match { // view(pre(get())) match {
         case Text => new SimulateText(get,sim, w._1, out)
         case Mermaid => new SimulateMermaid(get,sim,w._1,out)
         case _ => throw new RuntimeException("case not covered...")
       }
+      case Analyse(a) =>
+        new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()))
       case _ => throw new RuntimeException("case not covered...")
     } catch {
       case e: Throwable =>
@@ -176,6 +179,7 @@ object Site:
 ////    appendPar(document.body, "You clicked the button!")
 //  }
 
+  /** This method loads the examples from a local file. */
   @JSExportTopLevel("getFileAsText")
   def getFileAsText[A](ev: dom.File): Unit = {
     val reader = new dom.FileReader()

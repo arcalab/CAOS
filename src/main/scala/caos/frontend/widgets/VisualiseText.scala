@@ -13,7 +13,7 @@ import scala.runtime.Nothing$
 
 
 class VisualiseText(text:()=>View, name:String, errorBox: OutputArea)
-  extends Widget[Unit](name, List()) {
+  extends Widget[Unit](name) {
 
   private var box:Block = _
   private var txt:Block = _

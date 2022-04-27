@@ -14,7 +14,7 @@ import scala.runtime.Nothing$
 
 
 class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
-  extends Widget[Unit](name, List()) {
+  extends Widget[Unit](name) {
 
   val diagram:String = ""
   protected var box:Block = _

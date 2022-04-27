@@ -10,7 +10,7 @@ import org.scalajs.dom.{MouseEvent, html}
  */
 
 class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)
-  extends Widget[Unit](name,Nil) {
+  extends Widget[Unit](name) {
 
   private var container:Block = _
   private var left:Block = _

@@ -5,7 +5,7 @@ import org.scalajs.dom.html
 import caos.frontend.widgets.Setable
 
 abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
-  extends Widget[A](title,dep) with Setable[String]{
+  extends Widget[A](title) with Setable[String]{
 
   /// needed to be defined
   protected var input: String

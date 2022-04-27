@@ -11,7 +11,7 @@ import org.scalajs.dom.{MouseEvent, html}
  */
 
 class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputArea)
-  extends Widget[Unit](name, List()) {
+  extends Widget[Unit](name) {
 
   val diagram:String = ""
   protected var box:Block = _
