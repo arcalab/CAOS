@@ -1,4 +1,4 @@
-val scala3Version = "3.0.2" // "3.0.0-RC3" //"3.0.0-M1"
+val scala3Version = "3.1.1" // "3.0.2" // "3.0.0-RC3" //"3.0.0-M1"
 
 
 lazy val caos = project

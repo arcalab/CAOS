@@ -32,13 +32,6 @@ trait Configurator[Stx]:
   /** Secondary widgets, below the code */
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
 
-  /** Helper to build examples as `examples = List("name" -> "code")` */
-  implicit def toExample(nameCode:(String,String)): Example =
-    Example(nameCode._2,nameCode._1,"")
-  /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
-  implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
-    Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
-
 /**
  * Provides functions that produce WidgetInfos, which describe widgets.
  */
@@ -158,4 +151,12 @@ object Configurator:
 
 //  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =
 //    Visualize(v, stx => p.allProj(pre(stx)))
+
+  /** Helper to build examples as `examples = List("name" -> "code")` */
+  implicit def toExample(nameCode:(String,String)): Example =
+    Example(nameCode._2,nameCode._1,"")
+  /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
+  implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
+    Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
+
 

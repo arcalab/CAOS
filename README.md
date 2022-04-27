@@ -27,9 +27,10 @@ Alternatively, it is possible to start from a CAOS template, following the instr
 
 Examples of projects that use CAOS include:
 
- - [Simple While-language](https://github.com/cister-labs/whilelang-scala) - [Snapshot](https://cister-labs.github.io/whilelang-scala/)
- - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) - [Snapshot](http://arcalab.github.io/choreo/)
- - [MPST APIs](https://github.com/arcalab/mpst-api) <!-- - [Snapshot](https://arcalab.github.io/mpst-api) -->
+ - [Simple While-language](https://github.com/cister-labs/whilelang-scala) [(Snapshot)](https://cister-labs.github.io/whilelang-scala/)
+ - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) [(Snapshot)](http://arcalab.github.io/choreo/)
+ - [MPST APIs](https://github.com/arcalab/mpst-api) <!-- [(Snapshot)](https://arcalab.github.io/mpst-api) -->
+ - [Marx: experimental reactive language for synchronous architectures](https://github.com/arcalab/marx) [(Snapshot)](http://arca.di.uminho.pt/marx/)
 
 ## Importing CAOS
 
@@ -93,8 +94,12 @@ CAOS provides an interface (formally a `trait` in Scala) called `Configurator`:
 // CAOS Configurator 
 
 trait Configurator[Stx]:
+  ///// Interface of a configurator for CAOS /////
+  /** Name of the project */
   val name: String
+  /** How to create an AST from text */
   val parser: String=>Stx
+  /** List of examples *//
   val examples: Iterable[(String,Stx)]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
@@ -102,31 +107,40 @@ trait Configurator[Stx]:
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=Nil
 
 object Configurator:
-
   ///// Constructors for widgets //////
-  
-  // Visualisers
+  // Visualisers:
   def view[Stx](viewProg:Stx=>String, typ:ViewType): WidgetInfo[Stx]
   def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx] =
   def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx] =
   def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx] =
 
-  // Animators
+  // Animators:
   def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx] =
   def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
 
-  // Comparing semantics
+  // Comparing semantics:
   def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
   def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
   def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
 ```
 To use CAOS you need to instantiate the `Configurator[A]` trait, 
-for example in a class:
+for example in a classe. For example, for a `MyLanguage` object you could define:
 ```scala 
-class ConcreteConfigurator extends Configurator[ConcreteStx]: 
-    ...
+class MyConcreteConfigurator extends Configurator[MyLanguage]: 
+    //...
+    val widgets = List(
+      "View parsed data" -> view(x=>x.toString , Text),
+      "View pretty diagram" -> view(MyGraph.buildMermaid, Mermaid),
+      "Run small-steps" -> lts(
+        myBuildInitState, mySmallSOS, myPrintState, myPrintLabels),
+      ...
+    )
 ```
+
+Currently we can visualise plain text and [Mermaid](https://mermaid-js.github.io) diagrams.
 A full example can be found, e.g., in the [configurator in Choreo's project](https://github.com/arcalab/choreo/blob/8e5cb787595da87266956741bc77c72dac7eab9a/src/main/scala/choreo/frontend/ChoreoSOSme.scala).
+
+
 
 Finally, you need to call from your `Main` class to the `initSite` mehtod in CAOS. 
 
