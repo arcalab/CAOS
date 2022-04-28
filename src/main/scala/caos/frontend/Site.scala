@@ -26,7 +26,7 @@ object Site:
 
     errorArea = new OutputArea
     descriptionArea = new OutputArea
-    val code = mkCodeBox(config,errorArea)
+    val code = mkCodeBox(config)
 
     code.init(leftColumn,true)
     errorArea.init(leftColumn)
@@ -145,7 +145,7 @@ object Site:
     errorArea.clear()
     toReload.foreach(f=>f())
 
-  protected def mkCodeBox[A](config:Configurator[A],out:OutputArea):CodeWidget[A] =
+  protected def mkCodeBox[A](config:Configurator[A]):CodeWidget[A] =
     new CodeWidget[A](config.languageName,Nil) {
 
       protected var input: String = config.examples.headOption match
@@ -184,10 +184,10 @@ object Site:
   def getFileAsText[A](ev: dom.File): Unit = {
     val reader = new dom.FileReader()
     reader.readAsText(ev)
-    reader.onload = (_) => {
+    reader.onload = _ => {
       val resultAsString = reader.result.toString
       //println("Loaded?")
-      val c2 = lastConfig match {
+      lastConfig match {
         case Some(c:Configurator[A] @unchecked)  =>
           val c2 = new Configurator[A] {
             override val parser = c.parser

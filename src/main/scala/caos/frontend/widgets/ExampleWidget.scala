@@ -151,7 +151,7 @@ object ExampleWidget {
           val rest2 = rest.drop(18) // drop "description"
           val (desc, rest3) = rest2.span(_ != '\n')
           val code = rest3.tail
-          Example(code, name, desc)
+          Example(code.trim, name.trim, desc.trim)
         } catch {
           case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
         }

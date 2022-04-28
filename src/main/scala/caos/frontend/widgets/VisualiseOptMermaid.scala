@@ -15,10 +15,10 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
 
   val diagram:String = ""
   protected var box:Block = _
-  protected val svgBox = fix(name) + "Svg"
-  protected val divBox = fix(name) + "Box"
+  protected val svgBox: String = fix(name) + "Svg"
+  protected val divBox: String = fix(name) + "Box"
 
-  protected def fix(s:String) = s
+  protected def fix(s:String): String = s
     .replace(' ','_')
     .replace('(','_')
     .replace(')','_')
@@ -39,7 +39,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       //.style("justify-content", "flex-start")
       .style("padding","5px 1px 5px 15px")
     dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) showOptions() }
+      .onclick = {(_: MouseEvent) => if(!isVisible) showOptions() }
   }
 
 
@@ -64,7 +64,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       val mbox = box.append("div")
         .style("text-align","center")
       mbox.append("h4")
-        .text(s"${name}")
+        .text(s"$name")
       mbox.append("div")
         .attr("class","mermaid")
         .attr("id", divBox+namefix)

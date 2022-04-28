@@ -5,6 +5,7 @@ import Widget.Block
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, MouseEvent, html}
 
+import scala.annotation.tailrec
 import scala.scalajs.js.{JavaScriptException, UndefOr}
 
 
@@ -93,6 +94,7 @@ abstract class Widget[A](val title: String){
     res
   }
 
+  @tailrec
   private def drawButton(button:Block, info:Either[String,String]): Unit = {
     info match {
       case Left(str) =>
@@ -149,7 +151,7 @@ abstract class Widget[A](val title: String){
   // add actions in "init" to update to visibility toggles
   def toggleVisibility(visible:()=>Unit = ()=>{}, invisible:()=>Unit = ()=>{}): Unit =
     dom.document.getElementById(title).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) visible() else invisible()}
+      .onclick = {(_: MouseEvent) => if(!isVisible) visible() else invisible()}
 
 
   def get: A
@@ -237,12 +239,11 @@ object Widget {
     val by = if (source.nonEmpty) s" by '$source''" else source
     val f: PartialFunction[Throwable,Unit] = {
       // type error
-      case e: JavaScriptException => {
+      case e: JavaScriptException =>
         //      val sw = new StringWriter
         //      e.printStackTrace(new PrintWriter(sw))
         //      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass + "\n" + sw.toString )
         errorBox.error(/*Show(result)+ */ s"JavaScript error$by: " + e + " - " + e.getClass)
-      }
       //            instanceInfo.append("p").text("-")
       case e: java.lang.AssertionError => errorBox.error(e.getMessage)
       case e: RuntimeException => errorBox.error(s"Error raised by $by: " + e.getMessage)

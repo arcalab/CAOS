@@ -17,8 +17,8 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   private var right:Block = _
   private var top:Block = _
   //private val simBox = name.replace(' ','_')+"Box"
-  protected val svgBox = fix(name) + "Svg"
-  protected val divBox = fix(name) + "Box"
+  protected val svgBox: String = fix(name) + "Svg"
+  protected val divBox: String = fix(name) + "Box"
 
   private def fix(s:String) = s
     .replace(' ','_')
@@ -44,7 +44,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
         update(), "Simulate next actions of current program")
     ))
     dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { (e: MouseEvent) => if(!isVisible) initialise() }
+      .onclick = { (_: MouseEvent) => if(!isVisible) initialise() }
 
     top = box
       .append("div")
@@ -89,7 +89,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     traceActs = t
     traceStx = s
     updateEnabledActions(lastStx)
-    updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
+    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
     //updateSimulation((None,lastChoreo)::Nil)
   }
 
@@ -102,7 +102,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     traceStx :+= goesTo
     //if (!a.isTau) traceActs :+=a
     traceActs :+=a // todo: extend SOS[A<:HasTaus,S]
-    updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
+    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
     updateEnabledActions(goesTo)
   } catch Widget.checkExceptions(errorBox,name)
 
@@ -127,7 +127,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
 
   def showEnabled(from:St):Unit = {
     left.html("")
-    var enabled = simulate.sos.next(from)//.toSet
+    val enabled = simulate.sos.next(from) //.toSet
     //if (simulate.sos.canSkip(from)) //todo: add support
     //  enabled +:= ((Tau,Choreo.End))
 

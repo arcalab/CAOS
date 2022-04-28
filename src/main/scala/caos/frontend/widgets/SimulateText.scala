@@ -36,13 +36,13 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
         update(), "Simulate next actions of current program")
     ))
     dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = { (e: MouseEvent) => if(!isVisible) initialise() }
+      .onclick = { (_: MouseEvent) => if(!isVisible) initialise() }
 
     top = box
       .append("div")
       .style("width:100%;margin-bottom:10px;margin:5px 1px 5px 15px")
 
-    val goBack = box.append("div").style("padding","5px 1px 5px 15px")
+    val goBack: Unit = box.append("div").style("padding","5px 1px 5px 15px")
       .append("button")
       .textEl("undo")
       .on("click",() => undo())
@@ -79,7 +79,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
     traceActs = t
     traceStx = s
     updateEnabledActions(lastStx)
-    updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
+    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
     //updateSimulation((None,lastChoreo)::Nil)
   }
 
@@ -92,7 +92,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
     traceStx :+= goesTo
     //if (!a.isTau) traceActs :+=a
     traceActs :+=a // todo: extend SOS[A<:HasTaus,S]
-    updateSimulationSteps((None::(traceActs.map(Some(_)))).zip(traceStx))
+    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
     updateEnabledActions(goesTo)
   } catch Widget.checkExceptions(errorBox,name)
 
@@ -119,7 +119,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
 
   def showEnabled(from:St):Unit = {
     left.html("")
-    var enabled = simulate.sos.next(from)//.toSet
+    val enabled = simulate.sos.next(from) //.toSet
     //if (simulate.sos.canSkip(from)) //todo: add support
     //  enabled +:= ((Tau,Choreo.End))
 
