@@ -48,6 +48,15 @@ object Configurator:
     Visualize[Stx,Stx](x=>View(viewProg(x)),typ, x=>x)
 
   /**
+   * Generates a Visualize widget.
+   * @param viewProgs converts a sequence of programs into a String
+   * @param typ is the type of the String, typically "Text" or "Mermaid"
+   * @tparam Stx is the type of the program (syntax)
+   * @return the WidgetInfo describing how to create the widget
+   */
+  def viewAll[Stx](viewProgs:Seq[(String,Stx)]=>String, typ:ViewType): WidgetInfo[Stx] =
+    VisualizeAll[Stx,Stx](x=>View(viewProgs(x)),typ, x=>x)
+  /**
    * Generates a Simulate widget
    * @param initialSt is the initial state of the semantics
    * @param sos is the SOS object that captures how to evolve (semantics)
@@ -125,14 +134,15 @@ object Configurator:
    * @param sos2 is the SOS object that captures how to evolve (semantics)
    * @param pre1 is a function that produces the first element from the program
    * @param pre2 is a function that produces the second element from the program
+   * @param maxDepth (optional) is the maximum number of steps that it can make when searching for a bisimulation
    * @tparam Stx is the type of the program (syntax)
    * @tparam A  is the type of the actions for both SOS objects
    * @tparam S1 is the type of the first element
    * @tparam S2 is the type of the second element
    * @return the WidgetInfo describing how to create the comparator widget
    */
-  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
-    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2),Text,pre1,pre2)
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,maxDepth:Int=5000): WidgetInfo[Stx] =
+    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
   /**
    * Compare 2 SOSs using trace equivalence.

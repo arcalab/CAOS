@@ -18,10 +18,10 @@ class ExampleWidget(title:String
                     , reload: => Unit
                     , setableExample:Setable[String]
                     , setableDescription:Option[Setable[String]]=None)
-  extends Widget[Unit](title) {
+  extends Widget[Seq[(String,String)]](title) {
 
 
-  override def get: Unit = ()
+  override def get: Seq[(String,String)] = examples.map(e=>e.name->e.example).toSeq
 
   /**
    * Executed once at creation time, to append the content to the inside of this box

@@ -40,13 +40,15 @@ object Site:
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config.examples,globalReload(),code,Some(descriptionArea))
 
-    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,errorArea))
+    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,
+        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)), errorArea))
     boxes.foreach(b=>b.init(rightColumn,false))
 
     examples.init(leftColumn,true)
     descriptionArea.init(leftColumn) // after the examples
 
-    val smallBoxes = config.smallWidgets.map(w => mkWidget(w,()=>code.get,errorArea))
+    val smallBoxes = config.smallWidgets.map(w => mkWidget(w,()=>code.get,
+        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)),errorArea))
     smallBoxes.foreach(b=>b.init(leftColumn,false))
 
 
@@ -64,7 +66,7 @@ object Site:
    * @tparam Stx Type of the program to process
    * @return a box
    */
-  protected def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx, out:OutputArea): Widget[Unit] =
+  protected def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx, getAll:()=>Seq[(String,Stx)], out:OutputArea): Widget[Unit] =
     try w._2 match {
         //todo: nicer way to achieve this type check?
 //      case Visualize(view:Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
@@ -75,7 +77,9 @@ object Site:
 
       case Visualize(view,Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
       case Visualize(view,Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
-      case Visualize(_,Html,_) =>
+      case VisualizeAll(v,Mermaid,pre) => new VisualiseMermaid(()=>v(getAll().map(kv=>kv._1->pre(kv._2))),w._1,out)
+      case VisualizeAll(v,Text,pre) => new VisualiseText(()=>v(getAll().map(kv=>kv._1->pre(kv._2))),w._1,out)
+      case Visualize(_,Html,_) | VisualizeAll(_,Html,_) =>
         out.setValue("HTML visualiser not supported")
         sys.error("HTML visualiser not supported")
       case VisualizeTab(views,Text,titles,pre) =>
