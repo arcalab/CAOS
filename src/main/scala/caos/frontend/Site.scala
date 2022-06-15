@@ -189,7 +189,7 @@ object Site:
     val reader = new dom.FileReader()
     reader.readAsText(ev)
     reader.onload = _ => {
-      val resultAsString = reader.result.toString
+      val resultAsString = Utils.unfix(reader.result.toString)
       //println("Loaded?")
       lastConfig match {
         case Some(c:Configurator[A] @unchecked)  =>

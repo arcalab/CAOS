@@ -31,7 +31,8 @@ object Utils {
 
   def downloadTxt(content:String,fileName:String): Unit = {
     scalajs.js.eval(
-      s"""var data = "$content";
+      //      s"""var data = '$content';
+      s"""var data = '${fix(content)}';
          |var c = document.createElement("a");
          |c.download = "$fileName";
          |
@@ -42,6 +43,15 @@ object Utils {
          |c.click();
       """.stripMargin)
   }
+
+  def fix(str:String): String =
+    str.replaceAll("'","\\'")
+       .replaceAll("\\\\([^n])", "§backslash-$1§")
+//       .replaceAll("module", "§MODL;")
+  def unfix(str:String): String =
+    str.replaceAll("\\'","'")
+      .replaceAll("§backslash-([^n])§", "\\\\$1")
+//      .replaceAll("\\$MODL;","module")
 
   def uploadTxt(): Unit = {
     scalajs.js.eval(
