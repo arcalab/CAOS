@@ -101,6 +101,8 @@ trait Configurator[Stx]:
   ///// Interface of a configurator for CAOS /////
   /** Name of the project */
   val name: String
+  /** Optional: name of the input language */
+  def languageName: String
   /** How to create an AST from text */
   val parser: String=>Stx
   /** List of examples *//
@@ -114,18 +116,21 @@ object Configurator:
   ///// Constructors for widgets //////
   // Visualisers:
   def view[Stx](viewProg:Stx=>String, typ:ViewType): WidgetInfo[Stx]
-  def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx] =
-  def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx] =
-  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx] =
+  def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx]
+  def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx]
+  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx]
 
   // Animators:
-  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx] =
-  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
+  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx]
+  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx]
 
   // Comparing semantics:
-  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
-  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
-  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
+  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx]
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx]
+  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx]
+  
+  // Mandatory checks (throw errors and return warnings):
+  def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx]
 ```
 To use CAOS you need to instantiate the `Configurator[A]` trait, 
 for example in a classe. For example, for a `MyLanguage` object you could define:
