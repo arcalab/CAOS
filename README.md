@@ -28,11 +28,13 @@ Alternatively, it is possible to start from a CAOS template, following the instr
 Examples of projects that use CAOS include:
 
  - [Simple While-language](https://cister-labs.github.io/whilelang-scala/) [(source)](https://github.com/cister-labs/whilelang-scala)
- - [Choreo: choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)](https://github.com/arcalab/choreo)
+(https://github.com/arcalab/choreo)
  - [Pompset: Pomsets for MPST](http://arca.di.uminho.pt/pompset)
  - [ST4MP: Session Types for Multilanguage Programming](http://arca.di.uminho.pt/st4mp/)
- <!-- - [MPST APIs](https://github.com/arcalab/mpst-api) [(Snapshot)](https://arcalab.github.io/mpst-api) -->
+ - [Choreo: experiments with choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)]
  - [Marx: experimental reactive language for synchronous architectures](http://arca.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
+
+ <!-- - [MPST APIs](https://github.com/arcalab/mpst-api) [(Snapshot)](https://arcalab.github.io/mpst-api) -->
 
 ## Importing CAOS
 
