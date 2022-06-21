@@ -29,6 +29,7 @@ Examples of projects that use CAOS include:
 
  - [Simple While-language](https://cister-labs.github.io/whilelang-scala/) [(source)](https://github.com/cister-labs/whilelang-scala)
  - [Pompset: Pomsets for MPST](http://arca.di.uminho.pt/pompset)
+ - [Branching Pomset Encoder](http://arca.di.uminho.pt/b-pomset/)
  - [ST4MP: Session Types for Multilanguage Programming](http://arca.di.uminho.pt/st4mp/)
  - [Choreo: experiments with choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)](https://github.com/arcalab/choreo)
  - [Marx: experimental reactive language for synchronous architectures](http://arca.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
