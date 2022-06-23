@@ -27,10 +27,14 @@ Alternatively, it is possible to start from a CAOS template, following the instr
 
 Examples of projects that use CAOS include:
 
- - [Simple While-language](https://github.com/cister-labs/whilelang-scala) [(Snapshot)](https://cister-labs.github.io/whilelang-scala/)
- - [Choreo: choreographies with strong choice and loops](https://github.com/arcalab/choreo) [(Snapshot)](http://arcalab.github.io/choreo/)
- - [MPST APIs](https://github.com/arcalab/mpst-api) <!-- [(Snapshot)](https://arcalab.github.io/mpst-api) -->
- - [Marx: experimental reactive language for synchronous architectures](https://github.com/arcalab/marx) [(Snapshot)](http://arca.di.uminho.pt/marx/)
+ - [Simple While-language](https://cister-labs.github.io/whilelang-scala/) [(source)](https://github.com/cister-labs/whilelang-scala)
+ - [Pompset: Pomsets for MPST](http://arca.di.uminho.pt/pompset)
+ - [Branching Pomset Encoder](http://arca.di.uminho.pt/b-pomset/)
+ - [ST4MP: Session Types for Multilanguage Programming](http://arca.di.uminho.pt/st4mp/)
+ - [Choreo: experiments with choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)](https://github.com/arcalab/choreo)
+ - [Marx: experimental reactive language for synchronous architectures](http://arca.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
+
+ <!-- - [MPST APIs](https://github.com/arcalab/mpst-api) [(Snapshot)](https://arcalab.github.io/mpst-api) -->
 
 ## Importing CAOS
 
@@ -97,6 +101,8 @@ trait Configurator[Stx]:
   ///// Interface of a configurator for CAOS /////
   /** Name of the project */
   val name: String
+  /** Optional: name of the input language */
+  def languageName: String
   /** How to create an AST from text */
   val parser: String=>Stx
   /** List of examples *//
@@ -110,18 +116,21 @@ object Configurator:
   ///// Constructors for widgets //////
   // Visualisers:
   def view[Stx](viewProg:Stx=>String, typ:ViewType): WidgetInfo[Stx]
-  def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx] =
-  def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx] =
-  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx] =
+  def viewTabs[Stx](viewProgs:Stx=>List[(String,String)], typ:ViewType): WidgetInfo[Stx]
+  def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx]
+  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx]
 
   // Animators:
-  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx] =
-  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
+  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx]
+  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx]
 
   // Comparing semantics:
-  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
-  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
-  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx] =
+  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx]
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx]
+  def compareTraceEq[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2): WidgetInfo[Stx]
+  
+  // Mandatory checks (throw errors and return warnings):
+  def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx]
 ```
 To use CAOS you need to instantiate the `Configurator[A]` trait, 
 for example in a classe. For example, for a `MyLanguage` object you could define:
