@@ -44,13 +44,16 @@ object Utils {
       """.stripMargin)
   }
 
-  def fix(str:String): String =
-    str.replaceAll("'","\\'")
-       .replaceAll("\\\\([^n])", "§backslash-$1§")
+  def fix(str:String): String = str
+      .replaceAll("\\\\n", "\n") // catching all real new lines
+      .replaceAll("§NL;","\\\\\\n")
+      .replaceAll("\\\\", "\\\\\\\\")
+      .replaceAll("\'","\\\\\\'")
+      .replaceAll("\\n","\\\\n") // needed to catch new lines of example content
 //       .replaceAll("module", "§MODL;")
   def unfix(str:String): String =
-    str.replaceAll("\\'","'")
-      .replaceAll("§backslash-([^n])§", "\\\\$1")
+    str.replaceAll("\'","'")
+//      .replaceAll("§backslash-([^n])§", "\\\\$1")
 //      .replaceAll("\\$MODL;","module")
 
   def uploadTxt(): Unit = {

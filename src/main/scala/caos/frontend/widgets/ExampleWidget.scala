@@ -97,8 +97,7 @@ class ExampleWidget(title:String
       () => Utils.uploadTxt() , //Utils.downloadTxt(s"examples: ${examples.map(_.name).mkString(", ")}", "examples.txt"),
       "Upload Examples"),
     Right("download")-> (
-      () => Utils.downloadTxt(ExampleWidget.examplesToTxt(examples),
-        "examples.txt"),
+      () => Utils.downloadTxt(ExampleWidget.examplesToTxt(examples),"examples.txt"),
       "Download Examples")
   )
 
@@ -162,15 +161,15 @@ object ExampleWidget {
     examples.map(e => s"module ${e.name}:\\n// description: ${
       fix(e.description)}\\n${fix(e.example)}").mkString("\\n\\n")
 
-  private def fix(s:String): String =
-    s .replaceAll("\\n","\\\\n")
-      .replaceAll("\"","\\\"")
-      .replaceAll("module","mo§ule")
+  private def fix(s:String): String = s
+      .replaceAll("\\\\n","§NL;") // replaced in UTILS
+//      .replaceAll("\"","\\\"")
+      .replaceAll("module","§MODL;")
 
-  private def unfix(s:String): String =
-    s .replaceAll("\\\\n","\\n")
-      .replaceAll("\\\"","\"")
-      .replaceAll("mo§ule","module")
+  private def unfix(s:String): String = s
+//    .replaceAll("\\\\n","\\n")
+//    .replaceAll("\\\"","\"")
+    .replaceAll("§MODL;","module")
 
 
 }
