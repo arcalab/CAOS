@@ -38,7 +38,7 @@ trait Configurator[Stx]:
 object Configurator:
 
   /**
-   * Generates a Visualize widget.
+   * Generates a WidgetInfo that displays a view of the input program as text or a Mermaid diagram.
    * @param viewProg converts a program into a String
    * @param typ is the type of the String, typically "Text" or "Mermaid"
    * @tparam Stx is the type of the program (syntax)
@@ -48,7 +48,7 @@ object Configurator:
     Visualize[Stx,Stx](x=>View(viewProg(x)),typ, x=>x)
 
   /**
-   * Generates a Visualize widget.
+   * Generates a WidgetInfo similar to `view`, but applied to all examples from the Example's widget.
    * @param viewProgs converts a sequence of programs into a String
    * @param typ is the type of the String, typically "Text" or "Mermaid"
    * @tparam Stx is the type of the program (syntax)
@@ -57,7 +57,7 @@ object Configurator:
   def viewAll[Stx](viewProgs:Seq[(String,Stx)]=>String, typ:ViewType): WidgetInfo[Stx] =
     VisualizeAll[Stx,Stx](x=>View(viewProgs(x)),typ, x=>x)
   /**
-   * Generates a Simulate widget
+   * Generates a Widget that can perform steps interactively for a given SOS and initial state.
    * @param initialSt is the initial state of the semantics
    * @param sos is the SOS object that captures how to evolve (semantics)
    * @param viewProg converts a program into a String
@@ -71,8 +71,8 @@ object Configurator:
     Simulate[Stx,A,S](sos, x=>View(viewProg(x)), typ, initialSt)
 
   /**
-   * Generates a VisualizeTab widget
-   * @param viewProgs converts a program into a String
+   * Generates Widget that can display multiple tabs with different views of the program.
+   * @param viewProgs converts a program into a sequence of "String views" paired with their name.
    * @param typ is the type of the String, typically "Text" or "Mermaid"
    * @tparam Stx is the type of the program (syntax)
    * @return
@@ -81,7 +81,7 @@ object Configurator:
     VisualizeTab[Stx,Stx](x=>viewProgs(x).map(y=>View(y._2)),typ, x=>viewProgs(x).map(_._1), x=>x)
 
   /**
-   * Generates a VisualizeOpt widget
+   * Generates a Widget that produces multiple Mermaid diagrams representing different views of the program.
    * @param viewProgs
    * @tparam Stx is the type of the program (syntax)
    * @return
@@ -90,7 +90,7 @@ object Configurator:
     VisualizeOpt[Stx,Stx](c => OptMermaid(viewProgs(c).toMap), Mermaid, x=>x)
 
   /**
-   * Creates a widget to vizualise a program
+   * Creates a Widget to vizualise a program
    * @param viewProg converts a program into a String
    * @param typ is the type of the String, typically "Text" or "Mermaid"
    * @tparam Stx is the type of the program (syntax)
@@ -104,14 +104,15 @@ object Configurator:
    * @param initialSt is the initial state
    * @param sos is the SOS object that captures how to evolve (semantics)
    * @param viewSt converts a state into a String
-   * @param viewAct convers an action into a String
-   * @param maxSt is the maximum number of states (default is 150)
+   * @param viewAct convers an action into a String (default is `toString`)
+   * @param maxSt is the maximum number of states (default is `80`)
    * @tparam Stx is the type of the program (syntax)
    * @tparam A is the type of actions
    * @tparam S is the type of states
    * @return the WidgetInfo describing how to create the LTS widget
    */
-  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,viewAct:A=>String,maxSt:Int=80): WidgetInfo[Stx] =
+  def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,
+                   viewAct:A=>String=((x:A)=>x.toString),maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
   /**

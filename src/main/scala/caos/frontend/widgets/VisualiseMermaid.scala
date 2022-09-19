@@ -57,6 +57,7 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
   def showChoreo():Unit = {
     try {
       val diagram = mermaid().code//view(pre(mermaid()))
+        .replaceAll("\\\\","\\\\\\\\")
       val mermaidJs = MermaidJS(diagram,divBox,svgBox)
       scalajs.js.eval(mermaidJs)
     } catch Widget.checkExceptions(errorBox,name)
