@@ -28,6 +28,7 @@ Alternatively, it is possible to start from a CAOS template, following the instr
 Examples of projects that use CAOS include:
 
  - [Simple While-language](https://cister-labs.github.io/whilelang-scala/) [(source)](https://github.com/cister-labs/whilelang-scala)
+ - [Simple Lambda Calculus](http://arcalab.github.io/lambda-caos) [(source)](https://github.com/arcalab/lambda-caos)
  - [Pompset: Pomsets for MPST](http://lmf.di.uminho.pt/pompset)
  - [Branching Pomset Encoder](http://lmf.di.uminho.pt/b-pomset/)
  - [ST4MP: Session Types for Multilanguage Programming](http://lmf.di.uminho.pt/st4mp/)
