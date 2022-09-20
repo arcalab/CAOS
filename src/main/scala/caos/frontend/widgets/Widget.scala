@@ -236,7 +236,7 @@ object Widget {
    * @return the function to be placed at a catch point.
    */
   def checkExceptions(errorBox: OutputArea, source:String = ""): PartialFunction[Throwable,Unit] = {
-    val by = if (source.nonEmpty) s" by '$source''" else source
+    val by = if (source.nonEmpty) s" by '$source''" else ""
     val f: PartialFunction[Throwable,Unit] = {
       // type error
       case e: JavaScriptException =>
@@ -246,7 +246,7 @@ object Widget {
         errorBox.error(/*Show(result)+ */ s"JavaScript error$by: " + e + " - " + e.getClass)
       //            instanceInfo.append("p").text("-")
       case e: java.lang.AssertionError => errorBox.error(e.getMessage)
-      case e: RuntimeException => errorBox.error(s"Error raised by $by: " + e.getMessage)
+      case e: RuntimeException => errorBox.error(s"Error raised$by: " + e.getMessage)
       case e: Throwable => errorBox.error(s"Error$by: " + e + " - " + e.getClass +"\n ### "+e.getStackTrace.mkString("\n - "))
     }
     f

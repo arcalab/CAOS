@@ -1,7 +1,7 @@
 package caos.frontend
 
 import caos.common.Example
-import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, VisualiseWarning, Widget, WidgetInfo}
+import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
 import caos.view.OptionView.*
@@ -77,20 +77,16 @@ object Site:
 
       case Visualize(view,Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
       case Visualize(view,Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
+      case Visualize(view,Code(lang),pre) => new VisualiseCode(()=>view(pre(get())),w._1,lang,out)
       case VisualizeAll(v,Mermaid,pre) => new VisualiseMermaid(()=>v(getAll().map(kv=>kv._1->pre(kv._2))),w._1,out)
       case VisualizeAll(v,Text,pre) => new VisualiseText(()=>v(getAll().map(kv=>kv._1->pre(kv._2))),w._1,out)
       case Visualize(_,Html,_) | VisualizeAll(_,Html,_) =>
         out.setValue("HTML visualiser not supported")
         sys.error("HTML visualiser not supported")
       case VisualizeTab(views,Text,titles,pre) =>
-        new Tabs(()=>views(pre(get())),w._1,()=>titles(pre(get())),out)
-      case VisualizeWarning(view, Text, pre) => 
-        VisualiseWarning(()=>view(pre(get())),w._1,out)
-//      case Visualize(view, pre): Visualize[Stx, _] => view(pre(get())) match {
-//        case v:Mermaid => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
-//        case _: Text => new VisualiseText(()=>view(pre(get())),w._1,out) //sys.error("Text visualiser not supported")
-//        case _: Html => sys.error("HTML visualiser not supported")
-
+        new Tabs(()=>views(pre(get())),w._1,()=>titles(pre(get())),"",out) // no language produces text boxes
+      case VisualizeTab(views, Code(lang), titles, pre) =>
+        new Tabs(() => views(pre(get())), w._1, () => titles(pre(get())), lang, out)
       case VisualizeOpt(view,t, pre): VisualizeOpt[Stx, _] => t match {
         case Mermaid => new VisualiseOptMermaid(()=>view(pre(get())),w._1,out)
         case _ => throw new RuntimeException("case not covered...")
@@ -98,11 +94,11 @@ object Site:
       case sim@Simulate(_, _, t, _): Simulate[Stx, _, _] => t match { // view(pre(get())) match {
         case Text => new SimulateText(get,sim, w._1, out)
         case Mermaid => new SimulateMermaid(get,sim,w._1,out)
-        case _ => throw new RuntimeException("case not covered...")
+        case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': $sim")
       }
       case Analyse(a) =>
-        new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()))
-      case _ => throw new RuntimeException("case not covered...")
+        new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()),w._1)
+      case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': ${w._2}")
     } catch {
       case e: Throwable =>
         out.error(e.getMessage)

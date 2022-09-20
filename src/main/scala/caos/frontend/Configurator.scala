@@ -73,7 +73,7 @@ object Configurator:
   /**
    * Generates Widget that can display multiple tabs with different views of the program.
    * @param viewProgs converts a program into a sequence of "String views" paired with their name.
-   * @param typ is the type of the String, typically "Text" or "Mermaid"
+   * @param typ is the type of the String, typically `Text` or `Code("scala")`
    * @tparam Stx is the type of the program (syntax)
    * @return
    */
@@ -88,16 +88,6 @@ object Configurator:
    */
   def viewMerms[Stx](viewProgs:Stx=>List[(String,String)]): WidgetInfo[Stx] =
     VisualizeOpt[Stx,Stx](c => OptMermaid(viewProgs(c).toMap), Mermaid, x=>x)
-
-  /**
-   * Creates a Widget to vizualise a program
-   * @param viewProg converts a program into a String
-   * @param typ is the type of the String, typically "Text" or "Mermaid"
-   * @tparam Stx is the type of the program (syntax)
-   * @return the WidgetInfo describing how to create the widget
-   */
-  def viewWarn[Stx](viewProg:Stx=>String,typ: ViewType):WidgetInfo[Stx] =
-    VisualizeWarning[Stx,Stx](x=>View(viewProg(x)),typ,x=>x)
 
   /**
    * Creates a widget that depicts an LTS with all reachable states, given an initial staten and an SOS
@@ -161,16 +151,14 @@ object Configurator:
     compare[Stx,S1,S2]((a,b)=>TraceEquiv(a,b,sos1,sos2),Text,pre1,pre2)
 
   /**
-   * Run some analysis that only produces runtime errors (thrown) or a set of warnings.
-   * @param a
-   * @tparam Stx
-   * @return
+   * Run some analysis that only produces runtime errors (thrown) or a set of warnings,
+   * and does so everytime the system is called.
+   * @param a is a function that produces a sequence of warnings, possibly throwing errors
+   * @tparam Stx is the type of the program (syntax)
+   * @return the WidgetInfo describing how to create an `Analyser` widget
    */
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
-
-//  def project[Stx,S](p:Projection[_,S],v:View[Set[S],_],pre:Stx=>S): Visualize[Stx,Set[S]] =
-//    Visualize(v, stx => p.allProj(pre(stx)))
 
   /** Helper to build examples as `examples = List("name" -> "code")` */
   implicit def toExample(nameCode:(String,String)): Example =

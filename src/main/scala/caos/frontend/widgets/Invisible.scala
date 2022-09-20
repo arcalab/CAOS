@@ -1,6 +1,6 @@
 package caos.frontend.widgets
 
-class Invisible[A,B](stx:()=>A, analyse: A => (Seq[String],Seq[String], B)) extends Widget[B](""):
+class Invisible[A,B](stx:()=>A, analyse: A => (Seq[String],Seq[String], B),title:String) extends Widget[B](title):
   val content = new OutputArea
 
   var lastB: Option[B] = None
@@ -32,7 +32,7 @@ class Invisible[A,B](stx:()=>A, analyse: A => (Seq[String],Seq[String], B)) exte
       for e<-errs do content.error(e)
       for w<-warns do content.warning(w)
       lastB = Some(res)
-    } catch Widget.checkExceptions(content,"Analyser")
+    } catch Widget.checkExceptions(content,title)
 
 
   override protected def panelBox(parent:Block,

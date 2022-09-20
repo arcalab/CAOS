@@ -21,6 +21,7 @@ sealed abstract class ViewType
 case object Mermaid extends ViewType
 case object Text    extends ViewType
 case object Html    extends ViewType
+case class Code(lang:String="scala")    extends ViewType
 
 
 

@@ -12,6 +12,7 @@ case class Tabs(
   tabs:()=>List[View],
   name:String,
   tabsTitle:()=>List[String],
+  language: String,
   errorBox: OutputArea
 ) extends Widget[Unit](name) {
 
@@ -66,18 +67,25 @@ case class Tabs(
         )
         val tabContent = box.append("div")
           .attr("class","tab-content")
-        val toShow =
-          for (tabView,i) <- views.zipWithIndex yield
-            val tab = tabContent.append("div")
-              .attr("id",s"tab${i+Tabs.index}")
-              .attr("class","tab-pane fade" ++ (if i==0 then "in active" else ""))
+        for (tabView,i) <- views.zipWithIndex do
+          val tab = tabContent.append("div")
+            .attr("id",s"tab${i+Tabs.index}")
+            .attr("class","tab-pane fade" ++ (if i==0 then "in active" else ""))
+          if language.nonEmpty then
             tab.append("pre")
-              .attr("class","language-scala line-numbers")
+              .attr("class",s"language-$language line-numbers")
               .append("code")
-              .attr("class","""language-scala data-prismjs-copy="copy" match-braces""")
+              .attr("class",s"""language-$language data-prismjs-copy="copy" match-braces""")
               .attr("id",s"pretab${i+Tabs.index}")
               .text(tabView.code)
-              scalajs.js.eval(s"""Prism.highlightElement(document.getElementById("pretab${i+Tabs.index}"))""")
+            scalajs.js.eval(s"""Prism.highlightElement(document.getElementById("pretab${i+Tabs.index}"))""")
+          else
+            val toShow = tabView.code
+            tab.append("div")
+              .attr("class", "text")
+              .append("pre")
+              .attr("style", "text-align: left;margin: 0;font-size: 1.2rem;")
+              .text(toShow) //.replace("\n","\\n"))
         Tabs.index += views.size
       } catch Widget.checkExceptions(errorBox,name)
     }
