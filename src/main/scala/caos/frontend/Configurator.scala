@@ -1,6 +1,6 @@
 package caos.frontend
 
-import caos.common.Example
+import caos.frontend.Configurator.Example
 import caos.frontend.widgets.WidgetInfo
 import caos.frontend.widgets.WidgetInfo.*
 import caos.sos
@@ -159,6 +159,9 @@ object Configurator:
    */
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
+
+  /** Simple class to capture an example with a name and a description. */
+  case class Example(example:String, name:String, description:String)
 
   /** Helper to build examples as `examples = List("name" -> "code")` */
   implicit def toExample(nameCode:(String,String)): Example =

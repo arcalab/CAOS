@@ -1,7 +1,7 @@
 package caos.frontend.widgets
 
 import caos.frontend.widgets.Setable
-import caos.common.Example
+import caos.frontend.Configurator.Example
 import org.scalajs.dom
 import org.scalajs.dom.{DOMException, Event, FileReader, UIEvent}
 //import org.w3c.dom.DOMError

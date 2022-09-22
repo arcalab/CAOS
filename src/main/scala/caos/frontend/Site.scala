@@ -1,6 +1,5 @@
 package caos.frontend
 
-import caos.common.Example
 import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
@@ -194,7 +193,7 @@ object Site:
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val widgets = c.widgets
-            override val examples: Iterable[Example] =
+            override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
           }
           //println("init site again")
