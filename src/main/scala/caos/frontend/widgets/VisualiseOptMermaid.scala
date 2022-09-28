@@ -15,8 +15,8 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
 
   val diagram:String = ""
   protected var box:Block = _
-  protected val svgBox: String = fix(name) + "Svg"
-  protected val divBox: String = fix(name) + "Box"
+  protected val svgBox: String = titleId+"Svg" // fix(name) + "Svg"
+  protected val divBox: String = titleId+"Box" // fix(name) + "Box"
 
   protected def fix(s:String): String = s
     .replace(' ','_')
@@ -38,7 +38,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       //.style("display", "flex")
       //.style("justify-content", "flex-start")
       .style("padding","5px 1px 5px 15px")
-    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(_: MouseEvent) => if(!isVisible) showOptions() }
   }
 

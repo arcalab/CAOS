@@ -16,7 +16,7 @@ class VisualiseCode(text:()=>View, name:String, language:String, errorBox: Outpu
   extends Widget[Unit](name) {
 
   private var box:Block = _
-  protected val divBox = name.replace(' ','_') + "Box"
+  protected val divBox = titleId+"Box" // name.replace(' ','_') + "Box"
 
   override val get: Unit = () //mermaid()
 
@@ -33,7 +33,7 @@ class VisualiseCode(text:()=>View, name:String, language:String, errorBox: Outpu
 //      .append("pre")
 //      .attr("style","text-align: left;margin: 0;font-size: 1.2rem;")
 
-    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) showCode() }
   }
 

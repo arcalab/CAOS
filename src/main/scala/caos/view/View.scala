@@ -20,8 +20,19 @@ case class View(code: String)
 sealed abstract class ViewType
 case object Mermaid extends ViewType
 case object Text    extends ViewType
-case object Html    extends ViewType
+/**
+ * Represents a code block for a given language.
+ * Supported languages are:
+ *  - scala (default)
+ *  - markup
+ *  - css
+ *  - clike
+ *  - javascript
+ *  - java
+ * More can be included, listed in https://prismjs.com/#supported-languages.
+ */
 case class Code(lang:String="scala")    extends ViewType
+case object Html    extends ViewType
 
 
 
