@@ -18,8 +18,8 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
 
   val diagram:String = ""
   protected var box:Block = _
-  protected val svgBox = fix(name) + "Svg"
-  protected val divBox = fix(name) + "Box"
+  protected val svgBox = titleId+"Svg" //fix(name) + "Svg"
+  protected val divBox = titleId+"Box" //fix(name) + "Box"
 
   protected def fix(s:String) = s
     .replace(' ','_')
@@ -43,7 +43,7 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
       .style("text-align","center")
       .append("div").attr("id",svgBox)
 
-    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(e: MouseEvent) => if(!isVisible) showChoreo() }
   }
 
