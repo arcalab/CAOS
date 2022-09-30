@@ -151,6 +151,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
 
   protected def showSt(st:St):Unit = try {
     val mermaid = simulate.v(st).code
+      .replaceAll("\\\\","\\\\\\\\")
     val mermaidJs = MermaidJS(mermaid,divBox,svgBox)
     scalajs.js.eval(mermaidJs)
   } catch Widget.checkExceptions(errorBox,name)
