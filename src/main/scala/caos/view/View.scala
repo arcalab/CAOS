@@ -29,6 +29,8 @@ case object Text    extends ViewType
  *  - clike
  *  - javascript
  *  - java
+ *  - haskell
+ *  - rust
  * More can be included, listed in https://prismjs.com/#supported-languages.
  */
 case class Code(lang:String="scala")    extends ViewType
