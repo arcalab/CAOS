@@ -70,7 +70,8 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
         .attr("id", divBox+namefix)
         .style("text-align","center")
         .append("div").attr("id",svgBox+namefix)
-      val mermaidJs = MermaidJS(code,divBox+namefix,svgBox+namefix)
+      val mermaidJs = MermaidJS(code.replaceAll("\\\\","\\\\\\\\"),
+                                divBox+namefix,svgBox+namefix)
       scalajs.js.eval(mermaidJs)
     } catch Widget.checkExceptions(errorBox,this.name)
   }

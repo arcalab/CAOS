@@ -67,13 +67,6 @@ object Site:
    */
   protected def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx, getAll:()=>Seq[(String,Stx)], out:OutputArea): Widget[Unit] =
     try w._2 match {
-        //todo: nicer way to achieve this type check?
-//      case Visualize(view:Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
-//      case Visualize(view:Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
-//      case Visualize(view:Html,_) =>
-//        out.setValue("HTML visualiser not supported")
-//        sys.error("HTML visualiser not supported")
-
       case Visualize(view,Mermaid,pre) => new VisualiseMermaid(()=>view(pre(get())),w._1,out)
       case Visualize(view,Text,pre) => new VisualiseText(()=>view(pre(get())),w._1,out)
       case Visualize(view,Code(lang),pre) => new VisualiseCode(()=>view(pre(get())),w._1,lang,out)
