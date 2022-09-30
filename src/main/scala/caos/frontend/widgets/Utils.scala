@@ -1,10 +1,10 @@
 package caos.frontend.widgets
 
 object Utils {
-  def downloadSvg(element:String): Unit = {
+  def downloadSvgOld(element:String): Unit = {
     scalajs.js.eval(
       s"""svgEl = document.getElementById("$element");
-         |name = "circuit.svg";
+         |name = "image.svg";
          |
          |svgEl.setAttribute("xmlns", "http://www.w3.org/2000/svg");
          |var svgData = svgEl.outerHTML;
@@ -20,6 +20,33 @@ object Utils {
          |var preface = '<?xml version="1.0" standalone="no"?>\\r\\n';
          |var svgBlob = new Blob([preface, svgData], {type:"image/svg+xml;charset=utf-8"});
          |var svgUrl = URL.createObjectURL(svgBlob);
+         |var downloadLink = document.createElement("a");
+         |downloadLink.href = svgUrl;
+         |downloadLink.download = name;
+         |document.body.appendChild(downloadLink);
+         |downloadLink.click();
+         |document.body.removeChild(downloadLink);
+      """.stripMargin)
+  }
+
+  /** JS code to download an SVG mermaid diagram. */
+  def downloadSvg(element: String): Unit = {
+    scalajs.js.eval(
+      s"""svg = document.getElementById("$element");
+         |name = "image.svg";
+         |
+         |//get svg source.
+         |var serializer = new XMLSerializer();
+         |var source = serializer.serializeToString(svg);
+         |
+         |source = source.replace(/url\\([^\\(#]*#/g, 'url(#');
+         |
+         |//add xml declaration
+         |source = '<?xml version="1.0" standalone="no"?>\\r\\n' + source;
+         |
+         |//convert svg source to URI data scheme.
+         |var svgUrl = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+         |
          |var downloadLink = document.createElement("a");
          |downloadLink.href = svgUrl;
          |downloadLink.download = name;
