@@ -13,6 +13,7 @@ import scala.scalajs.js.{JavaScriptException, UndefOr}
 abstract class Widget[A](val title: String){
   type Block = DomElem //Selection[dom.EventTarget]
 
+  protected val titleId = "id"+title.hashCode
   var wrap:DomElem = _
 
   /**
@@ -26,7 +27,7 @@ abstract class Widget[A](val title: String){
 
     //var expander: Block = parent
     wrap = parent.append("div").attr("class","panel-group")
-      .append("div").attr("class","panel panel-default").attr("id",title)
+      .append("div").attr("class","panel panel-default").attr("id",titleId)
     var expander = wrap
       .append("div").attr("class", "panel-heading my-panel-heading")
       .append("h4")
@@ -41,14 +42,14 @@ abstract class Widget[A](val title: String){
     expander = expander
       .append("a")
       .attr("data-toggle", "collapse")
-      .attr("href", "#collapse-1" + title.hashCode)
+      .attr("href", "#collapse-1" + titleId)
       .attr("aria-expanded", visible.toString)
     if(!visible)
       expander.attr("class","collapsed")
     expander
       .text(title)
     val res = wrap
-      .append("div").attr("id","collapse-1"+title.hashCode)
+      .append("div").attr("id","collapse-1"+titleId)
       .attr("class",if (visible) "panel-collapse collapse in" else "panel-collapse collapse")
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
@@ -131,7 +132,7 @@ abstract class Widget[A](val title: String){
     for (i <- 0 until es.length) {
       // println(es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
       //      println("### - "+es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value)
-      foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == title
+      foundId = foundId || es.item(i).parentNode.parentNode.parentNode.attributes.getNamedItem("id").value == titleId
     }
 
     //    println("### - "+es.length)
@@ -150,7 +151,7 @@ abstract class Widget[A](val title: String){
 
   // add actions in "init" to update to visibility toggles
   def toggleVisibility(visible:()=>Unit = ()=>{}, invisible:()=>Unit = ()=>{}): Unit =
-    dom.document.getElementById(title).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(_: MouseEvent) => if(!isVisible) visible() else invisible()}
 
 
@@ -173,7 +174,7 @@ abstract class Widget[A](val title: String){
   /** Adds code that is executed everyting the text of the title is clicked.
    * The code is executed *before* collapsing/expanding. */
   def whenClickTitle(update: ()=>Unit): Unit =
-    dom.document.getElementById(title).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(_: MouseEvent) => update()}
 
 }

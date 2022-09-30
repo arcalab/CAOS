@@ -72,7 +72,7 @@ object Configurator:
 
   /**
    * Generates Widget that can display multiple tabs with different views of the program.
-   * @param viewProgs converts a program into a sequence of "String views" paired with their name.
+   * @param viewProgs converts a program into a sequence of pairs of strings (title, content).
    * @param typ is the type of the String, typically `Text` or `Code("scala")`
    * @tparam Stx is the type of the program (syntax)
    * @return
@@ -82,7 +82,7 @@ object Configurator:
 
   /**
    * Generates a Widget that produces multiple Mermaid diagrams representing different views of the program.
-   * @param viewProgs
+   * @param viewProgs converts a program into a sequence of pairs of string (title, mermaid-code).
    * @tparam Stx is the type of the program (syntax)
    * @return
    */

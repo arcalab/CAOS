@@ -17,8 +17,8 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   private var right:Block = _
   private var top:Block = _
   //private val simBox = name.replace(' ','_')+"Box"
-  protected val svgBox: String = fix(name) + "Svg"
-  protected val divBox: String = fix(name) + "Box"
+  protected val svgBox: String = titleId+"Svg" // fix(name) + "Svg"
+  protected val divBox: String = titleId+"Box" // fix(name) + "Box"
 
   private def fix(s:String) = s
     .replace(' ','_')
@@ -43,7 +43,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
       Right("refresh") -> (() =>
         update(), "Simulate next actions of current program")
     ))
-    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = { (_: MouseEvent) => if(!isVisible) initialise() }
 
     top = box

@@ -1,25 +1,11 @@
 package caos.sos
 
-//import choreo.syntax.Choreo.{Action, In, Out, Tau}
-
-
 trait SOS[Act,State]:
   def next(s:State): Set[(Act,State)]
-  def accepting(s:State): Boolean
+  def accepting(s:State): Boolean = false
 
 trait HasTaus:
   val isTau: Boolean
-
-//// experiment: SOS with ints
-//object ISOS extends SOS[Int,Int]:
-//  def next(s:Int): Set[(Int,Int)] =
-//    if s>6 then Set()
-//    else (for i <- 1 to 3 yield (i,s+i)).toSet
-//  def accepting(s:Int): Boolean = s>6
-
-//trait WSOS[Act<:HasTaus,State] extends SOS[Act,State]:
-//  def nextWeak(s:State): Set[(Act,State,Option[State])] =
-//    SOS.nextWeak(this,s,None)
 
 
 object SOS:
@@ -37,11 +23,12 @@ object SOS:
         case x => Set((x,s2,last))
     ).flatten
 
+  /** Given a state `s` calculates all targets `t` such that `s --tau*--> t` */
   def byTau[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
     (for (a,s2)<-sos.next(s) yield
       a match
         case t if t.isTau => byTau(sos,s2) + s
-        case x => Set(s))
+        case _ => Set(s))
       .flatten + s
 
   //  def transBy(a:Action): LTS[S]
@@ -94,6 +81,8 @@ object SOS:
         i+=1
         i-1
     def fix(s:String): String = s"\"$s\""
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
       .replaceAll("\n","<br>")
 //      .replaceAll("\\[|\\]|\\(|\\)","_")
 //      .replaceAll(";",",")

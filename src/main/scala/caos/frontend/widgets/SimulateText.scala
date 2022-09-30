@@ -16,7 +16,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
   private var left:Block = _
   private var right:Block = _
   private var top:Block = _
-  private val simBox = name.replace(' ','_')+"Box"
+  private val simBox = titleId+"Box" //name.replace(' ','_')+"Box"
 
   override def get: Unit = ()
 
@@ -35,7 +35,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
       Right("refresh") -> (() =>
         update(), "Simulate next actions of current program")
     ))
-    dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+    dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = { (_: MouseEvent) => if(!isVisible) initialise() }
 
     top = box
