@@ -95,10 +95,10 @@ object SOS:
         case Some(st) =>
           val done2 = done+st
           var next2 = next-st
-          var res = s"\n  ${ids(st)}[${fix(showSt(st))}];"
+          var res = s"\n  ${ids(st)}([${fix(showSt(st))}]);"
           for (a,s2) <- sos.next(st) do
             next2 += s2
-            res += s"\n  ${ids(s2)}[${fix(showSt(s2))}];\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
+            res += s"\n  ${ids(s2)}([${fix(showSt(s2))}]);\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
           res + aux(next2,done2,limit-1)
         case None => ""
     "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),maxNodes)

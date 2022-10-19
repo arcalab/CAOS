@@ -38,7 +38,7 @@ case class Tabs(
         //.append("pre")
         //.attr("style","text-align: left;margin: 0;font-size: 1.2rem;")
 
-      dom.document.getElementById(name).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+      dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
         .onclick = {(e: MouseEvent) => if(!isVisible) showTabs() }
     }
 
