@@ -24,9 +24,15 @@ object Site:
     initialiseContainers()
 
     // find the main example (from URL of first in the list)
-    val urlQuery = document.URL.split('?').drop(1).mkString("?").replaceAll("%20", " ")
+    val urlQuery = document.URL.split('?').drop(1).mkString("?")
+      .replaceAll("%20", " ")
+      .replaceAll("%3E", ">")
+      .replaceAll("%7C", "|")
     val mainExample = config.examples.find(_.name == urlQuery) match
-      case None => config.examples.headOption
+      case None =>
+        if urlQuery.nonEmpty
+        then Some(Configurator.Example(urlQuery,"Custom",""))
+        else config.examples.headOption
       case ex => ex
 
     errorArea = new OutputArea
