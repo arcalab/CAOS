@@ -1,7 +1,7 @@
 package caos.sos
 
-trait SOS[Act,State]:
-  def next(s:State): Set[(Act,State)]
+trait SOS[+Act,State]:
+  def next[A>:Act](s:State): Set[(A,State)]
   def accepting(s:State): Boolean = false
 
 trait HasTaus:
@@ -24,10 +24,10 @@ object SOS:
     ).flatten
 
   /** Given a state `s` calculates all targets `t` such that `s --tau*--> t` */
-  def byTau[A<:HasTaus,S](sos:SOS[A,S], s:S): Set[S] =
+  def byTau[A/*<:HasTaus*/,S](sos:SOS[A,S], s:S): Set[S] =
     (for (a,s2)<-sos.next(s) yield
       a match
-        case t if t.isTau => byTau(sos,s2) + s
+        case t:HasTaus if t.isTau => byTau(sos,s2) + s
         case _ => Set(s))
       .flatten + s
 
@@ -61,9 +61,9 @@ object SOS:
     done
 
   /** Replace `next` by the weak version, possibly precedded by taus but NOT being a tau. */
-  def postponeTaus[A<:HasTaus,S](sos:SOS[A,S]): SOS[A,S] =
+  def postponeTaus[A/*<:HasTaus*/,S](sos:SOS[A,S]): SOS[A,S] =
     new SOS[A,S]:
-      override def next(s: S): Set[(A, S)] =
+      override def next[A2>:A](s: S): Set[(A2, S)] =
         for (a2,s2,_) <- SOS.nextWeak(sos,s)
         yield (a2,s2)
       override def accepting(s: S): Boolean =

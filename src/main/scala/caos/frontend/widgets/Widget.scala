@@ -244,7 +244,7 @@ object Widget {
         //      val sw = new StringWriter
         //      e.printStackTrace(new PrintWriter(sw))
         //      errorBox.error(/*Show(result)+ */ "JavaScript error : " + e + " - " + e.getClass + "\n" + sw.toString )
-        errorBox.error(/*Show(result)+ */ s"JavaScript error$by: " + e + " - " + e.getClass)
+        errorBox.error(/*Show(result)+ */ s"JavaScript error$by: $e - ${e.getClass}") // - ${e.getStackTrace.mkString("\n")}")
       //            instanceInfo.append("p").text("-")
       case e: java.lang.AssertionError => errorBox.error(e.getMessage)
       case e: RuntimeException => errorBox.error(s"Error raised$by: " + e.getMessage)

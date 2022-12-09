@@ -23,9 +23,15 @@ object Site:
     lastConfig = Some(config)
     initialiseContainers()
 
+    // find the main example (from URL of first in the list)
+    val urlQuery = document.URL.split('?').drop(1).mkString("?").replaceAll("%20", " ")
+    val mainExample = config.examples.find(_.name == urlQuery) match
+      case None => config.examples.headOption
+      case ex => ex
+
     errorArea = new OutputArea
     descriptionArea = new OutputArea
-    val code = mkCodeBox(config)
+    val code = mkCodeBox(config,mainExample)
 
     code.init(leftColumn,true)
     errorArea.init(leftColumn)
@@ -51,7 +57,7 @@ object Site:
     smallBoxes.foreach(b=>b.init(leftColumn,false))
 
 
-    config.examples.headOption match
+    mainExample match
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
@@ -137,11 +143,11 @@ object Site:
     errorArea.clear()
     toReload.foreach(f=>f())
 
-  protected def mkCodeBox[A](config:Configurator[A]):CodeWidget[A] =
+  protected def mkCodeBox[A](config:Configurator[A],ex:Option[Configurator.Example]):CodeWidget[A] =
     new CodeWidget[A](config.languageName,Nil) {
 
-      protected var input: String = config.examples.headOption match
-        case Some(ex) => ex.example
+      protected var input: String = ex match
+        case Some(e) => e.example
         case _ => ""
 
       override protected val boxId: String = config.name + "Box"
