@@ -28,6 +28,9 @@ object Site:
       .replaceAll("%20", " ")
       .replaceAll("%3E", ">")
       .replaceAll("%7C", "|")
+      .replaceAll("%5B", "[")
+      .replaceAll("%5D", "]")
+
     val mainExample = config.examples.find(_.name == urlQuery) match
       case None =>
         if urlQuery.nonEmpty
