@@ -30,6 +30,7 @@ trait Configurator[Stx]:
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
+  @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
 
 /**

@@ -7,7 +7,13 @@ import caos.view.{OptionView, View, ViewType}
  * Description of a widget to be created by CAOS.
  * @tparam Stx Type of the data structure being analysed.
  */
-sealed abstract class WidgetInfo[Stx]
+sealed trait WidgetInfo[Stx]:
+  var expanded = false
+  var location = 0
+  /** Sets whether the widget is initially collapsed or expanded */
+  def expand: WidgetInfo[Stx] = {expanded = true; this}
+  /** Sets the location where the widget should be placed */
+  def moveTo(i:Int): WidgetInfo[Stx] = {location = i; this}
 
 object WidgetInfo:
   case class Visualize[Stx,S](v:S=>View, typ:ViewType, pre:Stx=>S)

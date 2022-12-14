@@ -25,11 +25,17 @@ object Site:
 
     // find the main example (from URL of first in the list)
     val urlQuery = document.URL.split('?').drop(1).mkString("?")
-      .replaceAll("%20", " ")
-      .replaceAll("%3E", ">")
-      .replaceAll("%7C", "|")
-      .replaceAll("%5B", "[")
-      .replaceAll("%5D", "]")
+      .replaceAll("%2F", "/") .replaceAll("%3C", "<")
+      .replaceAll("%26", "&") .replaceAll("%3E", ">")
+      .replaceAll("%20", " ") .replaceAll("%23", "#")
+      .replaceAll("%24", "$") .replaceAll("%7B", "{")
+      .replaceAll("%2B", "+") .replaceAll("%7D", "}")
+      .replaceAll("%2C", ",") .replaceAll("%7C", "|")
+      .replaceAll("%3A", ":") .replaceAll("%5E", "^")
+      .replaceAll("%3B", ";") .replaceAll("%7E", "~")
+      .replaceAll("%3F", "?") .replaceAll("%5B", "[")
+      .replaceAll("%40", "@") .replaceAll("%5D", "]")
+      .replaceAll("%22", "\"").replaceAll("%60", "`")
 
     val mainExample = config.examples.find(_.name == urlQuery) match
       case None =>
@@ -54,23 +60,38 @@ object Site:
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config.examples,globalReload(),code,Some(descriptionArea))
 
-    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,
-        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)), errorArea))
-    boxes.foreach(b=>b.init(rightColumn,false))
-
+    // place examples and information area
     examples.init(leftColumn,true)
     descriptionArea.init(leftColumn) // after the examples
 
-    val smallBoxes = config.smallWidgets.map(w => mkWidget(w,()=>code.get,
-        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)),errorArea))
-    smallBoxes.foreach(b=>b.init(leftColumn,false))
+    // build and place all widgets
+    // small widgets are deprecated - this makes it work with older versions.
+    val widgets = (for (name,wi) <-config.smallWidgets yield (name,wi.moveTo(1))) ++ config.widgets
+    val boxes = for wc <- widgets yield
+      // build widget w
+      val w = mkWidget(wc, () => code.get, () => examples.get.map(kv => kv._1 -> config.parser(kv._2)), errorArea)
+      // place widget in the document
+      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+      w
+
+//    // build main boxes
+//    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,
+//        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)), errorArea))
+//    boxes.foreach(b=>b.init(rightColumn,false))
+
+//    // build small boxes
+//    val smallBoxes = config.smallWidgets.map(w => mkWidget(w, () => code.get,
+//      () => examples.get.map(kv => kv._1 -> config.parser(kv._2)), errorArea))
+//    smallBoxes.foreach(b => b.init(rightColumn, false))
 
 
     mainExample match
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
-    toReload = (List(code)++boxes++smallBoxes).map(b => ()=>b.update())
+    toReload = (List(code)++boxes).map(b => ()=>b.update())
+
+    globalReload()
 
   /**
    * Make widget box
