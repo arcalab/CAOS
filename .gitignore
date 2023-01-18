@@ -6,4 +6,5 @@
 /project/target 
 /project/project/
 /target
-/tool/js/gen/
+/tool/js/gen/*.js
+/tool/js/gen/*.map
