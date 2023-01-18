@@ -36,6 +36,7 @@ object Site:
       .replaceAll("%3F", "?") .replaceAll("%5B", "[")
       .replaceAll("%40", "@") .replaceAll("%5D", "]")
       .replaceAll("%22", "\"").replaceAll("%60", "`")
+      .replaceAll("%28", "(") .replaceAll("%29", ")")
 
     val mainExample = config.examples.find(_.name == urlQuery) match
       case None =>
