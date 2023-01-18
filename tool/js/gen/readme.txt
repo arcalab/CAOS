@@ -1,1 +1,0 @@
-Use this folder to place the generated JS files, by editing the build.sbt file in the main project.

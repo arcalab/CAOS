@@ -103,6 +103,22 @@ object SOS:
         case None => ""
     "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),maxNodes)
 
+  def traverse[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
+    def aux(next:Set[S],done:Set[S],edges:Int, limit:Int): (Set[S],Int,Boolean) =
+      if limit <=0 then
+        return (done,edges,false)
+      next.headOption match
+        case None =>
+          (done, edges, true)
+        case Some(st) if done contains st =>
+          aux(next-st,done,edges,limit)
+        case Some(st) => //visiting new state
+          val more = sos.next(st)
+          aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-1)
+
+    aux(Set(s), Set(), 0, max)
+
+
 
           
 
