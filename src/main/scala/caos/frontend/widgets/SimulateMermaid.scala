@@ -136,7 +136,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     ul.append("li")
       .append("span").style("font-weight:bold;").textEl("Enabled transitions:")
 
-    for ((a,p)<-enabled) {
+    for ((a,p)<-enabled.toList.sortWith(_._1.toString < _._1.toString)) {
       val li = ul.append("li")
       val b = li.append("button").attr("title",p.toString)
         .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
