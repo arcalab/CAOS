@@ -35,6 +35,7 @@ Examples of projects that use CAOS include:
  - [Choreo: experiments with choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)](https://github.com/arcalab/choreo)
  - [Mars: early experiments on a language to generate runtime monitors](https://mars-language.bitbucket.io) [(RTSS'20 short paper)](https://jose.proenca.org/publication/nandi-dsl-2020/)
  - [Marx: experimental reactive language for synchronous architectures](http://lmf.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
+ - [VVML: animator and analyser of a subset of UML Activity Diagrams](https://cister-labs.github.io/coreVVML/) [(source)](https://github.com/cister-labs/coreVVML/)
 
  <!-- - [MPST APIs](https://github.com/arcalab/mpst-api) [(Snapshot)](https://arcalab.github.io/mpst-api) -->
 
