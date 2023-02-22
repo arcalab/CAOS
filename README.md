@@ -29,12 +29,13 @@ Examples of projects that use CAOS include:
 
  - [Simple While-language](https://cister-labs.github.io/whilelang-scala/) [(source)](https://github.com/cister-labs/whilelang-scala)
  - [Simple Lambda Calculus](http://arcalab.github.io/lambda-caos) [(source)](https://github.com/arcalab/lambda-caos)
- - [Pompset: Pomsets for MPST](http://lmf.di.uminho.pt/pompset) [(ECOOP'22 paper)](https://jose.proenca.org/publication/cledou-apigeneration-2022/)
- - [Branching Pomset Encoder](http://lmf.di.uminho.pt/b-pomset/) [(ICE'22 paper)](https://jose.proenca.org/publication/edixhoven-branching-2022/)
- - [ST4MP: Session Types for Multilanguage Programming](http://lmf.di.uminho.pt/st4mp/) [(ISoLA'22 paper)](https://jose.proenca.org/publication/jongmans-st4mp-2022/)
+ - [Branching Pomset Encoder](http://lmf.di.uminho.pt/b-pomset/) [(ICE'22 paper+source)](https://jose.proenca.org/publication/edixhoven-branching-2022/)
+ - [Pompset: Scala API generation of MPST via Pomsets](http://lmf.di.uminho.pt/pompset) [(ECOOP'22 paper+source)](https://jose.proenca.org/publication/cledou-apigeneration-2022/)
+ - [ST4MP: Session Types for Multilanguage Programming](http://lmf.di.uminho.pt/st4mp/) [(ISoLA'22 paper+source)](https://jose.proenca.org/publication/jongmans-st4mp-2022/)
  - [Choreo: experiments with choreographies with strong choice and loops](http://arcalab.github.io/choreo/) [(source)](https://github.com/arcalab/choreo)
  - [Mars: early experiments on a language to generate runtime monitors](https://mars-language.bitbucket.io) [(RTSS'20 short paper)](https://jose.proenca.org/publication/nandi-dsl-2020/)
  - [Marx: experimental reactive language for synchronous architectures](http://lmf.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
+ - [VVML: animator and analyser of a subset of UML Activity Diagrams](https://cister-labs.github.io/coreVVML/) [(source)](https://github.com/cister-labs/coreVVML/)
 
  <!-- - [MPST APIs](https://github.com/arcalab/mpst-api) [(Snapshot)](https://arcalab.github.io/mpst-api) -->
 
