@@ -1,9 +1,15 @@
 package caos.sos
 
+/** An SOS semantics with states in `State` and labels in `Act` needs to implement
+ * a function that provides the follow-up states */
 trait SOS[+Act,State]:
+  /** Set of next states `State` and corresponding labels `Act`. */
   def next[A>:Act](s:State): Set[(A,State)]
+  /** Check if a given state is accepting. */
   def accepting(s:State): Boolean = false
 
+/** For weak semantics, a transition is invisible/internal if
+ *  it extends `HasTaus` and `isTau` holds. */
 trait HasTaus:
   val isTau: Boolean
 
@@ -80,7 +86,7 @@ object SOS:
         _ids+=s->i
         i+=1
         i-1
-    def fix(s:String): String = s"\"$s\""
+    def fix(s:String): String = s"\" $s\""
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll("\n","<br>")

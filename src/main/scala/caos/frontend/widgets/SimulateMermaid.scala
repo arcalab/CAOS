@@ -98,12 +98,16 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     else initialiseWith(traceStx.init.last,traceActs.init,traceStx.init)
 
   protected def takeStep(a:Act,goesTo:St):Unit = try {
+    //println(s"[SimMerm] Takes step $a to $goesTo")
     lastStx = goesTo
     traceStx :+= goesTo
     //if (!a.isTau) traceActs :+=a
     traceActs :+=a // todo: extend SOS[A<:HasTaus,S]
+    //println(s"[SimMerm] Update Sim Steps")
     updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
+    //println(s"[SimMerm] EnableActions")
     updateEnabledActions(goesTo)
+    //println(s"[SimMerm] Done")
   } catch Widget.checkExceptions(errorBox,name)
 
   def updateEnabledActions(c: St):Unit = {
@@ -150,9 +154,12 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
 
 
   protected def showSt(st:St):Unit = try {
+    //println(s"--- About to view $st")
     val mermaid = simulate.v(st).code
       .replaceAll("\\\\","\\\\\\\\")
+    //println(s"--- About to build mermaid $mermaid")
     val mermaidJs = MermaidJS(mermaid,divBox,svgBox)
+    //println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
     scalajs.js.eval(mermaidJs)
   } catch Widget.checkExceptions(errorBox,name)
 
