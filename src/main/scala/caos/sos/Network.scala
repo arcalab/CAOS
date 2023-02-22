@@ -7,7 +7,9 @@ package caos.sos
 
 object Network:
   /** State of a network includes the state of the participants and the state of the network. */
-  case class State[LSt,NSt](parts:List[LSt], netSt:NSt)
+  case class State[LSt,NSt](parts:List[LSt], netSt:NSt):
+    override def toString: String =
+      s"${parts.mkString("  ---  ")}  ---  $netSt}"
 
   /**
    * Produces an SOS semantics for a network of participants
