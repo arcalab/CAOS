@@ -7,7 +7,7 @@ import caos.view.{OptionView, View, ViewType}
  * Description of a widget to be created by CAOS.
  * @tparam Stx Type of the data structure being analysed.
  */
-sealed trait WidgetInfo[Stx]:
+sealed trait WidgetInfo[-Stx]:
   var expanded = false
   var location = 0
   /** Sets whether the widget is initially collapsed or expanded */

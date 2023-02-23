@@ -116,11 +116,11 @@ object Site:
         new Tabs(()=>views(pre(get())),w._1,()=>titles(pre(get())),"",out) // no language produces text boxes
       case VisualizeTab(views, Code(lang), titles, pre) =>
         new Tabs(() => views(pre(get())), w._1, () => titles(pre(get())), lang, out)
-      case VisualizeOpt(view,t, pre): VisualizeOpt[Stx, _] => t match {
+      case VisualizeOpt(view,t, pre) => t match {
         case Mermaid => new VisualiseOptMermaid(()=>view(pre(get())),w._1,out)
         case _ => throw new RuntimeException("case not covered...")
       }
-      case sim@Simulate(_, _, t, _): Simulate[Stx, _, _] => t match { // view(pre(get())) match {
+      case sim@Simulate(_, _, t, _) => t match { // view(pre(get())) match {
         case Text => new SimulateText(get,sim, w._1, out)
         case Mermaid => new SimulateMermaid(get,sim,w._1,out)
         case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': $sim")
