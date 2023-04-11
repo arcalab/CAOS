@@ -133,8 +133,10 @@ object Configurator:
    * @tparam S2 is the type of the second element
    * @return the WidgetInfo describing how to create the comparator widget
    */
-  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,maxDepth:Int=5000): WidgetInfo[Stx] =
-    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b)(using sos1,sos2,maxDepth),Text,pre1,pre2)
+  def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,
+                                      show1:S1=>String = (_:S1).toString, show2:S2=>String = (_:S2).toString,
+                                      maxDepth:Int=5000): WidgetInfo[Stx] =
+    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b,show1,show2)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
   /**
    * Compare 2 SOSs using trace equivalence.
