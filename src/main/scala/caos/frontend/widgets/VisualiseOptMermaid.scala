@@ -60,7 +60,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       box.text("")
       for ((name,code)<-mermaid().options) do
         showOption(name,code)
-    } catch Widget.checkExceptions(errorBox)
+    } catch Widget.checkExceptions(errorBox,this.name)
 
   def showOption(name:String,code:String):Unit = {
     try {
