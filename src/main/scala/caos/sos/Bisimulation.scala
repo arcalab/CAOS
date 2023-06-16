@@ -15,10 +15,12 @@ abstract class Bisimulation:
     case Timeout(visited:RT[Act,A,B],missing:RT[Act,A,B])
     case CanDo(act:Act,trace:List[Act],a:A|B,b:A|B)
     case CanAccept(trace:List[Act],a:A|B,b:A|B)
+    case Other(msg:String)
   def swap[Act,A,B](b:BError[Act,A,B]): BError[Act,B,A] = b match
       case BError.Timeout(v,m)         => BError.Timeout(swap(v),swap(m))
       case BError.CanDo(act,trace,a,b) => BError.CanDo(act,trace,a,b)
       case BError.CanAccept(trace,a,b) => BError.CanAccept(trace,a,b)
+      case BError.Other(msg)           => BError.Other(msg)
   def swap[Act,A,B](rt:RT[Act,A,B]): RT[Act,B,A] =
     for (k,v) <- rt yield ((k._2,k._1) -> v)
 
@@ -44,6 +46,7 @@ abstract class Bisimulation:
         s"after ${if trace.isEmpty then "[]" else trace.reverse.mkString(",")}\n   + ${
           show(a)} is accepting\n   + ${
           show(b)} is not"
+      case BError.Other(msg) => msg
 
   /** Pretty printing bisimulation results. */
   def pp[A,G,L](res: BResult[A,G,L],
