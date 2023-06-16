@@ -62,8 +62,8 @@ object Site:
     val examples = new ExampleWidget("Examples",config.examples,globalReload(),code,Some(descriptionArea))
 
     // place examples and information area
+    descriptionArea.init(leftColumn) // before the examples
     examples.init(leftColumn,true)
-    descriptionArea.init(leftColumn) // after the examples
 
     // build and place all widgets
     // small widgets are deprecated - this makes it work with older versions.

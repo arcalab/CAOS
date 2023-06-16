@@ -34,10 +34,14 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
    */
   override def init(div: Block, visible: Boolean): Unit = {
     box = panelBox(div, visible,buttons=List())
-      .append("div")
+      .append("div") // outside box to center grid
+      .style("text-align","center")
+      .append("div") // inside box to place each "title+mermaid" (option)
       //.style("display", "flex")
       //.style("justify-content", "flex-start")
-      .style("padding","5px 1px 5px 15px")
+      .style("padding","5px 0px 5px 0px")
+      .style("display", "inline-flex")
+      .style("flex-wrap", "wrap")
     dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(_: MouseEvent) => if(!isVisible) showOptions() }
   }
@@ -56,7 +60,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       box.text("")
       for ((name,code)<-mermaid().options) do
         showOption(name,code)
-    } catch Widget.checkExceptions(errorBox)
+    } catch Widget.checkExceptions(errorBox,this.name)
 
   def showOption(name:String,code:String):Unit = {
     try {

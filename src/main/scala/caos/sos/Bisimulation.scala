@@ -37,6 +37,7 @@ abstract class Bisimulation:
       //      case a:A => showA(a)
       //      case b:B => showB(b)
     b match
+      case BError.Timeout(v, m) if v.isEmpty && m.isEmpty => s"Failed to start searching - maybe found an unbounded loop"
       case BError.Timeout(v, m) => s"Timeout\n   + visited: $v\n   + missing: $m"
       case BError.CanDo(act, trace, a, b) =>
           s"after ${if trace.isEmpty then "[]" else trace.reverse.mkString(",")}\n   + ${

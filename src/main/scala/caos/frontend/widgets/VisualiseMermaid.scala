@@ -56,6 +56,14 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
 
   def showChoreo():Unit = {
     try {
+      // clean and repeat the boostrap process
+      box.text("")
+      box.append("div")
+        .attr("class", "mermaid")
+        .attr("id", divBox)
+        .style("text-align", "center")
+        .append("div").attr("id", svgBox)
+
       val diagram = mermaid().code//view(pre(mermaid()))
         .replaceAll("\\\\","\\\\\\\\")
       val mermaidJs = MermaidJS(diagram,divBox,svgBox)
