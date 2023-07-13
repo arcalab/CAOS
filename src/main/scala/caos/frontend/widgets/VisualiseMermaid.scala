@@ -57,12 +57,14 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
   def showChoreo():Unit = {
     try {
       // clean and repeat the boostrap process
-      box.text("")
+      box.text("") // not always working when mermaid() throws an error.
       box.append("div")
         .attr("class", "mermaid")
         .attr("id", divBox)
         .style("text-align", "center")
         .append("div").attr("id", svgBox)
+      val flush = MermaidJS(s"graph TD\n ",divBox,svgBox) // flush!!!
+      scalajs.js.eval(flush) // harder flush to clean when mermaid() throws an error.
 
       val diagram = mermaid().code//view(pre(mermaid()))
         .replaceAll("\\\\","\\\\\\\\")
