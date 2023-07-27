@@ -130,7 +130,9 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
 
     for ((a,p)<-enabled.toList.sortWith(_._1.toString < _._1.toString)) {
       val li = ul.append("li")
-      val b = li.append("button").attr("title",p.toString)
+      val b = li.append("button")
+        .attr("title",p.toString)
+        .attr("class","btNextTrans")
         .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
       b.on("click", () => { takeStep(a,p)})
     }

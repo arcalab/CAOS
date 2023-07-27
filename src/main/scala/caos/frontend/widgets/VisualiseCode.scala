@@ -1,6 +1,5 @@
 package caos.frontend.widgets
 
-import caos.frontend.widgets.WidgetInfo.Visualize
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}

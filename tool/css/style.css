@@ -190,6 +190,32 @@
     overflow: hidden;
 }
 
+.btNextTrans {
+  background-color: #e7ebf0;
+  border: none;
+  color: black;
+  padding: 1px 7px;
+  overflow-wrap: anywhere;
+  margin-right: 0.5rem;
+}
+
+.btNextTrans:hover {
+    background-color: #707070;
+    color: white;
+}
+
+.btLeaf {
+    background-color: #ff8877;
+    border: none;
+    color: black;
+    padding: 1px 7px;
+    overflow-wrap: anywhere;
+    min-height: 1.5rem;
+}
+.btLeaf:hover {
+    background-color: #804138;
+    color: white;
+}
 /*.alert-info {
     color: #31708f;
     background-color: #f1f7ff;

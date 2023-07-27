@@ -68,8 +68,8 @@ object Configurator:
    * @tparam S is the type of the states of the semantics
    * @return the WidgetInfo describing how to create the widget
    */
-  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewProg:S=>String, typ:ViewType): WidgetInfo[Stx] =
-    Simulate[Stx,A,S](sos, x=>View(viewProg(x)), typ, initialSt)
+  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewSt:S=>String, typ:ViewType): WidgetInfo[Stx] =
+    Simulate[Stx,A,S](sos, x=>View(viewSt(x)), typ, initialSt)
 
   /**
    * Generates Widget that can display multiple tabs with different views of the program.
@@ -105,6 +105,11 @@ object Configurator:
   def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,
                    viewAct:A=>String=((x:A)=>x.toString),maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
+
+
+  def ltsExplore[Stx, A, S](initialSt: Stx => S, sos: SOS[A, S], viewSt: S => String,
+                     viewAct: A => String = ((x: A) => x.toString)): WidgetInfo[Stx] =
+      Explore[Stx,A,S](initialSt, sos, viewSt, viewAct)
 
   /**
    * Compare two elements using a comparison function

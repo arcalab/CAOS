@@ -125,6 +125,7 @@ object Site:
         case Mermaid => new SimulateMermaid(get,sim,w._1,out)
         case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': $sim")
       }
+      case Explore(init,sos,vS,vA) => new widgets.Explore(()=>init(get()),sos,vS,vA,w._1,out)
       case Analyse(a) =>
         new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()),w._1)
       case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': ${w._2}")

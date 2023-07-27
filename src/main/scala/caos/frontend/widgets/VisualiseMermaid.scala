@@ -4,7 +4,7 @@ package caos.frontend.widgets
 import WidgetInfo.Visualize
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
-import org.scalajs.dom.{MouseEvent, html}
+import org.scalajs.dom.{MouseEvent, document, html}
 
 import scala.runtime.Nothing$
 
@@ -16,15 +16,15 @@ import scala.runtime.Nothing$
 class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
   extends Widget[Unit](name) {
 
-  val diagram:String = ""
-  protected var box:Block = _
-  protected val svgBox = titleId+"Svg" //fix(name) + "Svg"
-  protected val divBox = titleId+"Box" //fix(name) + "Box"
+  val diagram: String = ""
+  protected var box: Block = _
+  protected val svgBox = titleId + "Svg" //fix(name) + "Svg"
+  protected val divBox = titleId + "Box" //fix(name) + "Box"
 
-  protected def fix(s:String) = s
-    .replace(' ','_')
-    .replace('(','_')
-    .replace(')','_')
+  protected def fix(s: String) = s
+    .replace(' ', '_')
+    .replace('(', '_')
+    .replace(')', '_')
 
   override val get: Unit = () //mermaid()
 
@@ -35,16 +35,16 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
    * @param visible is true when this box is initially visible (i.e., expanded).
    */
   override def init(div: Block, visible: Boolean): Unit = {
-    box = panelBox(div, visible,buttons=List(
-      Right("download")-> (() => Utils.downloadSvg(svgBox), "Download SVG")
+    box = panelBox(div, visible, buttons = List(
+      Right("download") -> (() => Utils.downloadSvg(svgBox), "Download SVG")
     )).append("div")
-      .attr("class","mermaid")
+      .attr("class", "mermaid")
       .attr("id", divBox)
-      .style("text-align","center")
-      .append("div").attr("id",svgBox)
+      .style("text-align", "center")
+      .append("div").attr("id", svgBox)
 
     dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-      .onclick = {(e: MouseEvent) => if(!isVisible) showChoreo() }
+      .onclick = { (e: MouseEvent) => if (!isVisible) showMermaid() }
   }
 
   /**
@@ -52,9 +52,15 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
    *  - update its output value, and
    *  - produce side-effects (e.g., redraw a diagram)
    */
-  override def update(): Unit = if(isVisible) showChoreo()
+  override def update(): Unit = if (isVisible) showMermaid()
 
-  def showChoreo():Unit = {
+  def showMermaid(): Unit =
+    try {
+      val diagram = mermaid().code
+      showMermaid(diagram)
+    } catch Widget.checkExceptions(errorBox,name)
+
+  def showMermaid(diagram:String):Unit = {
     try {
       // clean and repeat the boostrap process
       box.text("") // not always working when mermaid() throws an error.
@@ -66,9 +72,10 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
       val flush = MermaidJS(s"graph TD\n ",divBox,svgBox) // flush!!!
       scalajs.js.eval(flush) // harder flush to clean when mermaid() throws an error.
 
-      val diagram = mermaid().code//view(pre(mermaid()))
+      val diagramFixed = diagram
         .replaceAll("\\\\","\\\\\\\\")
-      val mermaidJs = MermaidJS(diagram,divBox,svgBox)
+      val mermaidJs = MermaidJS(diagramFixed,divBox,svgBox)
+//      println(s"Evaluating mermaid:\n$mermaidJs")
       scalajs.js.eval(mermaidJs)
     } catch Widget.checkExceptions(errorBox,name)
   }

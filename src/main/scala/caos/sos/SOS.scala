@@ -1,5 +1,7 @@
 package caos.sos
 
+import scala.scalajs.js.annotation.JSExportTopLevel
+
 /** An SOS semantics with states in `State` and labels in `Act` needs to implement
  * a function that provides the follow-up states */
 trait SOS[+Act,State]:
@@ -86,7 +88,8 @@ object SOS:
         _ids+=s->i
         i+=1
         i-1
-    def fix(s:String): String = s"\" $s\""
+    def fix(s:String): String = if s.startsWith("$$") then s.drop(2) else
+      s"\" $s\""
       .replaceAll("<", "&lt;")
       .replaceAll(">", "&gt;")
       .replaceAll("\n","<br>")
