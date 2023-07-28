@@ -23,6 +23,8 @@ trait Configurator[Stx]:
   val name: String
   /** Possible alternative name for the input widget. */
   def languageName: String = name // override to rename the input widget
+  /** Possible helper button to the input box (pair with tooltip and url link) */
+  def languageHelper: (String,String) = "" -> "" // override to add a helper (?) button to the input
   /** Parser to build the data structure under analysis */
   val parser: String=>Stx
   /** Sequence of examples */
@@ -91,7 +93,7 @@ object Configurator:
     VisualizeOpt[Stx,Stx](c => OptMermaid(viewProgs(c).toMap), Mermaid, x=>x)
 
   /**
-   * Creates a widget that depicts an LTS with all reachable states, given an initial staten and an SOS
+   * Creates a widget that depicts an LTS with all reachable states, given an initial staten and an SOS.
    * @param initialSt is the initial state
    * @param sos is the SOS object that captures how to evolve (semantics)
    * @param viewSt converts a state into a String
@@ -107,6 +109,19 @@ object Configurator:
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
 
+  /**
+   * * Creates a widget that depicts an LTS, similar to `lts`, with all reachable states,
+   * given an initial staten and an SOS. It builds step by step, expanding by clicking in a red
+   * (unexplored) node, and starting with only the root expanded.
+   * @param initialSt is the initial state
+   * @param sos       is the SOS object that captures how to evolve (semantics)
+   * @param viewSt    converts a state into a String
+   * @param viewAct   convers an action into a String (default is `toString`)
+   * @tparam Stx is the type of the program (syntax)
+   * @tparam A   is the type of actions
+   * @tparam S   is the type of states
+   * @return the WidgetInfo describing how to create the LTS-Explore widget
+   */
   def ltsExplore[Stx, A, S](initialSt: Stx => S, sos: SOS[A, S], viewSt: S => String,
                      viewAct: A => String = ((x: A) => x.toString)): WidgetInfo[Stx] =
       Explore[Stx,A,S](initialSt, sos, viewSt, viewAct)

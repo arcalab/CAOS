@@ -67,6 +67,7 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
   protected def expandState(st:St):Unit = try {
     tree += st -> (sos.next(st))
     updateDiagram()
+    document.location.replace(s"#${mkStId(st)}")
 //    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
   } catch Widget.checkExceptions(errorBox,name)
 
@@ -85,18 +86,19 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
   } catch Widget.checkExceptions(errorBox,name)
 
   protected def mkStId(st:St) = (titleId,st).hashCode.toString
+  private def mkAnchor(st:St,s:String) = s"<div id='${mkStId(st)}'>$s</div>"
 
   protected def mkMermaid: (String,Iterable[St]) =
     def fix(s: String): String =
       if s.startsWith("$$") then s.drop(2) else
-      s"\" $s\""
+      s" $s"
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll("\n", "<br>")
     def fixPlus(s:String): String =
       if s.trim.isEmpty then "+" else
       if s.startsWith("$$") then s.drop(2) else
-         fix(s).drop(1).dropRight(1)
+         fix(s)
     def aux(next: Set[St], done: Set[St], leafs: Set[St]): (String,Set[St]) =
       next.headOption match
         // state found, but already processed.
@@ -108,10 +110,10 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
           // $$<button id='bbb' class='btNextTrans'>+</button>
           tree.get(st) match
             case Some(nexts) =>
-              var res = s"\n  ${mkStId(st)}([${fix(vS(st))}]);"
+              var res = s"\n  ${mkStId(st)}([\"${mkAnchor(st,fix(vS(st)))}\"]);"
               for (a, s2) <- nexts do
                 next2 += s2
-                res += s"\n  ${mkStId(s2)}([${fix(vS(s2))}]);\n  ${mkStId(st)} -->|${fix(vA(a))}| ${mkStId(s2)};"
+                res += s"\n  ${mkStId(s2)}([\"${fix(vS(s2))}\"]);\n  ${mkStId(st)} -->|\"${fix(vA(a))}\"| ${mkStId(s2)};"
               val (gr,lf) = aux(next2,done2,leafs)
               (res+gr, lf)
             case None =>

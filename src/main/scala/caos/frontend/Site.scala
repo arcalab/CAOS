@@ -175,6 +175,11 @@ object Site:
     errorArea.clear()
     toReload.foreach(f=>f())
 
+  protected def mkHelper(hlp:(String,String)): Option[(Either[String, String], (() => Unit, String))] =
+    if hlp == ("", "") then None
+    else Some[(Either[String, String], (() => Unit, String))](Right("help") -> (() =>
+      org.scalajs.dom.window.open(hlp._2), hlp._1))
+
   protected def mkCodeBox[A](config:Configurator[A],ex:Option[Configurator.Example]):CodeWidget[A] =
     new CodeWidget[A](config.languageName,Nil) {
 
@@ -185,9 +190,8 @@ object Site:
       override protected val boxId: String = config.name + "Box"
 
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
-        List(
-          Right("refresh") -> (() => reload(), s"Load the ${config.name} program (shift-enter)")
-        )
+        Right("refresh") -> (() => reload(), s"Load the ${config.languageName} program (shift-enter)") ::
+          mkHelper(config.languageHelper).toList
 
       override def get: A = config.parser(input)
 

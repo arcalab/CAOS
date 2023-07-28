@@ -53,7 +53,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], na
       .style("padding","5px 1px 5px 15px")
 
     left = container.append("div")
-      .style("width:15%; border-right-style:solid;border-right-width:1px;border-right-color: #ddd;")
+      .style("width:15%;min-width:9rem;border-right-style:solid;border-right-width:1px;border-right-color: #ddd;")
 
     right = container.append("div")
       .style("display:inline; width:100%;")
