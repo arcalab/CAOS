@@ -1,5 +1,6 @@
 package caos.frontend.widgets
 
+import caos.frontend.Documentation
 import caos.view.View
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -13,8 +14,9 @@ case class Tabs(
   name:String,
   tabsTitle:()=>List[String],
   language: String,
-  errorBox: OutputArea
-) extends Widget[Unit](name) {
+  errorBox: OutputArea,
+  doc:Documentation
+) extends Widget[Unit](name,doc) {
 
     private var box:Block = _
     protected val divBox = name.replace(' ','_') + "Box"

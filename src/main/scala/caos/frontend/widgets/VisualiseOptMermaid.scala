@@ -1,7 +1,8 @@
 package caos.frontend.widgets
 
+import caos.frontend.Documentation
 import caos.view.OptionView
-import caos.view.OptionView._
+import caos.view.OptionView.*
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
 
@@ -10,8 +11,8 @@ import org.scalajs.dom.{MouseEvent, html}
  * Created by   on 13/07/2021
  */
 
-class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputArea,doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   val diagram:String = ""
   protected var box:Block = _

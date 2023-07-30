@@ -2,6 +2,7 @@ package caos.frontend.widgets
 
 import caos.frontend.widgets.{DomElem, DomNode}
 import Widget.Block
+import caos.frontend.Documentation
 import org.scalajs.dom
 import org.scalajs.dom.{EventTarget, MouseEvent, html}
 
@@ -10,7 +11,7 @@ import scala.scalajs.js.{JavaScriptException, UndefOr}
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
-abstract class Widget[A](val title: String){
+abstract class Widget[A](val title: String, doc: Documentation = Documentation()){
   type Block = DomElem //Selection[dom.EventTarget]
 
   protected val titleId = "id"+title.hashCode
@@ -55,8 +56,12 @@ abstract class Widget[A](val title: String){
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
 
+
+    val allButtons =
+      Widget.mkHelper(title,doc).toList:::(buttons.reverse)
+
     // Buttons
-    for ((name,(action,title)) <- buttons.reverse) {
+    for ((name,(action,title)) <- allButtons) {
       //      .append("button").attr("class", "btn btn-default btn-sm")
       //        .style("float","right")
       //        .style("margin-top","-15pt")
@@ -181,6 +186,20 @@ abstract class Widget[A](val title: String){
 
 object Widget {
   type Block = DomElem //Selection[dom.EventTarget]
+  type Helper = Option[(String,String)]
+
+  def mkHelper(title:String, doc:Documentation): Option[(Either[String, String], (() => Unit, String))] =
+    //if doc.get(title).isEmpty then println(s"Not found documentation for '$title'. Only for ${doc.widgets.map(x=>"\n - "+x).mkString}")
+    doc.get(title).map( hlp =>
+      (Right("help") -> (() =>{
+//      org.scalajs.dom.window.open(hlp.get._2)
+      dom.document.getElementById("CAOSPopup").innerHTML = hlp._2
+      dom.document.getElementById("CAOSPopupTitle").innerHTML = title
+      dom.document.getElementById("CAOSOverlay").setAttribute("style","display:block;")
+      dom.document.getElementById("CAOSPopupWrp").setAttribute("style","display:block;")
+      dom.document.location.replace(s"#")
+    }, hlp._1
+    )))
 
   def downloadSvgOld(block: Block): Unit = {
     val svg = block.append("svg")

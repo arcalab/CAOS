@@ -1,5 +1,6 @@
 package caos.frontend.widgets
 
+import caos.frontend.Configurator
 import caos.frontend.widgets.Setable
 import caos.frontend.Configurator.Example
 import org.scalajs.dom
@@ -14,12 +15,13 @@ import scala.scalajs.js.annotation.JSExportTopLevel
  * Created by   on 07/05/2021
  */
 class ExampleWidget(title:String
-                    , examples:Iterable[Example] //Seq[List[String]]
+                    , config:Configurator[_] // examples:Iterable[Example] //Seq[List[String]]
                     , reload: => Unit
                     , setableExample:Setable[String]
                     , setableDescription:Option[Setable[String]]=None)
   extends Widget[Seq[(String,String)]](title) {
 
+  private val examples = config.examples
 
   override def get: Seq[(String,String)] = examples.map(e=>e.name->e.example).toSeq
 
@@ -99,7 +101,8 @@ class ExampleWidget(title:String
     Right("download")-> (
       () => Utils.downloadTxt(ExampleWidget.examplesToTxt(examples),"examples.txt"),
       "Download Examples")
-  )
+  ) ++
+    Widget.mkHelper(title,config.documentation)
 
   /**
    * Block of code that should read the dependencies and:

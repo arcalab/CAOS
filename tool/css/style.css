@@ -150,6 +150,41 @@
 .dropdown>a:focus {
     border-color: black;
 }
+.overlay { 
+    position: fixed;
+    display: none;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 4;
+}
+.popup {
+    position: absolute;
+    display: none;
+    width: 70%;
+    min-height: 70%;
+    top: 15%;
+    left: 15%;
+    background: white;
+    z-index: 5;
+}
+.popup h3 {
+    font-size: 15px;
+    height: 50px;
+    line-height: 50px;
+    color: black;
+    background: white;
+}
+.closePopup {
+    background: rgba(184, 202, 237, 1);
+    padding: 0.4rem 0.4rem 0.4rem 1rem;
+    cursor: pointer;
+}
+#CAOSPopup {
+    padding: 1rem;
+}
 /*a:focus, a:hover {
     color: red;
     font-weight: bolder;
@@ -370,5 +405,15 @@ button {
   .middlebar:hover{
     opacity: 0;
     cursor: auto;
+  }
+
+  .popup {
+      position: absolute;
+      width: 92%;
+      min-height: 92%;
+      top: 4%;
+      left: 4%;
+      background: white;
+      z-index: 5;
   }
 }

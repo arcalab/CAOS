@@ -1,6 +1,7 @@
 package caos.frontend
 
 import caos.frontend.Configurator.Example
+import caos.frontend.widgets.Widget.Helper
 import caos.frontend.widgets.WidgetInfo
 import caos.frontend.widgets.WidgetInfo.*
 import caos.sos
@@ -23,8 +24,6 @@ trait Configurator[Stx]:
   val name: String
   /** Possible alternative name for the input widget. */
   def languageName: String = name // override to rename the input widget
-  /** Possible helper button to the input box (pair with tooltip and url link) */
-  def languageHelper: (String,String) = "" -> "" // override to add a helper (?) button to the input
   /** Parser to build the data structure under analysis */
   val parser: String=>Stx
   /** Sequence of examples */
@@ -34,6 +33,10 @@ trait Configurator[Stx]:
   /** Secondary widgets, below the code */
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
+  /** Documentation of the widgets */
+  val documentation: Documentation = Documentation()
+  /** Footer message (HTML) */
+  val footer: String = ""
 
 /**
  * Provides functions that produce WidgetInfos, which describe widgets.
@@ -194,5 +197,7 @@ object Configurator:
   /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
   implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
+  implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
+    Documentation().add(docs)
 
 

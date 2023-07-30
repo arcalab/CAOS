@@ -1,6 +1,7 @@
 package caos.frontend.widgets
 
 import WidgetInfo.Visualize
+import caos.frontend.Documentation
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -12,8 +13,8 @@ import scala.runtime.Nothing$
  */
 
 
-class VisualiseText(text:()=>View, name:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+class VisualiseText(text:()=>View, name:String, errorBox: OutputArea, doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   private var box:Block = _
   private var txt:Block = _

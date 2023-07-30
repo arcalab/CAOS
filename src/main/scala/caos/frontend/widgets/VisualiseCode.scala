@@ -1,5 +1,6 @@
 package caos.frontend.widgets
 
+import caos.frontend.Documentation
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -11,8 +12,8 @@ import scala.runtime.Nothing$
  */
 
 
-class VisualiseCode(text:()=>View, name:String, language:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+class VisualiseCode(text:()=>View, name:String, language:String, errorBox: OutputArea, doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   private var box:Block = _
   protected val divBox = titleId+"Box" // name.replace(' ','_') + "Box"

@@ -1,18 +1,20 @@
 package caos.frontend.widgets
 
+import caos.frontend.Documentation
 import caos.frontend.widgets.WidgetInfo.Simulate
 import caos.sos.HasTaus
 import caos.sos.SOS
 import org.scalajs.dom
-import org.scalajs.dom.{MouseEvent, html, document}
+import org.scalajs.dom.{MouseEvent, document, html}
 
 /**
  * Created by   on 16/03/2021
  */
 
 class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
-                          name:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+                      name:String, errorBox: OutputArea,
+                      doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   private var container:Block = _
   protected val svgBox: String = titleId+"Svg" // fix(name) + "Svg"

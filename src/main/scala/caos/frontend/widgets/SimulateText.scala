@@ -1,6 +1,7 @@
 package caos.frontend.widgets
 
 import WidgetInfo.Simulate
+import caos.frontend.Documentation
 import caos.sos.HasTaus
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
@@ -9,8 +10,10 @@ import org.scalajs.dom.{MouseEvent, html}
  * Created by   on 16/03/2021
  */
 
-class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St], name:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
+                               name:String, errorBox: OutputArea,
+                               doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   private var container:Block = _
   private var left:Block = _

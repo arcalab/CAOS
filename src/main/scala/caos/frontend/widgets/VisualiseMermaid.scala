@@ -2,6 +2,8 @@ package caos.frontend.widgets
 
 
 import WidgetInfo.Visualize
+import caos.frontend.Documentation
+import caos.frontend.widgets.Widget.Helper
 import caos.view.{Mermaid, View}
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, document, html}
@@ -13,8 +15,8 @@ import scala.runtime.Nothing$
  */
 
 
-class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea)
-  extends Widget[Unit](name) {
+class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea, doc:Documentation)
+  extends Widget[Unit](name,doc) {
 
   val diagram: String = ""
   protected var box: Block = _
