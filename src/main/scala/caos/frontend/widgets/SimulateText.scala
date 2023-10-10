@@ -111,7 +111,7 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
       .append("span").style("font-weight:normal")
       .html(s""" ${traceActs.map(act=>
         s"<pre style=\"font-size: 1.2rem; width: fit-content; display: inline-grid; padding: 2.5px;\">${
-          cleanHtml(act.toString)}</pre>").mkString(",")}""")
+          cleanHtml(simulate.lb(act))}</pre>").mkString(",")}""")
   }
 
   def showTerminal(from:St):Unit = {
@@ -131,12 +131,13 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     ul.append("li")
       .append("span").style("font-weight:bold;").textEl("Enabled transitions:")
 
-    for ((a,p)<-enabled.toList.sortWith(_._1.toString < _._1.toString)) {
+    for ((a,p)<-enabled.toList
+          .sortWith((x,y)=>simulate.lb(x._1) < simulate.lb(y._1))) {
       val li = ul.append("li")
       val b = li.append("button")
-        .attr("title",p.toString)
+        .attr("title",simulate.v(p).code)
         .attr("class","btNextTrans")
-        .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
+        .textEl(/*if (a.isTau) "terminate" else*/ simulate.lb(a)) // todo: handle taus
       b.on("click", () => { takeStep(a,p)})
     }
   }

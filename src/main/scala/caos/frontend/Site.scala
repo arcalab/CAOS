@@ -127,7 +127,7 @@ object Site:
         case Mermaid => new VisualiseOptMermaid(()=>view(pre(get())),w._1,out,doc)
         case _ => throw new RuntimeException("case not covered...")
       }
-      case sim@Simulate(_, _, t, _) => t match { // view(pre(get())) match {
+      case sim@Simulate(_, _, _, t, _) => t match { // view(pre(get())) match {
         case Text => new SimulateText(get,sim, w._1, out,doc)
         case Mermaid => new SimulateMermaid(get,sim,w._1,out,doc)
         case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': $sim")

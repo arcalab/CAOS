@@ -73,8 +73,9 @@ object Configurator:
    * @tparam S is the type of the states of the semantics
    * @return the WidgetInfo describing how to create the widget
    */
-  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewSt:S=>String, typ:ViewType): WidgetInfo[Stx] =
-    Simulate[Stx,A,S](sos, x=>View(viewSt(x)), typ, initialSt)
+  def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewSt:S=>String,
+                     viewAct:A=>String=((x:A)=>x.toString),typ:ViewType=Text): WidgetInfo[Stx] =
+    Simulate[Stx,A,S](sos, x=>View(viewSt(x)), viewAct, typ, initialSt)
 
   /**
    * Generates Widget that can display multiple tabs with different views of the program.

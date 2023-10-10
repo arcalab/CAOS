@@ -21,7 +21,7 @@ object WidgetInfo:
     extends WidgetInfo[Stx]
   case class VisualizeAll[Stx,S](v:Seq[(String,S)]=>View, typ:ViewType, pre:Stx=>S)
     extends WidgetInfo[Stx]
-  case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,typ:ViewType,pre:Stx=>S)
+  case class Simulate[Stx,A,S](sos:SOS[A,S],v:S=>View,lb:A=>String,typ:ViewType,pre:Stx=>S)
     extends WidgetInfo[Stx]
   case class Explore[Stx,A,S](pre:Stx=>S,sos:SOS[A,S],vS:S=>String,vA:A=>String)
     extends WidgetInfo[Stx]
