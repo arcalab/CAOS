@@ -36,6 +36,7 @@ Examples of such projects include:
  - [Marx: experimental reactive language for synchronous architectures](http://lmf.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
  - [VVML: animator and analyser of a subset of UML Activity Diagrams](https://cister-labs.github.io/coreVVML/) [(source)](https://github.com/cister-labs/coreVVML/)
  - [Apoo: animator of a simple assembly language](https://cister-labs.github.io/apoo)[(Apoo's main page)](https://www.dcc.fc.up.pt/~rvr/naulas/apoo/)
+ - [CCS: animator of Milner's Calculus of Communicating Systems](http://lmf.di.uminho.pt/ccs-caos/)
 
 Alternatively, it is possible to start from a CAOS template, following the instructions described [here](https://github.com/arcalab/caos.g8) (this template uses an older version of CAOS).
 
