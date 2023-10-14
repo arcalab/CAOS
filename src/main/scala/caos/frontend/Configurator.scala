@@ -33,7 +33,11 @@ trait Configurator[Stx]:
   /** Secondary widgets, below the code */
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
-  /** Documentation of the widgets */
+  /** Documentation of the widgets. It can be presented as a list of triples `a->b->c`, representing
+   *  (a) name of the widget being documented,
+   *  (b) text when the mouse hovers over the "?", and
+   *  (c) html text for the helper message.
+   */
   val documentation: Documentation = Documentation()
   /** Footer message (HTML) */
   val footer: String = ""
@@ -161,8 +165,9 @@ object Configurator:
    */
   def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,
                                       show1:S1=>String = (_:S1).toString, show2:S2=>String = (_:S2).toString,
+                                      showAct:(A=>String), // = (_:A).toString,
                                       maxDepth:Int=5000): WidgetInfo[Stx] =
-    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b,show1,show2)(using sos1,sos2,maxDepth),Text,pre1,pre2)
+    compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b,show1,show2,showAct)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
   /**
    * Compare 2 SOSs using trace equivalence.
