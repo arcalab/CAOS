@@ -56,7 +56,7 @@ abstract class Bisimulation:
   def pp[A,G,L](res: BResult[A,G,L],
                 showG:G=>String = (_:G).toString,
                 showL:L=>String = (_:L).toString,
-                showA:A=>String, // = (_:A).toString,
+                showA:A=>String = (_:A).toString,
                ): String = res match
     case Left(err:BEvid[A,G,L]) => "Not bisimilar:"+err.msgs.map(m => m.map("\n - "+pp(_,showG,showL,showA)).mkString).mkString("\n---")
     case Right(rel) => "Found bisimulation:\n"+pp[A,G,L](rel,showG,showL,showA)
