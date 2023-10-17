@@ -42,12 +42,15 @@ abstract class Bisimulation:
       case BError.CanDo(act, trace, a, b) =>
           s"after ${if trace.isEmpty then "[]" else trace.map(showAct).reverse.mkString(",")}\n   + ${
             show(a)} can do ${showAct(act)}\n   + ${
-            show(b)} cannot do τ*,${showAct(act)}"
+            show(b)} cannot do ${wrapWeak(showAct(act))}"
       case BError.CanAccept(trace, a, b) =>
         s"after ${if trace.isEmpty then "[]" else trace.map(showAct).reverse.mkString(",")}\n   + ${
           show(a)} is accepting\n   + ${
           show(b)} is not"
       case BError.Other(msg) => msg
+
+  // meant to be overriden if needed
+  protected def wrapWeak(act:String) = s"τ*,$act"
 
   /** Pretty printing bisimulation results. */
   def pp[A,G,L](res: BResult[A,G,L],

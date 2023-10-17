@@ -170,6 +170,27 @@ object Configurator:
     compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b,show1,show2,showAct)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
   /**
+   * Compare 2 SOSs using strong bisimulation.
+   * @param sos1 is the SOS object that captures how to evolve the 1st term (semantics)
+   * @param sos2 is the SOS object that captures how to evolve the 2nd term  (semantics)
+   * @param pre1 is a function that produces the 1st term from the program
+   * @param pre2 is a function that produces the 2nd term from the program
+   * @param show1 is a function that converts a state of SOS1 to a string
+   * @param show2 is a function that converts a state of SOS2 to a string
+   * @param maxDepth (optional) is the maximum number of steps that it can make when searching for a bisimulation
+   * @tparam Stx is the type of the program (syntax)
+   * @tparam A  is the type of the actions for both SOS objects
+   * @tparam S1 is the type of the states of SOS1
+   * @tparam S2 is the type of the states of SOS2
+   * @return the WidgetInfo describing how to create the comparator widget
+   */
+  def compareStrongBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,
+                                      show1:S1=>String = (_:S1).toString, show2:S2=>String = (_:S2).toString,
+                                      showAct:(A=>String), // = (_:A).toString,
+                                      maxDepth:Int=5000): WidgetInfo[Stx] =
+    compare[Stx,S1,S2]((a,b)=>StrongBisim.findBisimPP(a,b,show1,show2,showAct)(using sos1,sos2,maxDepth),Text,pre1,pre2)
+
+  /**
    * Compare 2 SOSs using trace equivalence.
    * @param sos1 is the SOS object that captures how to evolve (semantics)
    * @param sos2 is the SOS object that captures how to evolve (semantics)

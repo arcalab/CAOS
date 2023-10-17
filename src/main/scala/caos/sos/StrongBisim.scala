@@ -14,6 +14,9 @@ object StrongBisim extends Bisimulation:
 
   import BError._
 
+  // adapt error message to drop references to "tau"
+  override def wrapWeak(act: String): String = act
+
 /** Find a strong bisimulation. */
   def findBisim[A,G,L](g:G,l:L)(using gs:SOS[A,G], ls:SOS[A,L],stopAt:Int=5000): BResult[A,G,L] =
     findWBisim2Aux(Map(),Map((g,l)->Nil),Set(),Nil,1)
