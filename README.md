@@ -35,8 +35,8 @@ Examples of such projects include:
  - [Mars: early experiments on a language to generate runtime monitors](https://mars-language.bitbucket.io) [(RTSS'20 short paper)](https://jose.proenca.org/publication/nandi-dsl-2020/)
  - [Marx: experimental reactive language for synchronous architectures](http://lmf.di.uminho.pt/marx/) [(source)](https://github.com/arcalab/marx)
  - [VVML: animator and analyser of a subset of UML Activity Diagrams](https://cister-labs.github.io/coreVVML/) [(source)](https://github.com/cister-labs/coreVVML/)
- - [Apoo: animator of a simple assembly language](https://cister-labs.github.io/apoo)[(Apoo's main page)](https://www.dcc.fc.up.pt/~rvr/naulas/apoo/)
- - [CCS: animator of Milner's Calculus of Communicating Systems](http://lmf.di.uminho.pt/ccs-caos/)
+ - [Apoo: animator of a simple assembly language](https://cister-labs.github.io/apoo) [(Apoo's main page)](https://www.dcc.fc.up.pt/~rvr/naulas/apoo/)
+ - [CCS: animator of Milner's Calculus of Communicating Systems](http://lmf.di.uminho.pt/ccs-caos/) [(source)](https://github.com/arcalab/ccs-caos)
 
 Alternatively, it is possible to start from a CAOS template, following the instructions described [here](https://github.com/arcalab/caos.g8) (this template uses an older version of CAOS).
 
@@ -47,6 +47,13 @@ The rest of this document describes the essentials needed to use CAOS. A more de
  - Caos' tutorial: https://arxiv.org/abs/2304.14901
  - Caos' demo video: https://youtu.be/Xcfn3zqpubw 
 
+It is also possible to start with a simple template using giter8, based on a CCS example, by running sbt in the command line as follows.
+
+```bash
+sbt new arcalab/caos.g8
+```
+
+This command will automatically create a project structure with a minimal example that compiles, using a given name for the project.
 
 ## Importing CAOS
 
