@@ -64,14 +64,14 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
     root = init()
     tree = Map(root -> (sos.next(root)))
     updateDiagram()
-  } catch Widget.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,"111"+name)
 
   protected def expandState(st:St):Unit = try {
     tree += st -> (sos.next(st))
     updateDiagram()
     document.location.replace(s"#${mkStId(st)}")
 //    updateSimulationSteps((None:: traceActs.map(Some(_))).zip(traceStx))
-  } catch Widget.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,"222"+name)
 
   protected def updateDiagram():Unit = try {
     val (mermaid,leafs) = mkMermaid
@@ -80,12 +80,14 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
       .replaceAll("\\\\","\\\\\\\\")
     //println(s"--- About to build mermaid $mermaid")
     val mermaidJs = MermaidJS(mermaidFixed,divBox,svgBox)
-    //println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
+    println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
     scalajs.js.eval(mermaidJs)
+    println("----\nDDONE - leafs:\n"+leafs.map(st=>mkStId(st)).mkString("\n"))
     for st <- leafs do
+      println(s"-- ${mkStId(st)}")
       document.getElementById(mkStId(st)).asInstanceOf[html.Element].
         onclick = { (e: MouseEvent) => expandState(st) }
-  } catch Widget.checkExceptions(errorBox,name)
+  } catch Widget.checkExceptions(errorBox,"333"+name)
 
   protected def mkStId(st:St) = (titleId,st).hashCode.toString
   private def mkAnchor(st:St,s:String) = s"<div id='${mkStId(st)}'>$s</div>"
@@ -115,7 +117,9 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
               var res = s"\n  ${mkStId(st)}([\"${mkAnchor(st,fix(vS(st)))}\"]);"
               for (a, s2) <- nexts do
                 next2 += s2
-                res += s"\n  ${mkStId(s2)}([\"${fix(vS(s2))}\"]);\n  ${mkStId(st)} -->|\"${fix(vA(a))}\"| ${mkStId(s2)};"
+                if tree.contains(s2)
+                then res += s"\n  ${mkStId(s2)}([\"${fix(vS(s2))}\"]);\n  ${mkStId(st)} -->|\"${fix(vA(a))}\"| ${mkStId(s2)};"
+                else res += s"\n  ${mkStId(st)} -->|\"${fix(vA(a))}\"| ${mkStId(s2)};"
               val (gr,lf) = aux(next2,done2,leafs)
               (res+gr, lf)
             case None =>
