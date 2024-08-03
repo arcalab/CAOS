@@ -1,5 +1,6 @@
 package caos.sos
 
+import scala.collection.immutable.Queue
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 /** An SOS semantics with states in `State` and labels in `Act` needs to implement
@@ -101,21 +102,21 @@ object SOS:
 //      .replaceAll("\\[|\\]|\\(|\\)","_")
 //      .replaceAll(";",",")
 //      .replaceAll("\\|","#")
-    def aux(next:Set[S],done:Set[S],limit:Int): String =
+    def aux(next:Queue[S], done:Set[S], limit:Int): String =
       if limit <=0 then
         return (for n<-next yield s"\n  style ${ids(n)} fill:#f87,stroke:#633,stroke-width:4px;").mkString
-      next.headOption match
-        case Some(st) if done contains st => aux(next-st,done,limit)
-        case Some(st) =>
+      next.dequeueOption match
+        case Some((st,next2)) if done contains st => aux(next2,done,limit)
+        case Some((st,next2)) =>
           val done2 = done+st
-          var next2 = next-st
           var res = s"\n  ${ids(st)}([${fix(showSt(st))}]);"
+          var next3 = next2
           for (a,s2) <- sos.next(st) do
-            next2 += s2
+            next3 = next3.enqueue(s2)
             res += s"\n  ${ids(s2)}([${fix(showSt(s2))}]);\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
-          res + aux(next2,done2,limit-1)
+          res + aux(next3,done2,limit-1)
         case None => ""
-    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),maxNodes)
+    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Queue(s),Set(),maxNodes)
 
   /**
    * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
