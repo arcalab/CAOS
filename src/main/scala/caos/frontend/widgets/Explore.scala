@@ -80,11 +80,10 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
       .replaceAll("\\\\","\\\\\\\\")
     //println(s"--- About to build mermaid $mermaid")
     val mermaidJs = MermaidJS(mermaidFixed,divBox,svgBox)
-    println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
+    //println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
     scalajs.js.eval(mermaidJs)
-    println("----\nDDONE - leafs:\n"+leafs.map(st=>mkStId(st)).mkString("\n"))
+    //println("----\nDDONE - leafs:\n"+leafs.map(st=>mkStId(st)).mkString("\n"))
     for st <- leafs do
-      println(s"-- ${mkStId(st)}")
       document.getElementById(mkStId(st)).asInstanceOf[html.Element].
         onclick = { (e: MouseEvent) => expandState(st) }
   } catch Widget.checkExceptions(errorBox,"333"+name)
