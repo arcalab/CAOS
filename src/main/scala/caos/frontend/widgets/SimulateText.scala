@@ -175,4 +175,3 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
   //  c.toString.replace("->","&#8594;")
 
 }
-

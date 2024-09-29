@@ -28,9 +28,12 @@ trait Configurator[Stx]:
   val parser: String=>Stx
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
+  /** Structure dedicated for establishing configurations */
+  val setting: Configurator.Setting[Stx]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
+
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
   /** Documentation of the widgets. It can be presented as a list of triples `a->b->c`, representing
@@ -70,7 +73,6 @@ object Configurator:
    * Generates a Widget that can perform steps interactively for a given SOS and initial state.
    * @param initialSt is the initial state of the semantics
    * @param sos is the SOS object that captures how to evolve (semantics)
-   * @param viewProg converts a program into a String
    * @param typ is the type of the String, typically "Text" or "Mermaid"
    * @tparam Stx is the type of the program (syntax)
    * @tparam A is the type of the actions (labels) of the semantics
@@ -78,7 +80,7 @@ object Configurator:
    * @return the WidgetInfo describing how to create the widget
    */
   def steps[Stx,A,S](initialSt:Stx=>S, sos:SOS[A,S], viewSt:S=>String,
-                     viewAct:A=>String=((x:A)=>x.toString),typ:ViewType=Text): WidgetInfo[Stx] =
+                     viewAct:A=>String=(x:A)=>x.toString,typ:ViewType=Text): WidgetInfo[Stx] =
     Simulate[Stx,A,S](sos, x=>View(viewSt(x)), viewAct, typ, initialSt)
 
   /**
@@ -113,7 +115,7 @@ object Configurator:
    * @return the WidgetInfo describing how to create the LTS widget
    */
   def lts[Stx,A,S](initialSt:Stx=>S,sos:SOS[A,S],viewSt:S=>String,
-                   viewAct:A=>String=((x:A)=>x.toString),maxSt:Int=80): WidgetInfo[Stx] =
+                   viewAct:A=>String=(x:A)=>x.toString,maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
 
@@ -131,7 +133,7 @@ object Configurator:
    * @return the WidgetInfo describing how to create the LTS-Explore widget
    */
   def ltsExplore[Stx, A, S](initialSt: Stx => S, sos: SOS[A, S], viewSt: S => String,
-                     viewAct: A => String = ((x: A) => x.toString)): WidgetInfo[Stx] =
+                     viewAct: A => String = (x: A) => x.toString): WidgetInfo[Stx] =
       Explore[Stx,A,S](initialSt, sos, viewSt, viewAct)
 
   /**
@@ -145,7 +147,7 @@ object Configurator:
    * @tparam S2 is the type of the second element
    * @return the WidgetInfo describing how to create the comparator widget
    */
-  def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
+  private def compare[Stx,S1,S2](comp:(S1,S2)=>String, t:ViewType, pre1:Stx=>S1, pre2:Stx=>S2): WidgetInfo[Stx] =
     Visualize[Stx,String](View.apply,t,(c:Stx) => comp(pre1(c),pre2(c)))
 
   /**
@@ -165,7 +167,7 @@ object Configurator:
    */
   def compareBranchBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,
                                       show1:S1=>String = (_:S1).toString, show2:S2=>String = (_:S2).toString,
-                                      showAct:(A=>String) = (_:A).toString,
+                                      showAct:A=>String = (_:A).toString,
                                       maxDepth:Int=5000): WidgetInfo[Stx] =
     compare[Stx,S1,S2]((a,b)=>BranchBisim.findBisimPP(a,b,show1,show2,showAct)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
@@ -186,7 +188,7 @@ object Configurator:
    */
   def compareStrongBisim[Stx,A,S1,S2](sos1:SOS[A,S1],sos2:SOS[A,S2],pre1:Stx=>S1,pre2:Stx=>S2,
                                       show1:S1=>String = (_:S1).toString, show2:S2=>String = (_:S2).toString,
-                                      showAct:(A=>String), // = (_:A).toString,
+                                      showAct:A=>String, // = (_:A).toString,
                                       maxDepth:Int=5000): WidgetInfo[Stx] =
     compare[Stx,S1,S2]((a,b)=>StrongBisim.findBisimPP(a,b,show1,show2,showAct)(using sos1,sos2,maxDepth),Text,pre1,pre2)
 
@@ -215,6 +217,25 @@ object Configurator:
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
 
+  /** @ telmo - check with prof. Proença if this class could be better placed */
+  case class Setting[Stx](name: String, children: List[Setting[Stx]] = List(), widgets: List[(String,WidgetInfo[Stx])] = List(), var render: Boolean = false) {
+
+    // @ telmo - trying to avoid massive code duplication
+    def deepCopy(copyName: String = this.name): Setting[Stx] = {
+      val copyChildren = this.children.map(child => child.deepCopy())
+      new Setting[Stx](name = copyName, children = copyChildren, widgets = this.widgets, render = this.render)
+    }
+
+    override def toString: String = {
+      def renderSetting(root: Setting[Stx], ident: String): String = {
+        val currentNode   = s"$ident- ${root.name}\n "
+        val childrenNodes = root.children.map(child => renderSetting(child, ident + " ")).mkString
+        currentNode + childrenNodes
+      }
+      renderSetting(this, "")
+    }
+  }
+
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)
 
@@ -226,5 +247,3 @@ object Configurator:
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
   implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
     Documentation().add(docs)
-
-

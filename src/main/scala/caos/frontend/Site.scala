@@ -19,6 +19,7 @@ object Site:
   var toReload:List[()=>Unit] = _
   var lastConfig: Option[Configurator[_]] = None
 
+  @JSExportTopLevel("settingsButton")
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
     initialiseContainers()
@@ -57,9 +58,88 @@ object Site:
     title.textContent = config.name
     toolTitle.textContent = config.name
 
+    /********** TRYING STUFF **********/
+    val setting = config.setting
+
+    val settingsContainer = document.getElementById("settings-container").asInstanceOf[html.Div]
+    // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
+
+    // @ telmo - trying to mimic Setting.toString behaviour
+    def renderSetting(root: Configurator.Setting[_], parentDiv: html.Div, identLevel: Int = 0): Unit = {
+      val rootDiv = document.createElement("div").asInstanceOf[html.Div]
+      rootDiv.setAttribute("class", "setting-div")
+
+      rootDiv.style.paddingLeft = s"${identLevel * 20}px"
+
+      val title = document.createElement("h4").asInstanceOf[html.Heading]
+      title.textContent = s"> ${root.name}"
+      rootDiv.appendChild(title)
+
+      val checkbox = document.createElement("input").asInstanceOf[html.Input]
+      checkbox.setAttribute("type", "checkbox")
+      checkbox.checked = root.render
+
+      checkbox.onchange = (_: dom.Event) => {
+        root.render = checkbox.checked
+        println(s"${root.name}.render = ${root.render}") // @ telmo - erase me
+      }
+
+      rootDiv.appendChild(checkbox)
+
+      parentDiv.appendChild(rootDiv)
+
+      if (root.children.nonEmpty) {
+        val childContainer = document.createElement("div").asInstanceOf[html.Div]
+        childContainer.setAttribute("class", "children-container")
+        root.children.foreach(childSetting => renderSetting(childSetting, childContainer, identLevel + 1))
+        rootDiv.appendChild(childContainer)
+      }
+    }
+
+    renderSetting(setting, settingsContainer)
+
+    def collectWidgets[A](root: Configurator.Setting[A],prefix:String=""): List[(String,WidgetInfo[A])] = {
+      if (!root.render) {
+        return Nil
+      }
+      val currentName = if (prefix.isEmpty) root.name else s"$prefix.${root.name}"
+      val currentWidgets = root.widgets.map((name,widget) => currentName ++ "." ++ name -> widget)
+      val childrenWidgets = root.children.flatMap(childRoot => collectWidgets(childRoot, currentName))
+      currentWidgets ++ childrenWidgets
+    }
+
+    var settingWidgets = collectWidgets(setting)
+
+    println(settingWidgets)
+    /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
+
+    /********** TRYING STUFF **********/
+    val settingsButton = document.getElementById("settings-button").asInstanceOf[html.Button]
+    settingsButton.onclick = (_: dom.Event) => {
+      settingWidgets = collectWidgets(config.setting) // @ telmo - update settings (check render status)
+
+      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
+      rightBar.innerHTML = ""
+
+      // @ telmo - emulating prof. Proença's code
+      val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets ++ settingWidgets
+      val boxes = for wc <- widgets yield
+        // build widget w
+        val w = mkWidget(wc, () => code.get,
+          () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
+          errorArea,
+          config.documentation
+        )
+        // place widget in the document
+        w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+        w
+
+      globalReload() // @ telmo - reload interface
+    }
+    /********** TRYING STUFF **********/
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
@@ -264,11 +344,12 @@ object Site:
       val resultAsString = Utils.unfix(reader.result.toString)
       //println("Loaded?")
       lastConfig match {
-        case Some(c:Configurator[A] @unchecked)  =>
+        case Some(c: Configurator[A] @unchecked) =>
           val c2 = new Configurator[A] {
             override val parser = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
+            override val setting: Configurator.Setting[A] = c.setting
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
