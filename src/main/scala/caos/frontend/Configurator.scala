@@ -28,8 +28,10 @@ trait Configurator[Stx]:
   val parser: String=>Stx
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
-  /** Structure dedicated for establishing configurations */
-  val setting: Configurator.Setting[Stx]
+  /** Structure dedicated for establishing settings */
+  val setting: Configurator.Setting
+  /** Structure dedicated for establishing pattern */
+  val options: List[Configurator.Option[Stx]]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
@@ -217,22 +219,32 @@ object Configurator:
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
 
-  /** @ telmo - check with prof. Proença if this class could be better placed */
-  case class Setting[Stx](name: String, children: List[Setting[Stx]] = List(), widgets: List[(String,WidgetInfo[Stx])] = List(), var render: Boolean = false) {
-
-    // @ telmo - trying to avoid massive code duplication
-    def deepCopy(copyName: String = this.name): Setting[Stx] = {
-      val copyChildren = this.children.map(child => child.deepCopy())
-      new Setting[Stx](name = copyName, children = copyChildren, widgets = this.widgets, render = this.render)
+  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = false) {
+    override def toString: String = {
+      def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
+        val currentString  = s"$ident- ${setting.name}\n "
+        val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
+        currentString + childrenString
+      }
+      toStringAuxiliary(this)
     }
 
-    override def toString: String = {
-      def renderSetting(root: Setting[Stx], ident: String): String = {
-        val currentNode   = s"$ident- ${root.name}\n "
-        val childrenNodes = root.children.map(child => renderSetting(child, ident + " ")).mkString
-        currentNode + childrenNodes
+    def toMap: Map[String, Boolean] = {
+      def toMapAuxiliary(setting: Setting, prefix: String = ""): Map[String, Boolean] = {
+        val currentName = if (prefix.isEmpty) setting.name else s"$prefix.${setting.name}"
+        val currentMap  = Map(currentName -> render)
+        val childrenMaps = setting.children.flatMap(child => toMapAuxiliary(child, currentName))
+        currentMap ++ childrenMaps
       }
-      renderSetting(this, "")
+      toMapAuxiliary(this)
+    }
+  }
+
+  // @ telmo - "Option" is just a placeholder - need a better name!
+  case class Option[Stx](choice: Map[String, Boolean], widgets:List[(String, WidgetInfo[Stx])]) {
+    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
+      val settingMap = setting.toMap
+      if (choice.forall((settingName, checkedStatus) => settingMap(settingName) == checkedStatus)) widgets else Nil
     }
   }
 

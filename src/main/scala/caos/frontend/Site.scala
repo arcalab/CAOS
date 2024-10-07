@@ -2,6 +2,7 @@ package caos.frontend
 
 import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
+import caos.frontend.Configurator.Setting
 import caos.view.*
 import caos.view.OptionView.*
 import org.scalajs.dom
@@ -61,11 +62,13 @@ object Site:
     /********** TRYING STUFF **********/
     val setting = config.setting
 
+    val options = config.options
+
     val settingsContainer = document.getElementById("settings-container").asInstanceOf[html.Div]
     // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
 
     // @ telmo - trying to mimic Setting.toString behaviour
-    def renderSetting(root: Configurator.Setting[_], parentDiv: html.Div, identLevel: Int = 0): Unit = {
+    def renderSetting(root: Configurator.Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
       val rootDiv = document.createElement("div").asInstanceOf[html.Div]
       rootDiv.setAttribute("class", "setting-div")
 
@@ -79,9 +82,20 @@ object Site:
       checkbox.setAttribute("type", "checkbox")
       checkbox.checked = root.render
 
+      /* @ telmo -
+        thought about switching render to const where I would create a new node and append it
+        but, children are "val" and as such, couldn't make it point to new node
+        I could make them "var" and allow them to point to new children
+        but, Is var children truly better than var render?
+      */
       checkbox.onchange = (_: dom.Event) => {
-        root.render = checkbox.checked
-        println(s"${root.name}.render = ${root.render}") // @ telmo - erase me
+        def toggleRender(root: Setting)(using render: Boolean): Unit = {
+          root.render = render
+          root.children.foreach(child => toggleRender(child))
+          // @ telmo - could update UI telling others render is off
+        }
+        toggleRender(root)(using render = checkbox.checked)
+        println(s"${root.name} has render = ${root.render}")
       }
 
       rootDiv.appendChild(checkbox)
@@ -98,17 +112,11 @@ object Site:
 
     renderSetting(setting, settingsContainer)
 
-    def collectWidgets[A](root: Configurator.Setting[A],prefix:String=""): List[(String,WidgetInfo[A])] = {
-      if (!root.render) {
-        return Nil
-      }
-      val currentName = if (prefix.isEmpty) root.name else s"$prefix.${root.name}"
-      val currentWidgets = root.widgets.map((name,widget) => currentName ++ "." ++ name -> widget)
-      val childrenWidgets = root.children.flatMap(childRoot => collectWidgets(childRoot, currentName))
-      currentWidgets ++ childrenWidgets
+    def collectSettingWidgets: List[(String, WidgetInfo[A])] = {
+      options.flatMap(option => option.getWidgets(config.setting))
     }
 
-    var settingWidgets = collectWidgets(setting)
+    var settingWidgets = collectSettingWidgets
 
     println(settingWidgets)
     /********** TRYING STUFF **********/
@@ -119,7 +127,7 @@ object Site:
     /********** TRYING STUFF **********/
     val settingsButton = document.getElementById("settings-button").asInstanceOf[html.Button]
     settingsButton.onclick = (_: dom.Event) => {
-      settingWidgets = collectWidgets(config.setting) // @ telmo - update settings (check render status)
+      settingWidgets = collectSettingWidgets // @ telmo - update settings (check render status)
 
       val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
       rightBar.innerHTML = ""
@@ -349,7 +357,8 @@ object Site:
             override val parser = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
-            override val setting: Configurator.Setting[A] = c.setting
+            override val setting: Configurator.Setting = c.setting
+            override val options: List[Configurator.Option[A]] = c.options
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
