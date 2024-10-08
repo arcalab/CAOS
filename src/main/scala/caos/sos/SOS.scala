@@ -1,5 +1,6 @@
 package caos.sos
 
+import scala.collection.immutable.Queue
 import scala.scalajs.js.annotation.JSExportTopLevel
 
 /** An SOS semantics with states in `State` and labels in `Act` needs to implement
@@ -101,24 +102,25 @@ object SOS:
 //      .replaceAll("\\[|\\]|\\(|\\)","_")
 //      .replaceAll(";",",")
 //      .replaceAll("\\|","#")
-    def aux(next:Set[S],done:Set[S],limit:Int): String =
+    def aux(next:Queue[S], done:Set[S], limit:Int): String =
       if limit <=0 then
         return (for n<-next yield s"\n  style ${ids(n)} fill:#f87,stroke:#633,stroke-width:4px;").mkString
-      next.headOption match
-        case Some(st) if done contains st => aux(next-st,done,limit)
-        case Some(st) =>
+      next.dequeueOption match
+        case Some((st,next2)) if done contains st => aux(next2,done,limit)
+        case Some((st,next2)) =>
           val done2 = done+st
-          var next2 = next-st
           var res = s"\n  ${ids(st)}([${fix(showSt(st))}]);"
+          var next3 = next2
           for (a,s2) <- sos.next(st) do
-            next2 += s2
+            next3 = next3.enqueue(s2)
             res += s"\n  ${ids(s2)}([${fix(showSt(s2))}]);\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
-          res + aux(next2,done2,limit-1)
+          res + aux(next3,done2,limit-1)
         case None => ""
-    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Set(s),Set(),maxNodes)
+    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Queue(s),Set(),maxNodes)
 
   /**
-   * Traverses state `s` using an SOS `sos`, stopping after visiting `max` states,
+   * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
+   * stopping after visiting `max` states,
    * and produces the set of visited states and number of visited transitions.
    *
    * @param sos Operational semantics to calculate next steps
@@ -144,6 +146,33 @@ object SOS:
 
     aux(Set(s), Set(), 0, max)
 
+/**
+   * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
+   * stopping after attempting to traverse a `max` number of edges,
+   * and produces the set of visited states and number of visited transitions.
+   *
+   * @param sos Operational semantics to calculate next steps
+   * @param s Initial state
+   * @param max Maximum number of edges to try to traverse
+   * @tparam A Type of actions (labels)
+   * @tparam S Type of states
+   * @return (1) a set of traversed states, (2) the number of visited edges, and
+   *         (3) a boolean indicating if the traversal was complete.
+   */
+  def traverseEdges[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
+    def aux(next:Set[S],done:Set[S],edges:Int, limit:Int): (Set[S],Int,Boolean) =
+      if limit <=0 then
+        return (done,edges,false)
+      next.headOption match
+        case None =>
+          (done, edges, true)
+        case Some(st) if done contains st =>
+          aux(next-st,done,edges,limit)
+        case Some(st) => //visiting new state
+          val more = sos.next(st)
+          aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-more.size)
+
+    aux(Set(s), Set(), 0, max)
 
 
           
