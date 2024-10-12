@@ -89,12 +89,7 @@ object Site:
         but, Is var children truly better than var render?
       */
       checkbox.onchange = (_: dom.Event) => {
-        def toggleRender(root: Setting)(using render: Boolean): Unit = {
-          root.render = render
-          root.children.foreach(child => toggleRender(child))
-          // @ telmo - could update UI telling others render is off
-        }
-        toggleRender(root)(using render = checkbox.checked)
+        root.render = checkbox.checked
         println(s"${root.name} has render = ${root.render}")
       }
 
@@ -117,8 +112,6 @@ object Site:
     }
 
     var settingWidgets = collectSettingWidgets
-
-    println(settingWidgets)
     /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
@@ -127,6 +120,8 @@ object Site:
     /********** TRYING STUFF **********/
     val settingsButton = document.getElementById("settings-button").asInstanceOf[html.Button]
     settingsButton.onclick = (_: dom.Event) => {
+      println(s"Apply Map: ${config.setting.toMap}")
+
       settingWidgets = collectSettingWidgets // @ telmo - update settings (check render status)
 
       val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
