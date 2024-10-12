@@ -222,7 +222,7 @@ object Configurator:
   case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = false) {
     override def toString: String = {
       def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-        val currentString  = s"$ident- ${setting.name}\n "
+        val currentString  = s"$ident- ${setting.name} ${setting.render}\n "
         val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
         currentString + childrenString
       }
@@ -232,7 +232,7 @@ object Configurator:
     def toMap: Map[String, Boolean] = {
       def toMapAuxiliary(setting: Setting, prefix: String = ""): Map[String, Boolean] = {
         val currentName = if (prefix.isEmpty) setting.name else s"$prefix.${setting.name}"
-        val currentMap  = Map(currentName -> render)
+        val currentMap  = Map(currentName -> setting.render)
         val childrenMaps = setting.children.flatMap(child => toMapAuxiliary(child, currentName))
         currentMap ++ childrenMaps
       }
@@ -244,7 +244,6 @@ object Configurator:
   case class Option[Stx](choice: Map[String, Boolean], widgets:List[(String, WidgetInfo[Stx])]) {
     def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
       val settingMap = setting.toMap
-      println(s"Option Map: $settingMap") // @ telmo - some debugging
       if (choice.forall((settingName, checkedStatus) => settingMap(settingName) == checkedStatus)) widgets else Nil
     }
   }

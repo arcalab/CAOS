@@ -90,7 +90,6 @@ object Site:
       */
       checkbox.onchange = (_: dom.Event) => {
         root.render = checkbox.checked
-        println(s"${root.name} has render = ${root.render}")
       }
 
       rootDiv.appendChild(checkbox)
@@ -120,14 +119,12 @@ object Site:
     /********** TRYING STUFF **********/
     val settingsButton = document.getElementById("settings-button").asInstanceOf[html.Button]
     settingsButton.onclick = (_: dom.Event) => {
-      println(s"Apply Map: ${config.setting.toMap}")
-
       settingWidgets = collectSettingWidgets // @ telmo - update settings (check render status)
 
       val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
       rightBar.innerHTML = ""
 
-      // @ telmo - emulating prof. Proença's code
+      // @ telmo - emulating prof. Proença's code - create a function to avoid code duplication
       val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets ++ settingWidgets
       val boxes = for wc <- widgets yield
         // build widget w
