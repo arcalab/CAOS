@@ -62,7 +62,7 @@ object Site:
     /********** TRYING STUFF **********/
     val setting = config.setting
 
-    val options = config.options
+    val settingCondition = config.settingConditions
 
     val settingsContainer = document.getElementById("settings-container").asInstanceOf[html.Div]
     // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
@@ -107,7 +107,7 @@ object Site:
     renderSetting(setting, settingsContainer)
 
     def collectSettingWidgets: List[(String, WidgetInfo[A])] = {
-      options.flatMap(option => option.getWidgets(config.setting))
+      settingCondition.flatMap(option => option.getWidgets(config.setting))
     }
 
     var settingWidgets = collectSettingWidgets
@@ -350,7 +350,7 @@ object Site:
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Configurator.Setting = c.setting
-            override val options: List[Configurator.Option[A]] = c.options
+            override val settingConditions: List[Configurator.SettingCondition[A]] = c.settingConditions
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)

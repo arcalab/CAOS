@@ -31,7 +31,7 @@ trait Configurator[Stx]:
   /** Structure dedicated for establishing settings */
   val setting: Configurator.Setting
   /** Structure dedicated for establishing pattern */
-  val options: List[Configurator.Option[Stx]]
+  val settingConditions: List[Configurator.SettingCondition[Stx]]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
@@ -240,12 +240,9 @@ object Configurator:
     }
   }
 
-  // @ telmo - "Option" is just a placeholder - need a better name!
-  case class Option[Stx](choice: Map[String, Boolean], widgets: List[(String, WidgetInfo[Stx])]) {
-    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
-      val settingMap = setting.toMap
-      if (choice.forall((settingName, checkedStatus) => settingMap(settingName) == checkedStatus)) widgets else Nil
-    }
+  // @ telmo - condition should become a function
+  case class SettingCondition[Stx](condition: Setting => Boolean, widgets: List[(String, WidgetInfo[Stx])]) {
+    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = if (condition(setting)) widgets else Nil
   }
 
   /** Simple class to capture an example with a name and a description. */
