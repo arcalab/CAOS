@@ -241,7 +241,7 @@ object Configurator:
   }
 
   // @ telmo - "Option" is just a placeholder - need a better name!
-  case class Option[Stx](choice: Map[String, Boolean], widgets:List[(String, WidgetInfo[Stx])]) {
+  case class Option[Stx](choice: Map[String, Boolean], widgets: List[(String, WidgetInfo[Stx])]) {
     def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
       val settingMap = setting.toMap
       if (choice.forall((settingName, checkedStatus) => settingMap(settingName) == checkedStatus)) widgets else Nil
