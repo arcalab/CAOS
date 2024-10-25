@@ -133,6 +133,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
         s"<pre style=\"font-size: 1.2rem; width: fit-content; display: inline-grid; padding: 2.5px;\">${
           cleanHtml(simulate.lb(act))}</pre>").mkString(",")}""")
 //      .text(s""" ${traceActs.mkString(", ")}""")
+//      .text(s""" ${traceActs.map(simulate.lb).mkString(", ")}""")
   }
 
   def showEnabled(from:St):Unit = {
@@ -153,8 +154,7 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
       val b = li.append("button")
         .attr("title",p.toString)
         .attr("class","btNextTrans")
-        .textEl(/*if (a.isTau) "terminate" else*/ simulate.lb(a)) // todo: handle taus
-//        .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
+        .textEl(/*if (a.isTau) "terminate" else*/ simulate.lb(a)) // .toString) // todo: handle taus
       b.on("click", () => { takeStep(a,p)})
     }
   }

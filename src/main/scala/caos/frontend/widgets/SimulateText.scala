@@ -167,9 +167,10 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
 
   protected def showActStep(a:Option[Act]):String = {
     s"""<div style="text-align:left;width:15%;font-weight:bold;">
-       |  ${if (a.isDefined)  s"""${cleanHtml(a.get.toString)} &#8594;""" else "&#8594;"}
+       |  ${if (a.isDefined)  s"""${cleanHtml(simulate.lb(a.get))} &#8594;""" else "&#8594;"}
        |</div>""".stripMargin
   }
+  //       |  ${if (a.isDefined)  s"""${cleanHtml(a.get.toString)} &#8594;""" else "&#8594;"}
 
   //protected def htmlChoreo(c:Choreo):String =
   //  c.toString.replace("->","&#8594;")
