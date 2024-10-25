@@ -129,7 +129,10 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     top.text("")
     top.append("span").style("font-weight:bold;").textEl("Trace:")
       .append("span").style("font-weight:normal")
-      .text(s""" ${traceActs.mkString(", ")}""")
+      .html(s""" ${traceActs.map(act=>
+        s"<pre style=\"font-size: 1.2rem; width: fit-content; display: inline-grid; padding: 2.5px;\">${
+          cleanHtml(simulate.lb(act))}</pre>").mkString(",")}""")
+//      .text(s""" ${traceActs.mkString(", ")}""")
   }
 
   def showEnabled(from:St):Unit = {
@@ -143,12 +146,15 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     ul.append("li")
       .append("span").style("font-weight:bold;").textEl("Enabled transitions:")
 
-    for ((a,p)<-enabled.toList.sortWith(_._1.toString < _._1.toString)) {
+    for ((a,p)<-enabled.toList
+        .sortWith((x,y)=>simulate.lb(x._1) < simulate.lb(y._1))) {
+//      .sortWith(_._1.toString < _._1.toString)) {
       val li = ul.append("li")
       val b = li.append("button")
         .attr("title",p.toString)
         .attr("class","btNextTrans")
-        .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
+        .textEl(/*if (a.isTau) "terminate" else*/ simulate.lb(a)) // todo: handle taus
+//        .textEl(/*if (a.isTau) "terminate" else*/ a.toString) // todo: handle taus
       b.on("click", () => { takeStep(a,p)})
     }
   }
@@ -167,6 +173,11 @@ class SimulateMermaid[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
     //println(s"--------\nrunning mermaid code:\n--------\n$mermaidJs\n---------")
     scalajs.js.eval(mermaidJs)
   } catch Widget.checkExceptions(errorBox,name)
+
+
+  private def cleanHtml(str: String): String =
+    str.replaceAll("<", "&#60;")
+      .replaceAll(">", "&#62;")
 
 }
 
