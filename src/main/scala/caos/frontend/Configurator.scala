@@ -9,6 +9,7 @@ import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
 
+import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 /**
@@ -229,20 +230,30 @@ object Configurator:
       toStringAuxiliary(this)
     }
 
-    def toMap: Map[String, Boolean] = {
-      def toMapAuxiliary(setting: Setting, prefix: String = ""): Map[String, Boolean] = {
-        val currentName = if (prefix.isEmpty) setting.name else s"$prefix.${setting.name}"
-        val currentMap  = Map(currentName -> setting.render)
-        val childrenMaps = setting.children.flatMap(child => toMapAuxiliary(child, currentName))
-        currentMap ++ childrenMaps
+    // @ telmo - I can edit this later on to work with regex
+    private def renderFromPath(path: String): Boolean = {
+      def settingFromPath(setting: Setting, path: List[String]): Option[Setting] = path match {
+        case Nil => Some(setting)
+        case head :: tail => if (setting.name == head) {
+          if (tail.isEmpty) Some(setting)
+          else setting.children.find(_.name == tail.head).flatMap(settingFromPath(_, tail))
+        } else None
       }
-      toMapAuxiliary(this)
+
+      settingFromPath(this, path.split("\\.").toList) match {
+        case Some(setting) => setting.render
+        case _ => throw RuntimeException(s"[$path] was not matched on [$this]")
+      }
     }
+
+    def apply(path: String): Boolean = renderFromPath(path)
   }
 
   // @ telmo - condition should become a function
   case class SettingCondition[Stx](condition: Setting => Boolean, widgets: List[(String, WidgetInfo[Stx])]) {
-    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = if (condition(setting)) widgets else Nil
+    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
+      if (condition(setting)) widgets else Nil
+    }
   }
 
   /** Simple class to capture an example with a name and a description. */
