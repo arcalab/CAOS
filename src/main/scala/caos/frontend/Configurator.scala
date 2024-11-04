@@ -32,7 +32,7 @@ trait Configurator[Stx]:
   /** Structure dedicated for establishing settings */
   val setting: Configurator.Setting
   /** Structure dedicated for establishing pattern */
-  val settingConditions: List[Configurator.SettingCondition[Stx]]
+  val settingConditions: Iterable[Configurator.SettingCondition[Stx]]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */

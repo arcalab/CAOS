@@ -106,7 +106,7 @@ object Site:
 
     renderSetting(setting, settingsContainer)
 
-    def collectSettingWidgets: List[(String, WidgetInfo[A])] = {
+    def collectSettingWidgets: Iterable[(String, WidgetInfo[A])] = {
       settingCondition.flatMap(option => option.getWidgets(config.setting))
     }
 
@@ -350,7 +350,7 @@ object Site:
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Configurator.Setting = c.setting
-            override val settingConditions: List[Configurator.SettingCondition[A]] = c.settingConditions
+            override val settingConditions: Iterable[Configurator.SettingCondition[A]] = c.settingConditions
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
