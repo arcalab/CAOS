@@ -9,7 +9,6 @@ import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
 
-import scala.annotation.tailrec
 import scala.language.implicitConversions
 
 /**
@@ -255,6 +254,9 @@ object Configurator:
       if (condition(setting)) widgets else Nil
     }
   }
+
+  implicit def toSettingCondition[Stx](conditionWidgets: (Setting => Boolean, List[(String, WidgetInfo[Stx])])): SettingCondition[Stx] =
+    SettingCondition(conditionWidgets._1, conditionWidgets._2)
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)
