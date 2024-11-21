@@ -9,6 +9,7 @@ import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
 
+import scala.annotation.targetName
 import scala.language.implicitConversions
 
 /**
@@ -219,7 +220,8 @@ object Configurator:
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
 
-  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = false) {
+  // mutex may become renderOptions, i.e., a collection of flags??? where each one is an option like renderValid, RenderOne, RenderAny, RenderAll, ...
+  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = false, mutex: Boolean = false) {
     override def toString: String = {
       def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
         val currentString  = s"$ident- ${setting.name} ${setting.render}\n "
@@ -227,6 +229,30 @@ object Configurator:
         currentString + childrenString
       }
       toStringAuxiliary(this)
+    }
+
+    /*
+      settingA = Setting("nameA", childrenA, true, true)
+      settingB = Setting("nameB", childrenB, true, true)
+
+      settingA || settingB => Setting(nameA ++ nameB, List(settingA, settingB), true, true)
+      settingA && settingN => Setting(nameA ++ nameB, List(settingA, settingB), true, false)
+     */
+    @targetName("allowOne")
+    def ||(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
+      val name = if (optionalName == null) this.name ++ setting.name else optionalName
+      Setting(name, List(this, setting), render, true)
+    }
+
+    @targetName("allowAll")
+    def &&(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
+      val name = if (optionalName == null) this.name ++ setting.name else optionalName
+      Setting(name, List(this, setting), render)
+    }
+
+    def ++(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
+      val name =  if (optionalName == null) this.name ++ setting.name else optionalName
+      Setting(name, List(this, setting), render, true)
     }
 
     // @ telmo - I can edit this later on to work with regex
