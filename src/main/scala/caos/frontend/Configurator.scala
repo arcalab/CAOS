@@ -221,7 +221,7 @@ object Configurator:
     Analyse(a)
 
   // mutex may become renderOptions, i.e., a collection of flags??? where each one is an option like renderValid, RenderOne, RenderAny, RenderAll, ...
-  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = false, mutex: Boolean = false) {
+  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = true, mutex: Boolean = false) {
     override def toString: String = {
       def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
         val currentString  = s"$ident- ${setting.name} ${setting.render}\n "
@@ -245,14 +245,9 @@ object Configurator:
     }
 
     @targetName("allowAll")
-    def &&(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
+    def ++(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
       val name = if (optionalName == null) this.name ++ setting.name else optionalName
       Setting(name, List(this, setting), render)
-    }
-
-    def ++(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
-      val name =  if (optionalName == null) this.name ++ setting.name else optionalName
-      Setting(name, List(this, setting), render, true)
     }
 
     // @ telmo - I can edit this later on to work with regex
