@@ -10,6 +10,7 @@ import caos.view.OptionView.OptMermaid
 import caos.view.*
 
 import scala.annotation.targetName
+import scala.collection.immutable.List as name
 import scala.language.implicitConversions
 
 /**
@@ -231,23 +232,24 @@ object Configurator:
       toStringAuxiliary(this)
     }
 
-    /*
-      settingA = Setting("nameA", childrenA, true, true)
-      settingB = Setting("nameB", childrenB, true, true)
-
-      settingA || settingB => Setting(nameA ++ nameB, List(settingA, settingB), true, true)
-      settingA && settingN => Setting(nameA ++ nameB, List(settingA, settingB), true, false)
-     */
-    @targetName("allowOne")
+    @targetName("mutex")
     def ||(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
-      val name = if (optionalName == null) this.name ++ setting.name else optionalName
-      Setting(name, List(this, setting), render, true)
+      val groupName = if (optionalName != null) optionalName else s"${this.name} || ${setting.name}"
+      if (this.mutex && this.children.nonEmpty) {
+        Setting(groupName, this.children :+ setting, this.render, this.mutex)
+      } else {
+        Setting(groupName, List(this, setting), render, mutex = true)
+      }
     }
 
-    @targetName("allowAll")
+    @targetName("merge")
     def ++(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
-      val name = if (optionalName == null) this.name ++ setting.name else optionalName
-      Setting(name, List(this, setting), render)
+      val groupName = if (optionalName != null) optionalName else s"${this.name} ++ ${setting.name}"
+      if (!this.mutex && this.children.nonEmpty) {
+        Setting(groupName, this.children :+ setting, this.render, this.mutex)
+      } else {
+        Setting(groupName, List(this, setting), render, mutex = false)
+      }
     }
 
     // @ telmo - I can edit this later on to work with regex
