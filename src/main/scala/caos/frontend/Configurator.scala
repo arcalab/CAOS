@@ -222,7 +222,7 @@ object Configurator:
     Analyse(a)
 
   // mutex may become renderOptions, i.e., a collection of flags??? where each one is an option like renderValid, RenderOne, RenderAny, RenderAll, ...
-  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = true, mutex: Boolean = false) {
+  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = true, options: List[String] = List.empty) {
     override def toString: String = {
       def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
         val currentString  = s"$ident- ${setting.name} ${setting.render}\n "
@@ -232,23 +232,33 @@ object Configurator:
       toStringAuxiliary(this)
     }
 
-    @targetName("mutex")
-    def ||(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
-      val groupName = if (optionalName != null) optionalName else s"${this.name} || ${setting.name}"
-      if (this.mutex && this.children.nonEmpty) {
-        Setting(groupName, this.children :+ setting, this.render, this.mutex)
+    @targetName("allowOne")
+    def ||(setting: Setting): Setting = {
+      val groupName = s"${this.name} || ${setting.name}"
+      if (this.options.contains("allowOne") && this.children.nonEmpty) {
+        Setting(groupName, this.children :+ setting, this.render, this.options)
       } else {
-        Setting(groupName, List(this, setting), render, mutex = true)
+        Setting(groupName, List(this, setting), this.render, List("allowOne"))
+      }
+    }
+
+    @targetName("allowAll")
+    def &&(setting: Setting): Setting = {
+      val groupName = s"${this.name} && ${setting.name}"
+      if (this.options.contains("allowAll") && this.children.nonEmpty) {
+        Setting(groupName, this.children :+ setting, this.render, this.options)
+      } else {
+        Setting(groupName, List(this, setting), this.render, List("allowAll"))
       }
     }
 
     @targetName("merge")
-    def ++(setting: Setting, optionalName: String = null, render: Boolean = true): Setting = {
-      val groupName = if (optionalName != null) optionalName else s"${this.name} ++ ${setting.name}"
-      if (!this.mutex && this.children.nonEmpty) {
-        Setting(groupName, this.children :+ setting, this.render, this.mutex)
+    def ++(setting: Setting): Setting = {
+      val groupName = s"${this.name} ++ ${setting.name}"
+      if (this.options.contains("merge") && this.children.nonEmpty) {
+        Setting(groupName, this.children :+ setting, this.render, this.options)
       } else {
-        Setting(groupName, List(this, setting), render, mutex = false)
+        Setting(groupName, List(this, setting), this.render, List("merge"))
       }
     }
 
@@ -271,7 +281,9 @@ object Configurator:
     def apply(path: String): Boolean = renderFromPath(path)
   }
 
-  // @ telmo - condition should become a function
+  implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
+    Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.render, nameSetting._2.options)
+
   case class SettingCondition[Stx](condition: Setting => Boolean, widgets: List[(String, WidgetInfo[Stx])]) {
     def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
       if (condition(setting)) widgets else Nil
