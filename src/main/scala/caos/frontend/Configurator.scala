@@ -243,16 +243,6 @@ object Configurator:
     }
 
     @targetName("allowAll")
-    def &&(setting: Setting): Setting = {
-      val groupName = s"${this.name} && ${setting.name}"
-      if (this.options.contains("allowAll") && this.children.nonEmpty) {
-        Setting(groupName, this.children :+ setting, this.render, this.options)
-      } else {
-        Setting(groupName, List(this, setting), this.render, List("allowAll"))
-      }
-    }
-
-    @targetName("merge")
     def ++(setting: Setting): Setting = {
       val groupName = s"${this.name} ++ ${setting.name}"
       if (this.options.contains("merge") && this.children.nonEmpty) {
