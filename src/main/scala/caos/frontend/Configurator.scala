@@ -243,7 +243,7 @@ object Configurator:
     }
 
     @targetName("allowAll")
-    def ++(setting: Setting): Setting = {
+    def &&(setting: Setting): Setting = {
       val groupName = s"${this.name} ++ ${setting.name}"
       if (this.options.contains("merge") && this.children.nonEmpty) {
         Setting(groupName, this.children :+ setting, this.render, this.options)
@@ -270,6 +270,9 @@ object Configurator:
 
     def apply(path: String): Boolean = renderFromPath(path)
   }
+
+  implicit def str2setting(name: String): Setting =
+    Setting(name)
 
   implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
     Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.render, nameSetting._2.options)
