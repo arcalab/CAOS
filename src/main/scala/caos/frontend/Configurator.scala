@@ -235,7 +235,7 @@ object Configurator:
     @targetName("allowOne")
     def ||(setting: Setting): Setting = {
       val groupName = s"${this.name} || ${setting.name}"
-      if (this.options.contains("allowOne") && this.children.nonEmpty) {
+      if (this.options.contains("allowOne")) {
         Setting(groupName, this.children :+ setting, this.render, this.options)
       } else {
         Setting(groupName, List(this, setting), this.render, List("allowOne"))
@@ -245,10 +245,10 @@ object Configurator:
     @targetName("allowAll")
     def &&(setting: Setting): Setting = {
       val groupName = s"${this.name} ++ ${setting.name}"
-      if (this.options.contains("merge") && this.children.nonEmpty) {
+      if (this.options.contains("allowAll")) {
         Setting(groupName, this.children :+ setting, this.render, this.options)
       } else {
-        Setting(groupName, List(this, setting), this.render, List("merge"))
+        Setting(groupName, List(this, setting), this.render, List("allowAll"))
       }
     }
 
