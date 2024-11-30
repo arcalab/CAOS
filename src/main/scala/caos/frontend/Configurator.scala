@@ -252,23 +252,39 @@ object Configurator:
       }
     }
 
-    // @ telmo - I can edit this later on to work with regex
-    private def renderFromPath(path: String): Boolean = {
-      def settingFromPath(setting: Setting, path: List[String]): Option[Setting] = path match {
-        case Nil => Some(setting)
-        case head :: tail => if (setting.name == head) {
-          if (tail.isEmpty) Some(setting)
-          else setting.children.find(_.name == tail.head).flatMap(settingFromPath(_, tail))
-        } else None
-      }
+    // @ telmo - I can try to make the following functions work with regex
+    private def settingFromPath(setting: Setting, path: List[String]): Option[Setting] = path match {
+      case Nil => Some(setting)
+      case head :: tail => if (setting.name == head) {
+        if (tail.isEmpty) Some(setting)
+        else setting.children.find(_.name == tail.head).flatMap(settingFromPath(_, tail))
+      } else None
+    }
 
+    private def renderFromPath(path: String): Boolean = {
       settingFromPath(this, path.split("\\.").toList) match {
         case Some(setting) => setting.render
         case _ => throw RuntimeException(s"[$path] was not matched on [$this]")
       }
     }
 
+    def remainingPath(path: String): List[String] = {
+      def collectPaths(setting: Setting, path: List[String]): List[String] = {
+        if (!setting.render) Nil
+        else if (setting.children.isEmpty) List(path.mkString("."))
+        else setting.children.flatMap(child => collectPaths(child, path :+ child.name))
+      }
+
+      settingFromPath(this, path.split("\\.").toList) match {
+        case Some(setting) => collectPaths(setting, List.empty)
+        case None => throw new RuntimeException(s"[$path] was not match on [$this]")
+      }
+    }
+
     def apply(path: String): Boolean = renderFromPath(path)
+
+    def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] =
+      Some((setting.name, setting.children, setting.render, setting.options))
   }
 
   implicit def str2setting(name: String): Setting =
