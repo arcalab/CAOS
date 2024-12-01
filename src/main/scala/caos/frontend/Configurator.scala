@@ -268,7 +268,7 @@ object Configurator:
       }
     }
 
-    def remainingPath(path: String): List[String] = {
+    def validLeaf(path: String): List[String] = {
       def collectPaths(setting: Setting, path: List[String]): List[String] = {
         if (!setting.render) Nil
         else if (setting.children.isEmpty) List(path.mkString("."))
@@ -281,7 +281,7 @@ object Configurator:
       }
     }
 
-    def apply(path: String): Boolean = renderFromPath(path)
+    def apply(path: String): List[String] = validLeaf(path)
 
     def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] =
       Some((setting.name, setting.children, setting.render, setting.options))
