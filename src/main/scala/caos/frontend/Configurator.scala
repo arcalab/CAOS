@@ -1,5 +1,6 @@
 package caos.frontend
 
+import caos.frontend.Setting
 import caos.frontend.Configurator.Example
 import caos.frontend.widgets.Widget.Helper
 import caos.frontend.widgets.WidgetInfo
@@ -9,7 +10,7 @@ import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
 
-import scala.annotation.targetName
+import scala.annotation.{tailrec, targetName}
 import scala.collection.immutable.List as name
 import scala.language.implicitConversions
 
@@ -31,7 +32,7 @@ trait Configurator[Stx]:
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
-  val setting: Configurator.Setting
+  val setting: Setting
   /** Structure dedicated for establishing pattern */
   val settingConditions: Iterable[Configurator.SettingCondition[Stx]]
   /** Main widgets, on the right hand side of the screen */
@@ -221,77 +222,11 @@ object Configurator:
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
 
-  // mutex may become renderOptions, i.e., a collection of flags??? where each one is an option like renderValid, RenderOne, RenderAny, RenderAll, ...
-  case class Setting(name: String, children: List[Setting] = List(), var render: Boolean = true, options: List[String] = List.empty) {
-    override def toString: String = {
-      def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-        val currentString  = s"$ident- ${setting.name} ${setting.render}\n "
-        val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
-        currentString + childrenString
-      }
-      toStringAuxiliary(this)
-    }
-
-    @targetName("allowOne")
-    def ||(setting: Setting): Setting = {
-      val groupName = s"${this.name} || ${setting.name}"
-      if (this.options.contains("allowOne")) {
-        Setting(groupName, this.children :+ setting, this.render, this.options)
-      } else {
-        Setting(groupName, List(this, setting), this.render, List("allowOne"))
-      }
-    }
-
-    @targetName("allowAll")
-    def &&(setting: Setting): Setting = {
-      val groupName = s"${this.name} ++ ${setting.name}"
-      if (this.options.contains("allowAll")) {
-        Setting(groupName, this.children :+ setting, this.render, this.options)
-      } else {
-        Setting(groupName, List(this, setting), this.render, List("allowAll"))
-      }
-    }
-
-    // @ telmo - I can try to make the following functions work with regex
-    private def settingFromPath(setting: Setting, path: List[String]): Option[Setting] = path match {
-      case Nil => Some(setting)
-      case head :: tail => if (setting.name == head) {
-        if (tail.isEmpty) Some(setting)
-        else setting.children.find(_.name == tail.head).flatMap(settingFromPath(_, tail))
-      } else None
-    }
-
-    private def renderFromPath(path: String): Boolean = {
-      settingFromPath(this, path.split("\\.").toList) match {
-        case Some(setting) => setting.render
-        case _ => throw RuntimeException(s"[$path] was not matched on [$this]")
-      }
-    }
-
-    def validLeaf(path: String): List[String] = {
-      def collectPaths(setting: Setting, path: List[String]): List[String] = {
-        if (!setting.render) Nil
-        else if (setting.children.isEmpty) List(path.mkString("."))
-        else setting.children.flatMap(child => collectPaths(child, path :+ child.name))
-      }
-
-      settingFromPath(this, path.split("\\.").toList) match {
-        case Some(setting) => collectPaths(setting, List.empty)
-        case None => throw new RuntimeException(s"[$path] was not match on [$this]")
-      }
-    }
-
-    def apply(path: String): List[String] = validLeaf(path)
-
-    def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] =
-      Some((setting.name, setting.children, setting.render, setting.options))
-  }
-
   implicit def str2setting(name: String): Setting =
     Setting(name)
 
   implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
-    Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.render, nameSetting._2.options)
+    Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.checked, nameSetting._2.options)
 
   case class SettingCondition[Stx](condition: Setting => Boolean, widgets: List[(String, WidgetInfo[Stx])]) {
     def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {

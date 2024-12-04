@@ -1,8 +1,8 @@
 package caos.frontend
 
+import caos.frontend.Setting
 import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
-import caos.frontend.Configurator.Setting
 import caos.view.*
 import caos.view.OptionView.*
 import org.scalajs.dom
@@ -68,7 +68,7 @@ object Site:
     // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
 
     // @ telmo - trying to mimic Setting.toString behaviour
-    def renderSetting(root: Configurator.Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
+    def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
       val rootDiv = document.createElement("div").asInstanceOf[html.Div]
       rootDiv.setAttribute("class", "setting-div")
 
@@ -80,7 +80,7 @@ object Site:
 
       val checkbox = document.createElement("input").asInstanceOf[html.Input]
       checkbox.setAttribute("type", "checkbox")
-      checkbox.checked = root.render
+      checkbox.checked = root.checked
 
       /* @ telmo -
         thought about switching render to const where I would create a new node and append it
@@ -89,7 +89,7 @@ object Site:
         but, Is var children truly better than var render?
       */
       checkbox.onchange = (_: dom.Event) => {
-        root.render = checkbox.checked
+        root.checked = checkbox.checked
       }
 
       rootDiv.appendChild(checkbox)
@@ -349,7 +349,7 @@ object Site:
             override val parser = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
-            override val setting: Configurator.Setting = c.setting
+            override val setting: Setting = c.setting
             override val settingConditions: Iterable[Configurator.SettingCondition[A]] = c.settingConditions
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
