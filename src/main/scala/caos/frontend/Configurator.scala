@@ -33,8 +33,6 @@ trait Configurator[Stx]:
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
   val setting: Setting
-  /** Structure dedicated for establishing pattern */
-  val settingConditions: Iterable[Configurator.SettingCondition[Stx]]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
@@ -227,15 +225,6 @@ object Configurator:
 
   implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
     Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.checked, nameSetting._2.options)
-
-  case class SettingCondition[Stx](condition: Setting => Boolean, widgets: List[(String, WidgetInfo[Stx])]) {
-    def getWidgets(setting: Setting): List[(String, WidgetInfo[Stx])] = {
-      if (condition(setting)) widgets else Nil
-    }
-  }
-
-  implicit def toSettingCondition[Stx](conditionWidgets: (Setting => Boolean, List[(String, WidgetInfo[Stx])])): SettingCondition[Stx] =
-    SettingCondition(conditionWidgets._1, conditionWidgets._2)
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)

@@ -29,12 +29,9 @@ case class Setting(name: String, children: List[Setting] = List(), var checked: 
     def resolvePath(currentSetting: Setting, remainingPath: List[String]): Option[Setting] = {
       remainingPath match
         case Nil => Some(currentSetting)
-        case head :: tail =>
-          currentSetting.children.find {
-            _.name == head
-          } match
-            case Some(child) => resolvePath(child, tail)
-            case None => None
+        case head :: tail => currentSetting.children.find(_.name == head) match
+          case Some(child) => resolvePath(child, tail)
+          case None => None
     }
 
     path.split("\\.").toList match {
@@ -50,10 +47,11 @@ case class Setting(name: String, children: List[Setting] = List(), var checked: 
   private def allFrom(path: String): Set[Setting] = allFrom(path2setting(path))
 
   private def allFrom(setting: Setting): Set[Setting] = {
-    if (setting.children.isEmpty)
+    if (setting.children.isEmpty) {
       Set(setting)
-    else
+    } else {
       Set(setting) ++ setting.children.flatMap(child => allFrom(child))
+    }
   }
 
   private def allLeavesFrom(path: String): Set[Setting] = allLeavesFrom(path2setting(path))
@@ -70,7 +68,7 @@ case class Setting(name: String, children: List[Setting] = List(), var checked: 
 
   private def allActiveLeavesFrom(path: String): Set[Setting] = allActiveLeavesFrom(path2setting(path))
 
-  // @ telmo - could be optimized through ç a filter, but I like the compositional behaviour
+  // @ telmo - could be optimized through a filter, but I like the compositional behaviour
   private def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
     allLeavesFrom(setting).intersect(allActiveFrom(setting))
   }

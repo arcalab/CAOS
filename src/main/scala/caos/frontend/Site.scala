@@ -62,8 +62,6 @@ object Site:
     /********** TRYING STUFF **********/
     val setting = config.setting
 
-    val settingCondition = config.settingConditions
-
     val settingsContainer = document.getElementById("settings-container").asInstanceOf[html.Div]
     // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
 
@@ -105,41 +103,10 @@ object Site:
     }
 
     renderSetting(setting, settingsContainer)
-
-    def collectSettingWidgets: Iterable[(String, WidgetInfo[A])] = {
-      settingCondition.flatMap(option => option.getWidgets(config.setting))
-    }
-
-    var settingWidgets = collectSettingWidgets
     /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
-
-    /********** TRYING STUFF **********/
-    val settingsButton = document.getElementById("settings-button").asInstanceOf[html.Button]
-    settingsButton.onclick = (_: dom.Event) => {
-      settingWidgets = collectSettingWidgets // @ telmo - update settings (check render status)
-
-      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
-      rightBar.innerHTML = ""
-
-      // @ telmo - emulating prof. Proença's code - create a function to avoid code duplication
-      val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets ++ settingWidgets
-      val boxes = for wc <- widgets yield
-        // build widget w
-        val w = mkWidget(wc, () => code.get,
-          () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
-          errorArea,
-          config.documentation
-        )
-        // place widget in the document
-        w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
-        w
-
-      globalReload() // @ telmo - reload interface
-    }
-    /********** TRYING STUFF **********/
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
@@ -350,7 +317,6 @@ object Site:
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Setting = c.setting
-            override val settingConditions: Iterable[Configurator.SettingCondition[A]] = c.settingConditions
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
