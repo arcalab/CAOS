@@ -3,7 +3,7 @@ package caos.frontend
 import scala.annotation.{tailrec, targetName}
 import scala.language.implicitConversions
 
-case class Setting(name: String, children: List[Setting] = List(), var checked: Boolean = true, options: List[String] = List.empty) {
+case class Setting(name: String, children: List[Setting] = List(), checked: Boolean = true, options: List[String] = List.empty) {
   @targetName("allowOne")
   def ||(setting: Setting): Setting = {
     val groupName = s"${this.name} || ${setting.name}"
@@ -71,6 +71,17 @@ case class Setting(name: String, children: List[Setting] = List(), var checked: 
   // @ telmo - could be optimized through a filter, but I like the compositional behaviour
   private def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
     allLeavesFrom(setting).intersect(allActiveFrom(setting))
+  }
+
+  def setChecked(path: String, value: Boolean): Setting = setChecked(path2setting(path), value)
+
+  private def setChecked(setting: Setting, value: Boolean): Setting = {
+    Setting(
+      this.name,
+      this.children.map(_.setChecked(setting, value)),
+      if (this == setting) value else this.checked,
+      this.options
+    )
   }
 
   override def toString: String = {

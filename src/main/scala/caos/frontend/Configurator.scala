@@ -110,7 +110,7 @@ object Configurator:
    * @param initialSt is the initial state
    * @param sos is the SOS object that captures how to evolve (semantics)
    * @param viewSt converts a state into a String
-   * @param viewAct convers an action into a String (default is `toString`)
+   * @param viewAct converts an action into a String (default is `toString`)
    * @param maxSt is the maximum number of states (default is `80`)
    * @tparam Stx is the type of the program (syntax)
    * @tparam A is the type of actions
@@ -129,7 +129,7 @@ object Configurator:
    * @param initialSt is the initial state
    * @param sos       is the SOS object that captures how to evolve (semantics)
    * @param viewSt    converts a state into a String
-   * @param viewAct   convers an action into a String (default is `toString`)
+   * @param viewAct   converts an action into a String (default is `toString`)
    * @tparam Stx is the type of the program (syntax)
    * @tparam A   is the type of actions
    * @tparam S   is the type of states

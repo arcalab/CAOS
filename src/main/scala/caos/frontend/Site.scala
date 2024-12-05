@@ -20,7 +20,6 @@ object Site:
   var toReload:List[()=>Unit] = _
   var lastConfig: Option[Configurator[_]] = None
 
-  @JSExportTopLevel("settingsButton")
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
     initialiseContainers()
@@ -60,13 +59,12 @@ object Site:
     toolTitle.textContent = config.name
 
     /********** TRYING STUFF **********/
-    val setting = config.setting
+    var setting = config.setting
+    var updatedSetting = config.setting
 
-    val settingsContainer = document.getElementById("settings-container").asInstanceOf[html.Div]
-    // settingsContainer.innerHTML = "" @ telmo - avoid delete the button
+    def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0, path: String = ""): Unit = {
+      val currentPath = if (path.isEmpty) root.name else s"$path.${root.name}"
 
-    // @ telmo - trying to mimic Setting.toString behaviour
-    def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
       val rootDiv = document.createElement("div").asInstanceOf[html.Div]
       rootDiv.setAttribute("class", "setting-div")
 
@@ -80,14 +78,8 @@ object Site:
       checkbox.setAttribute("type", "checkbox")
       checkbox.checked = root.checked
 
-      /* @ telmo -
-        thought about switching render to const where I would create a new node and append it
-        but, children are "val" and as such, couldn't make it point to new node
-        I could make them "var" and allow them to point to new children
-        but, Is var children truly better than var render?
-      */
       checkbox.onchange = (_: dom.Event) => {
-        root.checked = checkbox.checked
+        updatedSetting = setting.setChecked(currentPath, checkbox.checked)
       }
 
       rootDiv.appendChild(checkbox)
@@ -97,12 +89,29 @@ object Site:
       if (root.children.nonEmpty) {
         val childContainer = document.createElement("div").asInstanceOf[html.Div]
         childContainer.setAttribute("class", "children-container")
-        root.children.foreach(childSetting => renderSetting(childSetting, childContainer, identLevel + 1))
+        root.children.foreach(childSetting => renderSetting(childSetting, childContainer, identLevel + 1, currentPath))
         rootDiv.appendChild(childContainer)
       }
     }
 
-    renderSetting(setting, settingsContainer)
+    renderSetting(setting, document.getElementById("settings-container").asInstanceOf[html.Div])
+
+    // it may be dangerous to have this over here instead of a JSExport
+    val updateSettings = document.getElementById("update-settings").asInstanceOf[html.Button]
+    updateSettings.onclick = (_: dom.Event) => {
+      setting = updatedSetting
+      /*
+        current function is not cutting it
+        if I change more than 1 checkbox before apply it behaves weirdly
+
+        add logic here
+          major reload
+          widgets should be able to re-evaluate their logic again
+          maybe pass arguments as lazy?
+          */
+      globalReload()
+      println(setting)
+    }
     /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
