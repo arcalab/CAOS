@@ -9,8 +9,14 @@ import caos.view.{OptionView, View, ViewType}
  * @tparam Stx Type of the data structure being analysed.
  */
 sealed trait WidgetInfo[-Stx]:
+  var render = true // @ telmo - states if this widget should even be rendered or not
   var expanded = false
   var location = 0
+
+  /** Sets if the widget should even be rendered on the UI */
+  def setRender(state: Boolean): WidgetInfo[Stx] = {render = state; this}
+  /** Gets widget's render state */
+  def getRender: Boolean = render
   /** Sets whether the widget is initially collapsed or expanded */
   def expand: WidgetInfo[Stx] = {expanded = true; this}
   /** Sets the location where the widget should be placed */

@@ -129,7 +129,7 @@ object Site:
     // build and place all widgets
     // small widgets are deprecated - this makes it work with older versions.
     val widgets = (for (name,wi) <-config.smallWidgets yield (name,wi.moveTo(1))) ++ config.widgets
-    val boxes = for wc <- widgets yield
+    val boxes = for wc <- widgets if wc._2.getRender yield // @ telmo - only render widgets in which rendered = true
       // build widget w
       val w = mkWidget(wc, () => code.get,
         () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
