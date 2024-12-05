@@ -79,12 +79,10 @@ object Site:
 
       checkbox.onchange = (_: dom.Event) => {
         val value = checkbox.checked
-        setting = setting.setChecked(currentPath, value)
-        if (!value) {
-          val toChange = setting.allFrom(currentPath)
-          println(s"toChange=$toChange")
-          for child <- toChange yield
-            println(s"child=$child")
+        if (value) {
+          setting = setting.setChecked(currentPath, value)
+        } else {
+          for child <- setting.allFromOrdered(currentPath) yield
             setting = setting.setChecked(child, value)
           document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
           renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
@@ -118,7 +116,6 @@ object Site:
           maybe pass arguments as lazy?
           */
       globalReload()
-      println(setting)
     }
     /********** TRYING STUFF **********/
 

@@ -54,6 +54,16 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
+  def allFromOrdered(path: String): List[Setting] = allFromOrdered(path2setting(path))
+
+  def allFromOrdered(setting: Setting): List[Setting] = {
+    if (setting.children.isEmpty) {
+      setting :: Nil
+    } else {
+      setting +: setting.children.flatMap(child => allFrom(child))
+    }
+  }
+
   def allLeavesFrom(path: String): Set[Setting] = allLeavesFrom(path2setting(path))
 
   def allLeavesFrom(setting: Setting): Set[Setting] = {
@@ -86,7 +96,7 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
 
   override def toString: String = {
     def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-      val currentString = s"$ident- ${setting.name} ${setting.checked}\n "
+      val currentString = s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n "
       val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
       currentString + childrenString
     }
