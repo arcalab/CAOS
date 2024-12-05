@@ -24,7 +24,7 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
-  private def path2setting(path: String): Setting = {
+  def path2setting(path: String): Setting = {
     @tailrec
     def resolvePath(currentSetting: Setting, remainingPath: List[String]): Option[Setting] = {
       remainingPath match
@@ -44,9 +44,9 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
-  private def allFrom(path: String): Set[Setting] = allFrom(path2setting(path))
+  def allFrom(path: String): Set[Setting] = allFrom(path2setting(path))
 
-  private def allFrom(setting: Setting): Set[Setting] = {
+  def allFrom(setting: Setting): Set[Setting] = {
     if (setting.children.isEmpty) {
       Set(setting)
     } else {
@@ -54,28 +54,28 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
-  private def allLeavesFrom(path: String): Set[Setting] = allLeavesFrom(path2setting(path))
+  def allLeavesFrom(path: String): Set[Setting] = allLeavesFrom(path2setting(path))
 
-  private def allLeavesFrom(setting: Setting): Set[Setting] = {
+  def allLeavesFrom(setting: Setting): Set[Setting] = {
     allFrom(setting).filter(child => child.children.isEmpty)
   }
 
-  private def allActiveFrom(path: String): Set[Setting] = allActiveFrom(path2setting(path))
+  def allActiveFrom(path: String): Set[Setting] = allActiveFrom(path2setting(path))
 
-  private def allActiveFrom(setting: Setting): Set[Setting] = {
+  def allActiveFrom(setting: Setting): Set[Setting] = {
     allFrom(setting).filter(child => child.checked)
   }
 
-  private def allActiveLeavesFrom(path: String): Set[Setting] = allActiveLeavesFrom(path2setting(path))
+  def allActiveLeavesFrom(path: String): Set[Setting] = allActiveLeavesFrom(path2setting(path))
 
   // @ telmo - could be optimized through a filter, but I like the compositional behaviour
-  private def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
+  def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
     allLeavesFrom(setting).intersect(allActiveFrom(setting))
   }
 
   def setChecked(path: String, value: Boolean): Setting = setChecked(path2setting(path), value)
 
-  private def setChecked(setting: Setting, value: Boolean): Setting = {
+  def setChecked(setting: Setting, value: Boolean): Setting = {
     Setting(
       this.name,
       this.children.map(_.setChecked(setting, value)),

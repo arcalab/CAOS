@@ -60,7 +60,6 @@ object Site:
 
     /********** TRYING STUFF **********/
     var setting = config.setting
-    var updatedSetting = config.setting
 
     def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0, path: String = ""): Unit = {
       val currentPath = if (path.isEmpty) root.name else s"$path.${root.name}"
@@ -79,7 +78,17 @@ object Site:
       checkbox.checked = root.checked
 
       checkbox.onchange = (_: dom.Event) => {
-        updatedSetting = setting.setChecked(currentPath, checkbox.checked)
+        val value = checkbox.checked
+        setting = setting.setChecked(currentPath, value)
+        if (!value) {
+          val toChange = setting.allFrom(currentPath)
+          println(s"toChange=$toChange")
+          for child <- toChange yield
+            println(s"child=$child")
+            setting = setting.setChecked(child, value)
+          document.getElementById("settings-container").asInstanceOf[html.Div].innerHTML = ""
+          renderSetting(setting, document.getElementById("settings-container").asInstanceOf[html.Div])
+        }
       }
 
       rootDiv.appendChild(checkbox)
@@ -99,7 +108,6 @@ object Site:
     // it may be dangerous to have this over here instead of a JSExport
     val updateSettings = document.getElementById("update-settings").asInstanceOf[html.Button]
     updateSettings.onclick = (_: dom.Event) => {
-      setting = updatedSetting
       /*
         current function is not cutting it
         if I change more than 1 checkbox before apply it behaves weirdly
