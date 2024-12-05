@@ -86,8 +86,8 @@ object Site:
           for child <- toChange yield
             println(s"child=$child")
             setting = setting.setChecked(child, value)
-          document.getElementById("settings-container").asInstanceOf[html.Div].innerHTML = ""
-          renderSetting(setting, document.getElementById("settings-container").asInstanceOf[html.Div])
+          document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
+          renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
         }
       }
 
@@ -103,11 +103,11 @@ object Site:
       }
     }
 
-    renderSetting(setting, document.getElementById("settings-container").asInstanceOf[html.Div])
+    renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
 
     // it may be dangerous to have this over here instead of a JSExport
-    val updateSettings = document.getElementById("update-settings").asInstanceOf[html.Button]
-    updateSettings.onclick = (_: dom.Event) => {
+    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
+    settingButton.onclick = (_: dom.Event) => {
       /*
         current function is not cutting it
         if I change more than 1 checkbox before apply it behaves weirdly
