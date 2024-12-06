@@ -20,6 +20,8 @@ object Site:
   var toReload:List[()=>Unit] = _
   var lastConfig: Option[Configurator[_]] = None
 
+  var setting: Setting = null
+
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
     initialiseContainers()
@@ -59,7 +61,7 @@ object Site:
     toolTitle.textContent = config.name
 
     /********** TRYING STUFF **********/
-    var setting = config.setting
+    setting = config.setting
 
     def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0, path: String = ""): Unit = {
       val currentPath = if (path.isEmpty) root.name else s"$path.${root.name}"
@@ -102,25 +104,37 @@ object Site:
     }
 
     renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
-
-    // it may be dangerous to have this over here instead of a JSExport
-    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
-    settingButton.onclick = (_: dom.Event) => {
-      /*
-        current function is not cutting it
-        if I change more than 1 checkbox before apply it behaves weirdly
-
-        add logic here
-          major reload
-          widgets should be able to re-evaluate their logic again
-          maybe pass arguments as lazy?
-          */
-      globalReload()
-    }
     /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
+
+    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
+    settingButton.onclick = (_: dom.Event) => {
+      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
+      rightBar.innerHTML = ""
+
+      // @ telmo - emulating prof. Proença's code - create a function to avoid code duplication
+      val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
+      val boxes = for wc <- widgets if wc._2.getRender yield
+        // build widget w
+        val w = mkWidget(wc, () => code.get,
+          () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
+          errorArea,
+          config.documentation
+        )
+        // place widget in the document
+        w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+        w
+
+      mainExample match
+        case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
+        case _ =>
+
+      toReload = (List(code) ++ boxes).map(b => () => b.update())
+
+      globalReload()
+    }
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
