@@ -20,7 +20,10 @@ object Site:
   var toReload:List[()=>Unit] = _
   var lastConfig: Option[Configurator[_]] = None
 
-  var setting: Setting = null
+  var setting: Setting = null // @ telmo - this is quite hacky!
+
+  def getSetting: Setting = setting
+  def setSetting(newSetting: Setting): Setting = {setting = newSetting; setting}
 
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
