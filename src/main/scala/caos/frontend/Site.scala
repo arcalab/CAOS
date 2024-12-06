@@ -66,43 +66,42 @@ object Site:
     /********** TRYING STUFF **********/
     setting = config.setting
 
-    def renderSetting(root: Setting, parentDiv: html.Div, identLevel: Int = 0, path: String = ""): Unit = {
-      val currentPath = if (path.isEmpty) root.name else s"$path.${root.name}"
+    def renderSetting(currentSetting: Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
+      val currentSettingDiv = document.createElement("div").asInstanceOf[html.Div]
+      currentSettingDiv.setAttribute("class", "setting-div")
 
-      val rootDiv = document.createElement("div").asInstanceOf[html.Div]
-      rootDiv.setAttribute("class", "setting-div")
-
-      rootDiv.style.paddingLeft = s"${identLevel * 20}px"
+      currentSettingDiv.style.paddingLeft = s"${identLevel * 20}px"
 
       val title = document.createElement("h4").asInstanceOf[html.Heading]
-      title.textContent = s"> ${root.name}"
-      rootDiv.appendChild(title)
+      title.textContent = s"> ${currentSetting.name}"
+      currentSettingDiv.appendChild(title)
 
       val checkbox = document.createElement("input").asInstanceOf[html.Input]
       checkbox.setAttribute("type", "checkbox")
-      checkbox.checked = root.checked
+      checkbox.checked = currentSetting.checked
 
+      // @ telmo - this is hiding some nasty details - explain why ordered is important
       checkbox.onchange = (_: dom.Event) => {
         val value = checkbox.checked
         if (value) {
-          setting = setting.setChecked(currentPath, value)
+          setting = setting.setChecked(currentSetting, value)
         } else {
-          for child <- setting.allFromOrdered(currentPath) yield
+          for child <- setting.allFromOrdered(currentSetting) yield
             setting = setting.setChecked(child, value)
-          document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
-          renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
         }
+        document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
+        renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
       }
 
-      rootDiv.appendChild(checkbox)
+      currentSettingDiv.appendChild(checkbox)
 
-      parentDiv.appendChild(rootDiv)
+      parentDiv.appendChild(currentSettingDiv)
 
-      if (root.children.nonEmpty) {
-        val childContainer = document.createElement("div").asInstanceOf[html.Div]
-        childContainer.setAttribute("class", "children-container")
-        root.children.foreach(childSetting => renderSetting(childSetting, childContainer, identLevel + 1, currentPath))
-        rootDiv.appendChild(childContainer)
+      if (currentSetting.children.nonEmpty) {
+        val childSettingDiv = document.createElement("div").asInstanceOf[html.Div]
+        childSettingDiv.setAttribute("class", "children-container")
+        currentSetting.children.foreach(childSetting => renderSetting(childSetting, childSettingDiv, identLevel + 1))
+        currentSettingDiv.appendChild(childSettingDiv)
       }
     }
 
