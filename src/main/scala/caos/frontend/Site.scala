@@ -13,14 +13,14 @@ import scala.scalajs.js.annotation.*
 
 object Site:
 
-  var leftColumn:DomElem = _
-  var rightColumn:DomElem = _
-  var errorArea:OutputArea = _
-  var descriptionArea: OutputArea = _
-  var toReload:List[()=>Unit] = _
-  var lastConfig: Option[Configurator[_]] = None
+  private var leftColumn:DomElem = _
+  private var rightColumn:DomElem = _
+  private var errorArea:OutputArea = _
+  private var descriptionArea: OutputArea = _
+  private var toReload:List[()=>Unit] = _
+  private var lastConfig: Option[Configurator[_]] = None
 
-  var setting: Setting = null // @ telmo - this is quite hacky!
+  private var setting: Setting = null // @ telmo - this is quite hacky!
 
   def getSetting: Setting = setting
   def setSetting(newSetting: Setting): Setting = {setting = newSetting; setting}
@@ -112,7 +112,7 @@ object Site:
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
 
-    def renderWidgets = {
+    def renderWidgets(): Unit = {
       // build and place all widgets
       // small widgets are deprecated - this makes it work with older versions.
       val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
@@ -141,14 +141,14 @@ object Site:
       val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
       rightBar.innerHTML = ""
 
-      renderWidgets
+      renderWidgets()
     }
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
     examples.init(leftColumn,true)
 
-    renderWidgets
+    renderWidgets()
   /**
    * Make widget box
    * @param w widget info
@@ -317,11 +317,11 @@ object Site:
       lastConfig match {
         case Some(c: Configurator[A] @unchecked) =>
           val c2 = new Configurator[A] {
-            override val parser = c.parser
+            override val parser: String => A = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Setting = c.setting
-            override val widgets = c.widgets
+            override val widgets: Iterable[(String, WidgetInfo[A])] = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
           }
