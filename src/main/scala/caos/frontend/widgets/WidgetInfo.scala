@@ -9,11 +9,15 @@ import caos.view.{OptionView, View, ViewType}
  * @tparam Stx Type of the data structure being analysed.
  */
 sealed trait WidgetInfo[-Stx]:
+  // @ telmo - how to calculate if this widget should even be rendered
+  //     ... - the default condition is: always evaluate to "true"
   private var renderCondition: () => Boolean = () => true
   var expanded = false
   var location = 0
 
+  /** Sets whether the widget should be rendered or not */
   def setRender(condition: => Boolean): WidgetInfo[Stx] = {renderCondition = () => condition; this}
+  /** Gets whether the widget is rendered or not */
   def getRender: Boolean = renderCondition()
 
   /** Sets whether the widget is initially collapsed or expanded */

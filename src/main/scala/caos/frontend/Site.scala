@@ -112,12 +112,9 @@ object Site:
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
     val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
 
-    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
-    settingButton.onclick = (_: dom.Event) => {
-      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
-      rightBar.innerHTML = ""
-
-      // @ telmo - emulating prof. Proença's code - create a function to avoid code duplication
+    def renderWidgets = {
+      // build and place all widgets
+      // small widgets are deprecated - this makes it work with older versions.
       val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
       val boxes = for wc <- widgets if wc._2.getRender yield
         // build widget w
@@ -139,43 +136,19 @@ object Site:
       globalReload()
     }
 
+    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
+    settingButton.onclick = (_: dom.Event) => {
+      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
+      rightBar.innerHTML = ""
+
+      renderWidgets
+    }
+
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
     examples.init(leftColumn,true)
 
-    // build and place all widgets
-    // small widgets are deprecated - this makes it work with older versions.
-    val widgets = (for (name,wi) <-config.smallWidgets yield (name,wi.moveTo(1))) ++ config.widgets
-    val boxes = for wc <- widgets if wc._2.getRender yield // @ telmo - only render widgets in which rendered = true
-      // build widget w
-      val w = mkWidget(wc, () => code.get,
-        () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
-        errorArea,
-        config.documentation
-      )
-      // place widget in the document
-      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
-      w
-
-//    // build main boxes
-//    val boxes = config.widgets.map(w => mkWidget(w, ()=>code.get,
-//        ()=>examples.get.map(kv=>kv._1->config.parser(kv._2)), errorArea))
-//    boxes.foreach(b=>b.init(rightColumn,false))
-
-//    // build small boxes
-//    val smallBoxes = config.smallWidgets.map(w => mkWidget(w, () => code.get,
-//      () => examples.get.map(kv => kv._1 -> config.parser(kv._2)), errorArea))
-//    smallBoxes.foreach(b => b.init(rightColumn, false))
-
-
-    mainExample match
-      case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
-      case _ =>
-
-    toReload = (List(code)++boxes).map(b => ()=>b.update())
-
-    globalReload()
-
+    renderWidgets
   /**
    * Make widget box
    * @param w widget info
