@@ -82,12 +82,22 @@ object Site:
 
       // @ telmo - this is hiding some nasty details - explain why ordered is important
       checkbox.onchange = (_: dom.Event) => {
-        val value = checkbox.checked
-        setting = setting.setChecked(currentSetting, value)
-        if (!value) {
-          for child <- Setting.allFromOrdered(currentSetting) yield
-            setting = setting.setChecked(child, value)
-        }
+        val isChecked = checkbox.checked
+
+        setting.parentOf(currentSetting) match
+          case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked => parentSetting.children.foreach(childSetting =>
+            if (childSetting != currentSetting) setting = setting.setChecked(childSetting, false)
+            setting = setting.setChecked(currentSetting, isChecked)
+          )
+          case Some(_) =>
+            setting = setting.setChecked(currentSetting, isChecked)
+            if (!isChecked) {
+              for child <- Setting.allFromOrdered(currentSetting) yield
+                setting = setting.setChecked(child, isChecked)
+            }
+          case None =>
+            setting = setting.setChecked(currentSetting, isChecked)
+        
         document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
         renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
       }
