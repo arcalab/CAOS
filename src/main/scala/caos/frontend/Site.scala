@@ -83,10 +83,9 @@ object Site:
       // @ telmo - this is hiding some nasty details - explain why ordered is important
       checkbox.onchange = (_: dom.Event) => {
         val value = checkbox.checked
-        if (value) {
-          setting = setting.setChecked(currentSetting, value)
-        } else {
-          for child <- setting.allFromOrdered(currentSetting) yield
+        setting = setting.setChecked(currentSetting, value)
+        if (!value) {
+          for child <- Setting.allFromOrdered(currentSetting) yield
             setting = setting.setChecked(child, value)
         }
         document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""

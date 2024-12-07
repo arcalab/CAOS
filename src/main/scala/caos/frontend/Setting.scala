@@ -24,6 +24,16 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
+  override def toString: String = {
+    def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
+      val currentString = s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n "
+      val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
+      currentString + childrenString
+    }
+
+    toStringAuxiliary(this)
+  }
+
   def path2setting(path: String): Setting = {
     @tailrec
     def resolvePath(currentSetting: Setting, remainingPath: List[String]): Option[Setting] = {
@@ -44,45 +54,6 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
-  def allFrom(path: String): Set[Setting] = allFrom(path2setting(path))
-
-  def allFrom(setting: Setting): Set[Setting] = {
-    if (setting.children.isEmpty) {
-      Set(setting)
-    } else {
-      Set(setting) ++ setting.children.flatMap(child => allFrom(child))
-    }
-  }
-
-  def allFromOrdered(path: String): List[Setting] = allFromOrdered(path2setting(path))
-
-  def allFromOrdered(setting: Setting): List[Setting] = {
-    if (setting.children.isEmpty) {
-      setting :: Nil
-    } else {
-      setting +: setting.children.flatMap(child => allFrom(child))
-    }
-  }
-
-  def allLeavesFrom(path: String): Set[Setting] = allLeavesFrom(path2setting(path))
-
-  def allLeavesFrom(setting: Setting): Set[Setting] = {
-    allFrom(setting).filter(child => child.children.isEmpty)
-  }
-
-  def allActiveFrom(path: String): Set[Setting] = allActiveFrom(path2setting(path))
-
-  def allActiveFrom(setting: Setting): Set[Setting] = {
-    allFrom(setting).filter(child => child.checked)
-  }
-
-  def allActiveLeavesFrom(path: String): Set[Setting] = allActiveLeavesFrom(path2setting(path))
-
-  // @ telmo - could be optimized through a filter, but I like the compositional behaviour
-  def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
-    allLeavesFrom(setting).intersect(allActiveFrom(setting))
-  }
-
   def setChecked(path: String, value: Boolean): Setting = setChecked(path2setting(path), value)
 
   def setChecked(setting: Setting, value: Boolean): Setting = {
@@ -94,20 +65,61 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     )
   }
 
-  override def toString: String = {
-    def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-      val currentString = s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n "
-      val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
-      currentString + childrenString
-    }
+  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = Setting.allFrom(path2setting(path), filterCondition)
 
-    toStringAuxiliary(this)
+  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = Setting.allFromOrdered(path2setting(path), filterCondition)
+
+  def allLeavesFrom(path: String): Set[Setting] = Setting.allLeavesFrom(path2setting(path))
+
+  def allActiveFrom(path: String): Set[Setting] = Setting.allActiveFrom(path2setting(path))
+
+  def allActiveLeavesFrom(path: String): Set[Setting] = Setting.allActiveLeavesFrom(path2setting(path))
+
+  def apply(path: String): Set[Setting] = {
+    Setting.apply(path2setting(path))
   }
 
-  def apply(path: String): Set[Setting] = apply(path2setting(path))
+  def unapply: Option[(String, List[Setting], Boolean, List[String])] = {
+    Some((this.name, this.children, this.checked, this.options))
+  }
+}
 
-  def apply(setting: Setting): Set[Setting] = allActiveLeavesFrom(setting)
+object Setting {
+  def allFrom(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
+    def allFromAuxiliary(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
+      val filteredSetting = if (filterCondition(setting)) Set(setting) else Set.empty
+      filteredSetting ++ setting.children.flatMap(child => allFromAuxiliary(child, filterCondition))
+    }
 
-  def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] =
+    setting.children.flatMap(child => allFromAuxiliary(child, filterCondition)).toSet
+  }
+
+  def allFromOrdered(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
+    def allFromOrderedAuxiliary(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
+      val filteredSetting = if (filterCondition(setting)) List(setting) else List.empty
+      filteredSetting ++ setting.children.flatMap(child => allFromOrderedAuxiliary(child, filterCondition))
+    }
+
+    setting.children.flatMap(child => allFromOrderedAuxiliary(child, filterCondition))
+  }
+
+  def allLeavesFrom(setting: Setting): Set[Setting] = {
+    allFrom(setting, setting => setting.children.isEmpty)
+  }
+
+  def allActiveFrom(setting: Setting): Set[Setting] = {
+    allFrom(setting, setting => setting.checked)
+  }
+
+  def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
+    allFrom(setting, setting => setting.children.isEmpty && setting.checked)
+  }
+
+  def apply(setting: Setting): Set[Setting] = {
+    allActiveLeavesFrom(setting)
+  }
+
+  def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] = {
     Some((setting.name, setting.children, setting.checked, setting.options))
+  }
 }
