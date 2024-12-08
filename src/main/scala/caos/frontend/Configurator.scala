@@ -11,7 +11,6 @@ import caos.view.OptionView.OptMermaid
 import caos.view.*
 
 import scala.annotation.{tailrec, targetName}
-import scala.collection.immutable.List as name
 import scala.language.implicitConversions
 
 /**
@@ -32,7 +31,7 @@ trait Configurator[Stx]:
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
-  val setting: Setting
+  val setting: Option[Setting]
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */

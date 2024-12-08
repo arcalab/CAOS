@@ -3,7 +3,7 @@ package caos.frontend
 import scala.annotation.targetName
 import scala.language.implicitConversions
 
-case class Setting(name: String, children: List[Setting] = List(), checked: Boolean = false, options: List[String] = List.empty) {
+case class Setting(name: String = null, children: List[Setting] = List(), checked: Boolean = false, options: List[String] = List.empty) {
   @targetName("allowOne")
   def ||(setting: Setting): Setting = {
     val groupName = s"${this.name} || ${setting.name}"
@@ -55,8 +55,7 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
   }
 
   def parentOf(child: Setting): Option[Setting] = {
-    val parentsOf = Setting.allFromInclusive(this, _.children.contains(child))
-    parentsOf.headOption
+    Setting.allFromInclusive(this, _.children.contains(child)).headOption
   }
 
   def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = path2setting(path) match

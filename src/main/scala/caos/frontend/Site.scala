@@ -20,10 +20,10 @@ object Site:
   private var toReload:List[()=>Unit] = _
   private var lastConfig: Option[Configurator[_]] = None
 
-  private var setting: Setting = null // @ telmo - this is quite hacky!
+  private var setting: Option[Setting] = None // @ telmo - this is quite hacky!
 
-  def getSetting: Setting = setting
-  def setSetting(newSetting: Setting): Setting = {setting = newSetting; setting}
+  def getSetting: Option[Setting] = setting
+  def setSetting(newSetting: Setting): Option[Setting] = {setting = Some(newSetting); setting}
 
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
@@ -85,19 +85,19 @@ object Site:
         val isChecked = checkbox.checked
 
         // @ telmo - the logic here is quite tricky - this seems simple but this order is almost mandatory
-        setting.parentOf(currentSetting) match
+        setting.getOrElse(Setting()).parentOf(currentSetting) match
           case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked => parentSetting.children.foreach(childSetting =>
-            if (childSetting != currentSetting) setting = setting.setChecked(childSetting, false)
-            setting = setting.setChecked(currentSetting, isChecked)
+            if (childSetting != currentSetting) setting = Some(setting.getOrElse(Setting()).setChecked(childSetting, false))
+            setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
           )
           case Some(_) =>
-            setting = setting.setChecked(currentSetting, isChecked)
-            if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = setting.setChecked(child, isChecked))
+            setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
+            if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = Some(setting.getOrElse(Setting()).setChecked(child, isChecked)))
           case None =>
-            setting = setting.setChecked(currentSetting, isChecked)
-        
+            setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
+
         document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
-        renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
+        renderSetting(setting.getOrElse(Setting()), document.getElementById("setting-container").asInstanceOf[html.Div])
       }
 
       currentSettingDiv.appendChild(checkbox)
@@ -112,7 +112,7 @@ object Site:
       }
     }
 
-    renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
+    renderSetting(setting.getOrElse(Setting()), document.getElementById("setting-container").asInstanceOf[html.Div])
     /********** TRYING STUFF **********/
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
@@ -326,7 +326,7 @@ object Site:
             override val parser: String => A = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
-            override val setting: Setting = c.setting
+            override val setting: Option[Setting] = c.setting
             override val widgets: Iterable[(String, WidgetInfo[A])] = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
