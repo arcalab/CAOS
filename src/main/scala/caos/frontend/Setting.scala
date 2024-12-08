@@ -24,13 +24,9 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     }
   }
 
-  override def toString: String = {
-    def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-      val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
-      s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n$childrenString"
-    }
-
-    toStringAuxiliary(this)
+  def toString(ident: String = ""): String = {
+    val childrenString = this.children.map(_.toString(ident + " ")).mkString
+    s"$ident- ${this.name} | ${this.checked} | ${this.options}\n$childrenString"
   }
 
   def path2setting(path: String): Option[Setting] = {
@@ -59,7 +55,7 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
   }
 
   def parentOf(child: Setting): Option[Setting] = {
-    val parentsOf = Setting.allFromInclusive(this, setting => setting.children.contains(child))
+    val parentsOf = Setting.allFromInclusive(this, _.children.contains(child))
     parentsOf.headOption
   }
 
@@ -101,25 +97,25 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
 object Setting {
   def allFromInclusive(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
     val filteredSetting = if (filterCondition(setting)) Set(setting) else Set.empty
-    filteredSetting ++ setting.children.flatMap(child => allFromInclusive(child, filterCondition))
+    filteredSetting ++ setting.children.flatMap(allFromInclusive(_, filterCondition))
   }
 
   def allFrom(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    setting.children.flatMap(child => allFromInclusive(child, filterCondition)).toSet
+    setting.children.flatMap(allFromInclusive(_, filterCondition)).toSet
   }
 
   def allFromOrderedInclusive(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
     val filteredSetting = if (filterCondition(setting)) List(setting) else List.empty
-    filteredSetting ++ setting.children.flatMap(child => allFromOrderedInclusive(child, filterCondition))
+    filteredSetting ++ setting.children.flatMap(allFromOrderedInclusive(_, filterCondition))
   }
 
   def allFromOrdered(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    setting.children.flatMap(child => allFromOrderedInclusive(child, filterCondition))
+    setting.children.flatMap(allFromOrderedInclusive(_, filterCondition))
   }
 
-  def allLeavesFrom(setting: Setting): Set[Setting] = allFrom(setting, setting => setting.children.isEmpty)
+  def allLeavesFrom(setting: Setting): Set[Setting] = allFrom(setting, _.children.isEmpty)
 
-  def allActiveFrom(setting: Setting): Set[Setting] = allFrom(setting, setting => setting.checked)
+  def allActiveFrom(setting: Setting): Set[Setting] = allFrom(setting, _.checked)
 
   def allActiveLeavesFrom(setting: Setting): Set[Setting] = allFrom(setting, setting => setting.children.isEmpty && setting.checked)
 

@@ -81,7 +81,6 @@ object Site:
       checkbox.setAttribute("name", currentSetting.name)
       checkbox.checked = currentSetting.checked
 
-      // @ telmo - this is hiding some nasty details - explain why ordered is important
       checkbox.onchange = (_: dom.Event) => {
         val isChecked = checkbox.checked
 
@@ -93,10 +92,7 @@ object Site:
           )
           case Some(_) =>
             setting = setting.setChecked(currentSetting, isChecked)
-            if (!isChecked) {
-              for child <- Setting.allFromOrdered(currentSetting) yield
-                setting = setting.setChecked(child, isChecked)
-            }
+            if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = setting.setChecked(child, isChecked))
           case None =>
             setting = setting.setChecked(currentSetting, isChecked)
         
