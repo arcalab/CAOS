@@ -1,6 +1,6 @@
 package caos.frontend
 
-import scala.annotation.{tailrec, targetName}
+import scala.annotation.targetName
 import scala.language.implicitConversions
 
 case class Setting(name: String, children: List[Setting] = List(), checked: Boolean = false, options: List[String] = List.empty) {
@@ -26,35 +26,28 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
 
   override def toString: String = {
     def toStringAuxiliary(setting: Setting, ident: String = ""): String = {
-      val currentString = s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n "
       val childrenString = setting.children.map(child => toStringAuxiliary(child, ident + " ")).mkString
-      currentString + childrenString
+      s"$ident- ${setting.name} | ${setting.checked} | ${setting.options}\n$childrenString"
     }
 
     toStringAuxiliary(this)
   }
 
-  def path2setting(path: String): Setting = {
-    @tailrec
+  def path2setting(path: String): Option[Setting] = {
     def resolvePath(currentSetting: Setting, remainingPath: List[String]): Option[Setting] = {
       remainingPath match
         case Nil => Some(currentSetting)
-        case head :: tail => currentSetting.children.find(_.name == head) match
-          case Some(child) => resolvePath(child, tail)
-          case None => None
+        case head :: tail => currentSetting.children.find(_.name == head).flatMap(child => resolvePath(child, tail))
     }
 
-    path.split("\\.").toList match {
-      case Nil => throw RuntimeException(s"could not resolve [$path]")
-      case head :: tail if this.name == head =>
-          resolvePath(this, tail) match
-            case Some(setting) => setting
-            case _ => throw RuntimeException(s"could not match [$path] to a Setting")
-      case _ => throw RuntimeException(s"could not match [$path] to a Setting")
-    }
+    path.split("\\.").toList match
+      case head :: tail if this.name == head => resolvePath(this, tail)
+      case _ => None
   }
 
-  def setChecked(path: String, value: Boolean): Setting = setChecked(path2setting(path), value)
+  def setChecked(path: String, value: Boolean): Setting = path2setting(path) match
+    case Some(setting) => setChecked(setting, value)
+    case None => this
 
   def setChecked(setting: Setting, value: Boolean): Setting = {
     Setting(
@@ -70,21 +63,37 @@ case class Setting(name: String, children: List[Setting] = List(), checked: Bool
     parentsOf.headOption
   }
 
-  def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = Setting.allFromInclusive(path2setting(path), filterCondition)
+  def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allFromInclusive(setting, filterCondition)
+    case None => Set.empty
 
-  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = Setting.allFrom(path2setting(path), filterCondition)
+  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allFrom(setting, filterCondition)
+    case None => Set.empty
 
-  def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = Setting.allFromOrderedInclusive(path2setting(path), filterCondition)
+  def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allFromOrderedInclusive(setting, filterCondition)
+    case None => List.empty
 
-  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = Setting.allFromOrdered(path2setting(path), filterCondition)
+  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allFromOrdered(setting, filterCondition)
+    case None => List.empty
 
-  def allLeavesFrom(path: String): Set[Setting] = Setting.allLeavesFrom(path2setting(path))
+  def allLeavesFrom(path: String): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allLeavesFrom(setting)
+    case None => Set.empty
 
-  def allActiveFrom(path: String): Set[Setting] = Setting.allActiveFrom(path2setting(path))
+  def allActiveFrom(path: String): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allActiveFrom(setting)
+    case None => Set.empty
 
-  def allActiveLeavesFrom(path: String): Set[Setting] = Setting.allActiveLeavesFrom(path2setting(path))
+  def allActiveLeavesFrom(path: String): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.allActiveLeavesFrom(setting)
+    case None => Set.empty
 
-  def apply(path: String): Set[Setting] = Setting.apply(path2setting(path))
+  def apply(path: String): Set[Setting] = path2setting(path) match
+    case Some(setting) => Setting.apply(setting)
+    case None => Set.empty
 
   def unapply: Option[(String, List[Setting], Boolean, List[String])] = Some((this.name, this.children, this.checked, this.options))
 }

@@ -220,12 +220,6 @@ object Configurator:
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
 
-  implicit def str2setting(name: String): Setting =
-    Setting(name)
-
-  implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
-    Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.checked, nameSetting._2.options)
-
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)
 
@@ -235,5 +229,12 @@ object Configurator:
   /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
   implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
+
+  implicit def toSetting(name: String): Setting =
+    Setting(name)
+
+  implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
+    Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.checked, nameSetting._2.options)
+
   implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
     Documentation().add(docs)

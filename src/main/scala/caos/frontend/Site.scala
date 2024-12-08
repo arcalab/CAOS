@@ -78,12 +78,14 @@ object Site:
 
       val checkbox = document.createElement("input").asInstanceOf[html.Input]
       checkbox.setAttribute("type", "checkbox")
+      checkbox.setAttribute("name", currentSetting.name)
       checkbox.checked = currentSetting.checked
 
       // @ telmo - this is hiding some nasty details - explain why ordered is important
       checkbox.onchange = (_: dom.Event) => {
         val isChecked = checkbox.checked
 
+        // @ telmo - the logic here is quite tricky - this seems simple but this order is almost mandatory
         setting.parentOf(currentSetting) match
           case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked => parentSetting.children.foreach(childSetting =>
             if (childSetting != currentSetting) setting = setting.setChecked(childSetting, false)
