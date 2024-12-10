@@ -29,19 +29,15 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
     s"$ident- ${this.name} | ${this.checked} | ${this.options}\n$childrenString"
   }
 
-  def path2setting(path: String): Option[Setting] = {
-    def resolvePath(currentSetting: Setting, remainingPath: List[String]): Option[Setting] = {
-      remainingPath match
-        case Nil => Some(currentSetting)
-        case head :: tail => currentSetting.children.find(_.name == head).flatMap(child => resolvePath(child, tail))
-    }
-
-    path.split("\\.").toList match
-      case head :: tail if this.name == head => resolvePath(this, tail)
-      case _ => None
+  def resolvePathAuxiliary(remainingPath: List[String]): Option[Setting] = { remainingPath match
+      case Nil => Some(this)
+      case head :: tail if head == this.name => this.children.find(_.resolvePathAuxiliary(tail).isDefined)
+      case head :: tail => None
   }
 
-  def setChecked(path: String, value: Boolean): Setting = path2setting(path) match
+  def resolvePath(path: String): Option[Setting] = resolvePathAuxiliary(path.split("\\.").toList)
+
+  def setChecked(path: String, value: Boolean): Setting = resolvePath(path) match
     case Some(setting) => setChecked(setting, value)
     case None => this
 
@@ -58,35 +54,35 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
     Setting.allFromInclusive(this, _.children.contains(child)).headOption
   }
 
-  def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = path2setting(path) match
+  def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allFromInclusive(setting, filterCondition)
     case None => Set.empty
 
-  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = path2setting(path) match
+  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allFrom(setting, filterCondition)
     case None => Set.empty
 
-  def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = path2setting(path) match
+  def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allFromOrderedInclusive(setting, filterCondition)
     case None => List.empty
 
-  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = path2setting(path) match
+  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allFromOrdered(setting, filterCondition)
     case None => List.empty
 
-  def allLeavesFrom(path: String): Set[Setting] = path2setting(path) match
+  def allLeavesFrom(path: String): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allLeavesFrom(setting)
     case None => Set.empty
 
-  def allActiveFrom(path: String): Set[Setting] = path2setting(path) match
+  def allActiveFrom(path: String): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allActiveFrom(setting)
     case None => Set.empty
 
-  def allActiveLeavesFrom(path: String): Set[Setting] = path2setting(path) match
+  def allActiveLeavesFrom(path: String): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.allActiveLeavesFrom(setting)
     case None => Set.empty
 
-  def apply(path: String): Set[Setting] = path2setting(path) match
+  def apply(path: String): Set[Setting] = resolvePath(path) match
     case Some(setting) => Setting.apply(setting)
     case None => Set.empty
 
