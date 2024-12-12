@@ -33,13 +33,21 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
   //noinspection ScalaWeakerAccess
   private def resolvePathAuxiliary(remainingPath: List[String]): Option[Setting] = {
     remainingPath match
-      case Nil => Some(this)
-      case head :: tail if head == this.name => this.children.find(_.resolvePathAuxiliary(tail).isDefined)
+      case Nil => None
+      case this.name :: Nil  => Some(this)
+      case this.name :: tail => this.children.find(_.resolvePathAuxiliary(tail).isDefined)
       case head :: tail => None
   }
 
   //noinspection ScalaWeakerAccess
   def resolvePath(path: String): Option[Setting] = resolvePathAuxiliary(path.split("\\.").toList)
+
+  //noinspection ScalaWeakerAccess
+  def getChecked(path: String): Option[Boolean] = {
+    resolvePath(path) match
+      case Some(setting) => Some(setting.checked)
+      case None => None
+  }
 
   //noinspection ScalaWeakerAccess
   def setChecked(path: String, value: Boolean): Setting = {
