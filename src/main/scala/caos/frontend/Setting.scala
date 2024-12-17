@@ -43,11 +43,7 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
   def resolvePath(path: String): Option[Setting] = resolvePathAuxiliary(path.split("\\.").toList)
 
   //noinspection ScalaWeakerAccess
-  def getChecked(path: String): Option[Boolean] = {
-    resolvePath(path) match
-      case Some(setting) => Some(setting.checked)
-      case None => None
-  }
+  def getChecked(path: String): Option[Boolean] = resolvePath(path).map(_.checked)
 
   //noinspection ScalaWeakerAccess
   def setChecked(path: String, value: Boolean): Setting = {
