@@ -23,7 +23,61 @@ object Site:
   private var setting: Option[Setting] = None // @ telmo - this is quite hacky!
 
   def getSetting: Option[Setting] = setting
-  def setSetting(newSetting: Setting): Option[Setting] = {setting = Some(newSetting); setting}
+
+  def setSetting(newSetting: Setting): Option[Setting] = {
+    setting = Some(newSetting)
+
+    val settingContainer = document.getElementById("setting-container").asInstanceOf[html.Div]
+    settingContainer.innerHTML = ""
+    renderSetting(setting.getOrElse(Setting()), settingContainer)
+    setting
+  }
+
+  private def renderSetting(currentSetting: Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
+    val currentSettingDiv = document.createElement("div").asInstanceOf[html.Div]
+    currentSettingDiv.setAttribute("class", "setting-div")
+
+    currentSettingDiv.style.paddingLeft = s"${identLevel * 20}px"
+
+    val title = document.createElement("h4").asInstanceOf[html.Heading]
+    title.textContent = s"> ${currentSetting.name}"
+    currentSettingDiv.appendChild(title)
+
+    val checkbox = document.createElement("input").asInstanceOf[html.Input]
+    checkbox.setAttribute("type", "checkbox")
+    checkbox.setAttribute("name", currentSetting.name)
+    checkbox.checked = currentSetting.checked
+
+    checkbox.onchange = (_: dom.Event) => {
+      val isChecked = checkbox.checked
+
+      // @ telmo - the logic here is quite tricky - this seems simple but this order is almost mandatory
+      setting.getOrElse(Setting()).parentOf(currentSetting) match
+        case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked => parentSetting.children.foreach(childSetting =>
+          if (childSetting != currentSetting) setting = Some(setting.getOrElse(Setting()).setChecked(childSetting, false))
+          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
+        )
+        case Some(_) =>
+          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
+          if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = Some(setting.getOrElse(Setting()).setChecked(child, isChecked)))
+        case None =>
+          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
+
+      document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
+      renderSetting(setting.getOrElse(Setting()), document.getElementById("setting-container").asInstanceOf[html.Div])
+    }
+
+    currentSettingDiv.appendChild(checkbox)
+
+    parentDiv.appendChild(currentSettingDiv)
+
+    if (currentSetting.children.nonEmpty) {
+      val childSettingDiv = document.createElement("div").asInstanceOf[html.Div]
+      childSettingDiv.setAttribute("class", "children-container")
+      currentSetting.children.foreach(childSetting => renderSetting(childSetting, childSettingDiv, identLevel + 1))
+      currentSettingDiv.appendChild(childSettingDiv)
+    }
+  }
 
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
