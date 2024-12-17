@@ -11,14 +11,14 @@ import caos.view.{OptionView, View, ViewType}
 sealed trait WidgetInfo[-Stx]:
   // @ telmo - how to calculate if this widget should even be rendered
   //     ... - the default condition is: always evaluate to "true"
-  private var renderCondition: () => Boolean = () => true
+  private var render:() => Boolean = () => true
   var expanded = false
   var location = 0
 
   /** Sets whether the widget should be rendered or not */
-  def setRender(condition: => Boolean): WidgetInfo[Stx] = {renderCondition = () => condition; this}
+  def setRender(condition: => Boolean): WidgetInfo[Stx] = {render = () => condition; this}
   /** Gets whether the widget is rendered or not */
-  def getRender: Boolean = renderCondition()
+  def getRender: Boolean = render()
 
   /** Sets whether the widget is initially collapsed or expanded */
   def expand: WidgetInfo[Stx] = {expanded = true; this}

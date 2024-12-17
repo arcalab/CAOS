@@ -31,7 +31,7 @@ trait Configurator[Stx]:
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
-  val setting: Option[Setting]
+  def setting: Option[Setting] = None // override to rename the input widget
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
@@ -229,9 +229,11 @@ object Configurator:
   implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
 
+  /** Helper to build settings without employing Setting(...) */
   implicit def toSetting(name: String): Setting =
     Setting(name)
 
+  /** Helper to build settings while naming the internal nodes */
   implicit def toSettingRenamed(nameSetting: (String, Setting)): Setting =
     Setting(nameSetting._1, nameSetting._2.children, nameSetting._2.checked, nameSetting._2.options)
 
