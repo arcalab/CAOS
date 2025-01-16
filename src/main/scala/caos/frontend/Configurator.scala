@@ -22,6 +22,7 @@ import scala.language.implicitConversions
  * @tparam Stx Type of the data structure to be analysed.
  */
 trait Configurator[Stx]:
+  type StxType = Stx
   /** Name of the header of the web frontend. */
   val name: String
   /** Possible alternative name for the input widget. */

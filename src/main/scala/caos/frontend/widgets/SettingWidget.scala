@@ -12,15 +12,6 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
 
   def reload(): Unit
 
-  def getSetting: Setting = setting
-
-  def setSetting(setting: Setting): Unit = {
-    this.setting = setting
-    val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
-    settingContainerDiv.innerHTML = ""
-    update()
-  }
-
   override def init(div: Block, visible: Boolean): Unit =
     panelBox(div, visible, buttons = buttons)
       .append("div")
@@ -29,9 +20,16 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     update()
   end init
 
-  override def get: Setting = getSetting
+  override def get: Setting = setting
 
-  override def update(): Unit = renderSetting(setting, document.getElementById("setting-container").asInstanceOf[html.Div])
+  def set(setting: Setting): Unit = this.setting = setting
+
+  override def update(): Unit =
+    val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
+    settingContainerDiv.innerHTML = ""
+
+    renderSetting(setting, settingContainerDiv)
+  end update
 
   private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0): Unit =
     val currentDiv = document.createElement("div").asInstanceOf[html.Div]

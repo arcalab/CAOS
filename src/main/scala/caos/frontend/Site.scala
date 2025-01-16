@@ -1,7 +1,7 @@
 package caos.frontend
 
 import caos.frontend.Setting
-import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
+import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SettingWidget, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
 import caos.view.OptionView.*
@@ -20,65 +20,49 @@ object Site:
   private var toReload:List[()=>Unit] = _
   private var lastConfig: Option[Configurator[_]] = None
 
-  private var setting: Option[Setting] = None // @ telmo - this is quite hacky!
+  private var widgetsConfig:  Option[Configurator[_]] = None
+  private var mainCodeWidget: Option[CodeWidget[_]] = None
+  private var exampleWidget:  Option[ExampleWidget] = None
+  private var mainExampleVar: Option[Configurator.Example] = None
 
-  def getSetting: Option[Setting] = setting
+  private var settingWidget: Option[SettingWidget[_]] = None
 
-  def setSetting(newSetting: Setting): Option[Setting] = {
-    setting = Some(newSetting)
+  def getSetting: Setting = settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).get
 
-    val settingContainer = document.getElementById("setting-container").asInstanceOf[html.Div]
-    settingContainer.innerHTML = ""
-    renderSetting(setting.getOrElse(Setting()), settingContainer)
+  def setSetting(setting: Setting): Unit =
+    val settingWidgetValue = settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))
+    settingWidgetValue.set(setting)
+    settingWidgetValue.update()
+    renderWidgets()
+  end setSetting
 
-    setting
-  }
+  private def renderWidgets(): Unit =
+    val config   = lastConfig.getOrElse(throw RuntimeException("last config is undefined"))
+    val code     = mainCodeWidget.getOrElse(throw RuntimeException("code is undefined"))
+    val examples = exampleWidget.getOrElse(throw RuntimeException("examples is undefined"))
 
-  private def renderSetting(currentSetting: Setting, parentDiv: html.Div, identLevel: Int = 0): Unit = {
-    val currentSettingDiv = document.createElement("div").asInstanceOf[html.Div]
-    currentSettingDiv.setAttribute("class", "setting-div")
+    val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
+    val boxes = for wc <- widgets if wc._2.getRender yield
+      // build widget w
+      val w = mkWidget(
+        wc,
+        () => code.get.asInstanceOf[config.StxType],
+        () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
+        errorArea,
+        config.documentation
+      )
+      // place widget in the document
+      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+      w
 
-    currentSettingDiv.style.paddingLeft = s"${identLevel * 20}px"
+    mainExampleVar match
+      case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
+      case _ =>
 
-    val title = document.createElement("h4").asInstanceOf[html.Heading]
-    title.textContent = s"> ${currentSetting.name}"
-    currentSettingDiv.appendChild(title)
+    toReload = (List(code) ++ boxes).map(b => () => b.update())
 
-    val checkbox = document.createElement("input").asInstanceOf[html.Input]
-    checkbox.setAttribute("type", "checkbox")
-    checkbox.setAttribute("name", currentSetting.name)
-    checkbox.checked = currentSetting.checked
-
-    checkbox.onchange = (_: dom.Event) => {
-      val isChecked = checkbox.checked
-
-      // @ telmo - the logic here is quite tricky - this seems simple but this order is almost mandatory
-      setting.getOrElse(Setting()).parentOf(currentSetting) match
-        case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked => parentSetting.children.foreach(childSetting =>
-          if (childSetting != currentSetting) setting = Some(setting.getOrElse(Setting()).setChecked(childSetting, false))
-          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
-        )
-        case Some(_) =>
-          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
-          if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = Some(setting.getOrElse(Setting()).setChecked(child, isChecked)))
-        case None =>
-          setting = Some(setting.getOrElse(Setting()).setChecked(currentSetting, isChecked))
-
-      document.getElementById("setting-container").asInstanceOf[html.Div].innerHTML = ""
-      renderSetting(setting.getOrElse(Setting()), document.getElementById("setting-container").asInstanceOf[html.Div])
-    }
-
-    currentSettingDiv.appendChild(checkbox)
-
-    parentDiv.appendChild(currentSettingDiv)
-
-    if (currentSetting.children.nonEmpty) {
-      val childSettingDiv = document.createElement("div").asInstanceOf[html.Div]
-      childSettingDiv.setAttribute("class", "children-container")
-      currentSetting.children.foreach(childSetting => renderSetting(childSetting, childSettingDiv, identLevel + 1))
-      currentSettingDiv.appendChild(childSettingDiv)
-    }
-  }
+    globalReload()
+  end renderWidgets
 
   def initSite[A](config:Configurator[A]):Unit =
     lastConfig = Some(config)
@@ -105,61 +89,27 @@ object Site:
         then Some(Configurator.Example(urlQuery,"Custom",""))
         else config.examples.headOption
       case ex => ex
+    mainExampleVar = mainExample
 
     errorArea = new OutputArea
     descriptionArea = new OutputArea
-    val code = mkCodeBox(config,mainExample)
 
-    code.init(leftColumn,true)
+    mainCodeWidget = Some(mkCodeBox(config, mainExample))
+    mainCodeWidget.getOrElse(mkCodeBox(config,mainExample)).init(leftColumn,true)
+
     errorArea.init(leftColumn)
+
+    settingWidget = Some(mkSettingBox(config))
+    settingWidget.getOrElse(mkSettingBox(config)).init(leftColumn, true)
 
     val title = document.getElementById("title")
     val toolTitle = document.getElementById("tool-title")
     title.textContent = config.name
     toolTitle.textContent = config.name
 
-    /********** TRYING STUFF **********/
-    setting = config.setting
-
-    renderSetting(setting.getOrElse(Setting()), document.getElementById("setting-container").asInstanceOf[html.Div])
-    /********** TRYING STUFF **********/
-
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleWidget("Examples",config,globalReload(),code,Some(descriptionArea))
-
-    def renderWidgets(): Unit = {
-      // build and place all widgets
-      // small widgets are deprecated - this makes it work with older versions.
-      val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
-      val boxes = for wc <- widgets if wc._2.getRender yield
-        // build widget w
-        val w = mkWidget(wc, () => code.get,
-          () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
-          errorArea,
-          config.documentation
-        )
-        // place widget in the document
-        w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
-        w
-
-      mainExample match
-        case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
-        case _ =>
-
-      toReload = (List(code) ++ boxes).map(b => () => b.update())
-
-      globalReload()
-    }
-
-    /********** TRYING STUFF **********/
-    val settingButton = document.getElementById("setting-button").asInstanceOf[html.Button]
-    settingButton.onclick = (_: dom.Event) => {
-      val rightBar = document.getElementById("rightbar") // @ telmo - trying to modify only the widgets shown
-      rightBar.innerHTML = ""
-
-      renderWidgets()
-    }
-    /********** TRYING STUFF **********/
+    val examples = new ExampleWidget("Examples",config,globalReload(),mainCodeWidget.getOrElse(throw RuntimeException("code is undefined")),Some(descriptionArea))
+    exampleWidget = Some(examples)
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
@@ -313,6 +263,20 @@ object Site:
         //out.clear() // now already in globalReload()
         globalReload()
     }
+
+  protected def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] =
+    new SettingWidget[A]("Settings", Documentation(), config):
+      override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
+        List(Right("refresh") -> (() => reload(), s"Update settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
+
+      override def reload(): Unit =
+        // descriptionArea.clear() // ns
+        update()
+
+        document.getElementById("rightbar").innerHTML = ""
+        renderWidgets()
+      end reload
+  end mkSettingBox
 
 //  @JSExportTopLevel("loadedFile")
 //  def loadedFile(ev: dom.UIEvent): Unit = {
