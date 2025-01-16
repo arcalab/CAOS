@@ -20,10 +20,9 @@ object Site:
   private var toReload:List[()=>Unit] = _
   private var lastConfig: Option[Configurator[_]] = None
 
-  private var widgetsConfig:  Option[Configurator[_]] = None
-  private var mainCodeWidget: Option[CodeWidget[_]] = None
-  private var exampleWidget:  Option[ExampleWidget] = None
-  private var mainExampleVar: Option[Configurator.Example] = None
+  private var codeWidget:     Option[CodeWidget[_]] = None
+  private var examplesWidget: Option[ExampleWidget] = None
+  private var mainExample: Option[Configurator.Example] = None
 
   private var settingWidget: Option[SettingWidget[_]] = None
 
@@ -37,9 +36,8 @@ object Site:
   end setSetting
 
   private def renderWidgets(): Unit =
-    val config   = lastConfig.getOrElse(throw RuntimeException("last config is undefined"))
-    val code     = mainCodeWidget.getOrElse(throw RuntimeException("code is undefined"))
-    val examples = exampleWidget.getOrElse(throw RuntimeException("examples is undefined"))
+    val config = lastConfig.getOrElse(throw RuntimeException("last config is undefined"))
+    val code   = codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined"))
 
     val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
     val boxes = for wc <- widgets if wc._2.getRender yield
@@ -47,7 +45,7 @@ object Site:
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],
-        () => examples.get.map(kv => kv._1 -> config.parser(kv._2)),
+        () => examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).get.map(kv => kv._1 -> config.parser(kv._2)),
         errorArea,
         config.documentation
       )
@@ -55,7 +53,7 @@ object Site:
       w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
       w
 
-    mainExampleVar match
+    mainExample match
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
@@ -83,24 +81,23 @@ object Site:
       .replaceAll("%22", "\"").replaceAll("%60", "`")
       .replaceAll("%28", "(") .replaceAll("%29", ")")
 
-    val mainExample = config.examples.find(_.name == urlQuery) match
+    mainExample = config.examples.find(_.name == urlQuery) match
       case None =>
         if urlQuery.nonEmpty
         then Some(Configurator.Example(urlQuery,"Custom",""))
         else config.examples.headOption
       case ex => ex
-    mainExampleVar = mainExample
 
     errorArea = new OutputArea
     descriptionArea = new OutputArea
 
-    mainCodeWidget = Some(mkCodeBox(config, mainExample))
-    mainCodeWidget.getOrElse(mkCodeBox(config,mainExample)).init(leftColumn,true)
+    codeWidget = Some(mkCodeBox(config, mainExample))
+    codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")).init(leftColumn,true)
 
     errorArea.init(leftColumn)
 
     settingWidget = Some(mkSettingBox(config))
-    settingWidget.getOrElse(mkSettingBox(config)).init(leftColumn, true)
+    settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).init(leftColumn, true)
 
     val title = document.getElementById("title")
     val toolTitle = document.getElementById("tool-title")
@@ -108,8 +105,8 @@ object Site:
     toolTitle.textContent = config.name
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleWidget("Examples",config,globalReload(),mainCodeWidget.getOrElse(throw RuntimeException("code is undefined")),Some(descriptionArea))
-    exampleWidget = Some(examples)
+    val examples = new ExampleWidget("Examples",config,globalReload(),codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),Some(descriptionArea))
+    examplesWidget = Some(examples)
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
@@ -124,7 +121,7 @@ object Site:
    * @tparam Stx Type of the program to process
    * @return a box
    */
-  protected def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx,
+  private def mkWidget[Stx](w: (String,WidgetInfo[Stx]), get:()=>Stx,
                               getAll:()=>Seq[(String,Stx)], out:OutputArea,
                               doc: Documentation
                              ): Widget[Unit] =
@@ -160,7 +157,7 @@ object Site:
         throw e
     }
 
-  protected def cleanContainers():Unit = {
+  private def cleanContainers():Unit = {
     //    val contentDiv = DomNode.select("contentWrap")
     //    contentDiv.deleteChildren
     val d = document.getElementById("contentWrap")
@@ -169,7 +166,7 @@ object Site:
   }
 
 
-  protected def initialiseContainers():Unit =
+  private def initialiseContainers():Unit =
     val contentDiv = DomNode.select("contentWrap").append("div")
       .attr("class", "content")
       .attr("id", "content")
@@ -234,11 +231,11 @@ object Site:
     Utils.resizeCols
 
 
-  protected def globalReload(): Unit =
+  private def globalReload(): Unit =
     errorArea.clear()
     toReload.foreach(f=>f())
 
-  protected def mkCodeBox[A](config:Configurator[A],
+  private def mkCodeBox[A](config:Configurator[A],
                              ex:Option[Configurator.Example]):CodeWidget[A] =
     new CodeWidget[A](config.languageName,Nil) {
 
@@ -264,7 +261,7 @@ object Site:
         globalReload()
     }
 
-  protected def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] =
+  private def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] =
     new SettingWidget[A]("Settings", Documentation(), config):
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
         List(Right("refresh") -> (() => reload(), s"Update settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
