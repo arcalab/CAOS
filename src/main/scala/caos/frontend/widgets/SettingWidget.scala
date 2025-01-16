@@ -29,7 +29,7 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
     settingContainerDiv.innerHTML = ""
 
-    renderSetting(setting, settingContainerDiv)
+    if setting != Setting() then renderSetting(setting, settingContainerDiv)
   end update
 
   private def setCheckedUpstream(currentSetting: Setting, value: Boolean = true): Setting = setting.parentOf(currentSetting) match
