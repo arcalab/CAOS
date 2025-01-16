@@ -6,7 +6,7 @@ import caos.frontend.{Configurator, Documentation, Setting}
 
 
 abstract class SettingWidget[A](title: String, doc: Documentation, config: Configurator[A]) extends Widget[Setting](title, doc):
-  protected var setting: Setting = config.setting.getOrElse(Setting())
+  protected var setting: Setting = config.setting
 
   protected val buttons: List[(Either[String, String], (() => Unit, String))]
 

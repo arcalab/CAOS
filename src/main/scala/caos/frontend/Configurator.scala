@@ -32,7 +32,7 @@ trait Configurator[Stx]:
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
-  def setting: Option[Setting] = None // override to rename the input widget
+  def setting: Setting = Setting()
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
