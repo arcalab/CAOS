@@ -1,8 +1,9 @@
 package caos.frontend.widgets
 
-import org.scalajs.dom.{document, html, Event}
-
+import org.scalajs.dom.{Event, document, html}
 import caos.frontend.{Configurator, Documentation, Setting}
+
+import scala.annotation.tailrec
 
 
 abstract class SettingWidget[A](title: String, doc: Documentation, config: Configurator[A]) extends Widget[Setting](title, doc):
@@ -31,6 +32,20 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     renderSetting(setting, settingContainerDiv)
   end update
 
+  private def setCheckedUpstream(currentSetting: Setting, value: Boolean = true): Setting = setting.parentOf(currentSetting) match
+    case Some(parentSetting) =>
+      setCheckedUpstream(parentSetting, value)
+      setting = setting.setChecked(parentSetting, value)
+      setting
+    case None =>
+      setting
+  end setCheckedUpstream
+
+  private def setCheckedDownstream(currentSetting: Setting, value: Boolean = false): Setting =
+    Setting.allFromOrderedInclusive(currentSetting).foreach(child => setting = setting.setChecked(child, value))
+    setting
+  end setCheckedDownstream
+
   private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0): Unit =
     val currentDiv = document.createElement("div").asInstanceOf[html.Div]
     currentDiv.setAttribute("class", "setting-div") // ns
@@ -48,18 +63,17 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     checkbox.onchange = (_: Event) => {
       val isChecked = checkbox.checked
 
-      // @ telmo - the logic here is quite tricky - this seems simple but this order is almost mandatory
       setting.parentOf(currentSetting) match
         case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked =>
+          setting = setCheckedUpstream(currentSetting)
           parentSetting.children.foreach(childSetting =>
             if (childSetting != currentSetting) setting = setting.setChecked(childSetting, false)
             setting = setting.setChecked(currentSetting, isChecked)
           )
-        case Some(_) =>
-          setting = setting.setChecked(currentSetting, isChecked)
-          if (!isChecked) Setting.allFromOrdered(currentSetting).foreach(child => setting = setting.setChecked(child, isChecked))
-        case None =>
-          setting = setting.setChecked(currentSetting, isChecked)
+        case _ if isChecked =>
+          setting = setCheckedUpstream(currentSetting).setChecked(currentSetting, isChecked)
+        case _ =>
+          setting = setCheckedDownstream(currentSetting)
 
       val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
       settingContainerDiv.innerHTML = ""
