@@ -221,14 +221,23 @@ object Configurator:
     Analyse(a)
 
   /** Simple class to capture an example with a name and a description. */
-  case class Example(example:String, name:String, description:String)
+  case class Example(example:String, name:String, description:String, setting: Option[Setting] = None)
 
   /** Helper to build examples as `examples = List("name" -> "code")` */
   implicit def toExample(nameCode:(String,String)): Example =
     Example(nameCode._2,nameCode._1,"")
+
+  /** Helper to build examples as `examples = List("name" -> "code" -> "setting")` */
+  implicit def toExampleSetting(nameCodeSetting:((String,String),Setting)): Example =
+    Example(nameCodeSetting._1._2, nameCodeSetting._1._1, "", Some(nameCodeSetting._2))
+
   /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
   implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
+
+  /** Helper to build examples as `examples = List("name" -> "code" -> "description" -> "setting"` */
+  implicit def toExampleDescSetting(nameCodeDescSetting: (((String,String),String),Setting)): Example =
+    Example(nameCodeDescSetting._1._1._2,nameCodeDescSetting._1._1._1,nameCodeDescSetting._1._2,Some(nameCodeDescSetting._2))
 
   /** Helper to build settings without employing Setting(...) */
   implicit def toSetting(name: String): Setting =

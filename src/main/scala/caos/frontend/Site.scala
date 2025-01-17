@@ -105,7 +105,7 @@ object Site:
     toolTitle.textContent = config.name
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleWidget("Examples",config,globalReload(),codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),Some(descriptionArea))
+    val examples = new ExampleWidget("Examples",config,globalReload(),codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),Some(descriptionArea),settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")))
     examplesWidget = Some(examples)
 
     // place examples and information area

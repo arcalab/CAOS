@@ -18,7 +18,8 @@ class ExampleWidget(title:String
                     , config:Configurator[_] // examples:Iterable[Example] //Seq[List[String]]
                     , reload: => Unit
                     , setableExample:Setable[String]
-                    , setableDescription:Option[Setable[String]]=None)
+                    , setableDescription:Option[Setable[String]]=None
+                    , settingWidget: SettingWidget[_])
   extends Widget[Seq[(String,String)]](title) {
 
   private val examples = config.examples
@@ -117,6 +118,11 @@ class ExampleWidget(title:String
       setableExample.setValue(ex.example)
       for sd <- setableDescription yield
         sd.setValue(ex.description)
+        ex.setting match
+          case Some(setting) =>
+            settingWidget.set(setting)
+            settingWidget.update()
+          case None =>
       reload
     })
   }
