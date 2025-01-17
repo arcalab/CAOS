@@ -104,13 +104,11 @@ object Site:
     title.textContent = config.name
     toolTitle.textContent = config.name
 
-    //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
-    val examples = new ExampleWidget("Examples",config,globalReload(),codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),Some(descriptionArea),settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")))
-    examplesWidget = Some(examples)
+    examplesWidget = Some(new ExampleWidget("Examples",config,globalReload(),codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),Some(descriptionArea),settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))))
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
-    examples.init(leftColumn,true)
+    examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).init(leftColumn,true)
 
     renderWidgets()
   /**
@@ -264,7 +262,7 @@ object Site:
   private def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] =
     new SettingWidget[A]("Settings", Documentation(), config):
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
-        List(Right("refresh") -> (() => reload(), s"Update settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
+        List(Right("refresh") -> (() => reload(), s"Load settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
 
       override def reload(): Unit =
         // descriptionArea.clear() // ns
