@@ -16,7 +16,7 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
 
   @targetName("allowAll")
   def &&(setting: Setting): Setting = {
-    val groupName = s"${this.name} ++ ${setting.name}"
+    val groupName = s"${this.name} && ${setting.name}"
     if (this.options.contains("allowAll")) {
       Setting(groupName, this.children :+ setting, this.checked, this.options)
     } else {
@@ -25,10 +25,13 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
   }
 
   //noinspection ScalaWeakerAccess
-  def toString(ident: String = ""): String = {
-    val childrenString = this.children.map(_.toString(ident + " ")).mkString
+  def toStringAuxiliary(ident: String = ""): String = {
+    val childrenString = this.children.map(_.toStringAuxiliary(ident + " ")).mkString
     s"$ident- ${this.name} | ${this.checked} | ${this.options}\n$childrenString"
   }
+
+  //noinspection ScalaWeakerAccess
+  override def toString: String = toStringAuxiliary()
 
   //noinspection ScalaWeakerAccess
   private def resolvePathAuxiliary(remainingPath: List[String]): Option[Setting] = {
