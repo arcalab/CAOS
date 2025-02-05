@@ -47,13 +47,18 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
   end setCheckedDownstream
 
   private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0): Unit =
+    val currentSuperDiv = document.createElement("div").asInstanceOf[html.Div]
+    currentSuperDiv.style.paddingLeft = s"${indentationLevel * 20}px"
+
     val currentDiv = document.createElement("div").asInstanceOf[html.Div]
-    currentDiv.setAttribute("class", "setting-div") // ns
-    currentDiv.style.paddingLeft = s"${indentationLevel * 20}px"
+    currentDiv.setAttribute("class", "setting-container")
+    currentDiv.style.display = "flex"
+    // currentDiv.style.alignmentBaseline = "center"
+    currentDiv.style.columnGap = "15px"
 
     val title = document.createElement("h4").asInstanceOf[html.Heading]
     title.textContent = s"${currentSetting.name}"
-    currentDiv.appendChild(title)
+    title.style.margin = "0"
 
     val checkbox = document.createElement("input").asInstanceOf[html.Input]
     checkbox.setAttribute("type", "checkbox")
@@ -81,14 +86,16 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     }
 
     currentDiv.appendChild(checkbox)
+    currentDiv.appendChild(title)
 
-    parentDiv.appendChild(currentDiv)
+    currentSuperDiv.appendChild(currentDiv)
+    parentDiv.appendChild(currentSuperDiv)
 
     if (currentSetting.children.nonEmpty) {
       val childrenContainerDiv = document.createElement("div").asInstanceOf[html.Div]
       childrenContainerDiv.setAttribute("class", "children-container") // ns
       currentSetting.children.foreach(childSetting => renderSetting(childSetting, childrenContainerDiv, indentationLevel + 1))
-      currentDiv.appendChild(childrenContainerDiv)
+      currentSuperDiv.appendChild(childrenContainerDiv)
     }
   end renderSetting
 
