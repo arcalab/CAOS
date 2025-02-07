@@ -5,7 +5,6 @@ import caos.frontend.{Configurator, Documentation, Setting}
 
 import scala.annotation.tailrec
 
-
 abstract class SettingWidget[A](title: String, doc: Documentation, config: Configurator[A]) extends Widget[Setting](title, doc):
   protected var setting: Setting = config.setting
 
