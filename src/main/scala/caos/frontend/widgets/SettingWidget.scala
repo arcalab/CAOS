@@ -87,7 +87,7 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     currentDiv.appendChild(checkbox)
     currentDiv.appendChild(title)
 
-    currentSuperDiv.appendChild(currentDiv)
+    if indentationLevel > 0 then currentSuperDiv.appendChild(currentDiv) // avoids rendering the initial root
     parentDiv.appendChild(currentSuperDiv)
 
     if (currentSetting.children.nonEmpty) {
