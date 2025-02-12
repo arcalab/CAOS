@@ -116,13 +116,13 @@ class ExampleWidget(title:String
     val button = buttonsDiv.append("button").textEl(ex.name)
     button.on("click",() => {
       setableExample.setValue(ex.example)
+      ex.setting match
+        case Some(setting) =>
+          settingWidget.set(setting)
+          settingWidget.update()
+        case None =>
       for sd <- setableDescription yield
         sd.setValue(ex.description)
-        ex.setting match
-          case Some(setting) =>
-            settingWidget.set(setting)
-            settingWidget.update()
-          case None =>
       reload
     })
   }
@@ -134,6 +134,11 @@ class ExampleWidget(title:String
     examples.find(ex=>ex.name == button) match {
       case Some(ex) =>
         setableExample.setValue(ex.example)
+        ex.setting match
+          case Some(setting) =>
+            settingWidget.set(setting)
+            settingWidget.update()
+          case None =>
         for sd <- setableDescription yield
           sd.setValue(ex.description)
         reload

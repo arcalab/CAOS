@@ -38,7 +38,7 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
     remainingPath match
       case Nil => None
       case this.name :: Nil  => Some(this)
-      case this.name :: tail => this.children.find(_.resolvePathAuxiliary(tail).isDefined)
+      case this.name :: tail => this.children.collectFirst(Function.unlift(_.resolvePathAuxiliary(tail)))
       case head :: tail => None
   }
 
@@ -63,6 +63,18 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
       if (this == setting) value else this.checked,
       this.options
     )
+  }
+
+  def setAllChecked(path: String, value: Boolean = true): Setting = {
+    resolvePath(path) match
+      case Some(setting) => setAllChecked(setting, value)
+      case None => this
+  }
+
+  def setAllChecked(setting: Setting, value: Boolean): Setting = {
+    parentOf(setting) match
+      case Some(parentSetting) => setAllChecked(parentSetting, value).setChecked(setting, value)
+      case None => setChecked(setting, value)
   }
 
   //noinspection ScalaWeakerAccess
