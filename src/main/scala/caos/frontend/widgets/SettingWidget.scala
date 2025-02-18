@@ -58,7 +58,8 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     val title = document.createElement("h4").asInstanceOf[html.Heading]
     title.textContent = s"${currentSetting.name}"
     title.style.margin = "0"
-
+    title.style.fontFamily = "monospace"
+    title.style.fontSize   = "15px"
     val checkbox = document.createElement("input").asInstanceOf[html.Input]
     checkbox.setAttribute("type", "checkbox")
     checkbox.setAttribute("name", currentSetting.name)
