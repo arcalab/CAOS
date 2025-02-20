@@ -57,7 +57,7 @@ object Site:
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
-    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).reload)
+    toReload = (List(code) ++ boxes).map(b => () => b.update())
     // globalReload() // @ telmo - unforeseen effects?
   end renderWidgets
 
@@ -264,11 +264,12 @@ object Site:
         List(Right("refresh") -> (() => reload(), s"Load settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
 
       override def reload(): Unit =
-        // descriptionArea.clear() // ns
+        descriptionArea.clear()
         update()
 
         document.getElementById("rightbar").innerHTML = ""
         renderWidgets()
+        globalReload()
       end reload
   end mkSettingBox
 
