@@ -57,7 +57,7 @@ object Site:
       case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
       case _ =>
 
-    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).reload)
+    toReload = (List(code) ++ boxes).map(b => () => b.update())// ++ List(settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).reload)
     // globalReload() // @ telmo - unforeseen effects?
   end renderWidgets
 
@@ -269,7 +269,7 @@ object Site:
 
         document.getElementById("rightbar").innerHTML = ""
         renderWidgets()
-        // globalReload() - experimenting
+        globalReload() // experimenting
       end reload
   end mkSettingBox
 
