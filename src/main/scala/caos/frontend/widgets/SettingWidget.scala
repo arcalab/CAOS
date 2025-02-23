@@ -12,6 +12,8 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
 
   def reload(): Unit
 
+  def partialReload(): Unit
+
   override def init(div: Block, visible: Boolean): Unit =
     panelBox(div, visible, buttons = buttons)
       .append("div")
@@ -98,5 +100,4 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
       currentSuperDiv.appendChild(childrenContainerDiv)
     }
   end renderSetting
-
 end SettingWidget
