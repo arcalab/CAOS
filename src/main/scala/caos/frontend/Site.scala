@@ -263,6 +263,7 @@ object Site:
         List(Right("refresh") -> (() => reload(), s"Load settings")) ::: Widget.mkHelper("settingBox",config.documentation).toList
 
       override def partialReload(): Unit =
+        errorArea.clear()
         update()
         document.getElementById("rightbar").innerHTML = ""
         renderWidgets()
@@ -270,6 +271,7 @@ object Site:
 
       override def reload(): Unit =
         descriptionArea.clear()
+        errorArea.clear()
         update()
         document.getElementById("rightbar").innerHTML = ""
         renderWidgets()
