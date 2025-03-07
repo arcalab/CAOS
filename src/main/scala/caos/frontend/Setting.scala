@@ -3,7 +3,7 @@ package caos.frontend
 import scala.annotation.targetName
 import scala.language.implicitConversions
 
-case class Setting(name: String = null, children: List[Setting] = List(), var checked: Boolean = false, options: List[String] = List.empty) {
+case class Setting(name: String = null, children: List[Setting] = List(), checked: Boolean = false, options: List[String] = List.empty) {
   @targetName("allowOne")
   def ||(setting: Setting): Setting = {
     val groupName = s"${this.name} || ${setting.name}"
@@ -22,10 +22,6 @@ case class Setting(name: String = null, children: List[Setting] = List(), var ch
     } else {
       Setting(groupName, List(this, setting), this.checked, List("allowAll"))
     }
-  }
-
-  def deepCopy: Setting = {
-    this.copy(children = this.children.map(_.deepCopy))
   }
 
   private def toStringAuxiliary(ident: String = ""): String = {
@@ -49,13 +45,22 @@ case class Setting(name: String = null, children: List[Setting] = List(), var ch
     resolvePathAuxiliary(path.split("\\.").toList)
   }
 
+  def setChecked(path: String, value: Boolean): Setting = {
+    resolvePath(path).map(setChecked(_, value)).getOrElse(this)
+  }
+
   def setChecked(setting: Setting, value: Boolean): Setting = {
     if (this eq setting) {
-      this.checked = value
+      this.copy(checked = value)
     } else {
-      this.children.map(_.setChecked(setting, value))
+      this.copy(children = this.children.map(_.setChecked(setting, value)))
     }
-    this
+  }
+
+  def parentOf(path: String): Option[Setting] = {
+    resolvePath(path) match
+      case Some(setting) => parentOf(setting)
+      case _ => None
   }
 
   def parentOf(child: Setting): Option[Setting] = {
@@ -63,82 +68,73 @@ case class Setting(name: String = null, children: List[Setting] = List(), var ch
   }
 
   def setCheckedPath(path: String, value: Boolean): Setting = {
-    resolvePath(path) match
-      case Some(setting) => setCheckedPath(setting, value)
-      case None => this
+    setCheckedUpstream(path, value).setChecked(path, value)
   }
 
-  def setCheckedPath(setting: Setting, value: Boolean): Setting = {
-    setCheckedUpstream(setting, value)
-    setChecked(setting, value)
+  def setCheckedUpstream(path: String, value: Boolean): Setting = {
+    resolvePath(path).map(setCheckedUpstream(_, value)).getOrElse(this)
   }
 
   def setCheckedUpstream(setting: Setting, value: Boolean): Setting = {
     parentOf(setting) match
       case Some(parentSetting) =>
-        setCheckedUpstream(parentSetting, value)
-        setChecked(parentSetting, value)
+        val updatedParent = setCheckedUpstream(parentSetting, value)
+        updatedParent.setChecked(parentSetting, value)
       case None =>
         this
   }
 
+  def setCheckedDownstream(path: String, value: Boolean): Setting = {
+    resolvePath(path).map(setCheckedDownstream(_, value)).getOrElse(this)
+  }
+
+  private def setCheckedDownstreamAuxiliary(value: Boolean): Setting = {
+    this.copy(checked = value, children = this.children.map(_.setCheckedDownstreamAuxiliary(value)))
+  }
+
   def setCheckedDownstream(setting: Setting, value: Boolean): Setting = {
-    setting.children.map( childSetting =>
-      setCheckedDownstream(childSetting, value)
-      setChecked(childSetting, value)
-    )
-    this
+    if (this eq setting) {
+      this.copy(children = this.children.map(_.setCheckedDownstreamAuxiliary(value)))
+    } else {
+      this.copy(children = this.children.map(_.setCheckedDownstream(setting, value)))
+    }
   }
 
   def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allFromInclusive(setting, filterCondition)
-      case None => Set.empty
+    resolvePath(path).map(Setting.allFromInclusive(_, filterCondition)).getOrElse(Set.empty)
   }
 
   def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allFrom(setting, filterCondition)
-      case None => Set.empty
+    resolvePath(path).map(Setting.allFrom(_, filterCondition)).getOrElse(Set.empty)
   }
 
   def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allFromOrderedInclusive(setting, filterCondition)
-      case None => List.empty
+    resolvePath(path).map(Setting.allFromOrderedInclusive(_, filterCondition)).getOrElse(List.empty)
   }
 
   def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allFromOrdered(setting, filterCondition)
-      case None => List.empty
+    resolvePath(path).map(Setting.allFromOrdered(_, filterCondition)).getOrElse(List.empty)
   }
 
   def allLeavesFrom(path: String): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allLeavesFrom(setting)
-      case None => Set.empty
+    resolvePath(path).map(Setting.allLeavesFrom).getOrElse(Set.empty)
   }
 
   def allActiveFrom(path: String): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allActiveFrom(setting)
-      case None => Set.empty
+    resolvePath(path).map(Setting.allActiveFrom).getOrElse(Set.empty)
   }
 
   def allActiveLeavesFrom(path: String): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.allActiveLeavesFrom(setting)
-      case None => Set.empty
+    resolvePath(path).map(Setting.allActiveLeavesFrom).getOrElse(Set.empty)
   }
 
   def apply(path: String): Set[Setting] = {
-    resolvePath(path) match
-      case Some(setting) => Setting.apply(setting)
-      case None => Set.empty
+    resolvePath(path).map(Setting.apply).getOrElse(Set.empty)
   }
 
-  def unapply: Option[(String, List[Setting], Boolean, List[String])] = Some((this.name, this.children, this.checked, this.options))
+  def unapply: Option[(String, List[Setting], Boolean, List[String])] = {
+    Setting.unapply(this)
+  }
 }
 
 object Setting {

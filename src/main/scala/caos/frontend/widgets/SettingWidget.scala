@@ -30,10 +30,10 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
     settingContainerDiv.innerHTML = ""
 
-    if setting != Setting() then renderSetting(setting, settingContainerDiv)
+    if setting != Setting() then renderSetting(setting, settingContainerDiv, currentPath = setting.name)
   end update
 
-  private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0): Unit =
+  private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0, currentPath: String): Unit =
     val currentSuperDiv = document.createElement("div").asInstanceOf[html.Div]
     currentSuperDiv.style.paddingLeft = s"${indentationLevel * 10}px"
 
@@ -55,19 +55,21 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     checkbox.onchange = (_: Event) => {
       val isChecked = checkbox.checked
 
-      setting.parentOf(currentSetting) match
+      setting.parentOf(currentPath) match
         case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked =>
-          parentSetting.children.foreach(childSetting => setting.setChecked(childSetting, false))
-          setting.setCheckedUpstream(currentSetting, true)
+          parentSetting.children.foreach(childSetting => setting =
+            val parentPath = currentPath.reverse.replaceFirst(s".${currentSetting.name}".reverse, "").reverse
+            setting.setChecked(s"$parentPath.${childSetting.name}", false))
+          setting = setting.setCheckedUpstream(currentPath, true)
         case _ if isChecked =>
-          setting.setCheckedUpstream(currentSetting, true)
+          setting = setting.setCheckedUpstream(currentPath, true)
         case _ =>
-          setting.setCheckedDownstream(currentSetting, false)
-      currentSetting.setChecked(currentSetting, isChecked)
+          setting = setting.setCheckedDownstream(currentPath, false)
+      setting = setting.setChecked(currentPath, isChecked)
 
       val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
       settingContainerDiv.innerHTML = ""
-      renderSetting(setting, settingContainerDiv)
+      renderSetting(setting, settingContainerDiv, currentPath = setting.name)
     }
 
     currentDiv.appendChild(checkbox)
@@ -78,7 +80,7 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
 
     if (currentSetting.children.nonEmpty) {
       val childrenContainerDiv = document.createElement("div").asInstanceOf[html.Div]
-      currentSetting.children.foreach(childSetting => renderSetting(childSetting, childrenContainerDiv, indentationLevel + 1))
+      currentSetting.children.foreach(childSetting => renderSetting(childSetting, childrenContainerDiv, indentationLevel + 1, s"$currentPath.${childSetting.name}"))
       currentSuperDiv.appendChild(childrenContainerDiv)
     }
   end renderSetting
