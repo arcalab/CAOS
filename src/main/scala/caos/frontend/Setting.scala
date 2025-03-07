@@ -64,7 +64,7 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
   }
 
   def parentOf(child: Setting): Option[Setting] = {
-    Setting.allFromInclusive(this, _.children.contains(child)).headOption
+    Setting.allFromInclusive(this, _.children.exists(_ eq child)).headOption
   }
 
   def setCheckedPath(path: String, value: Boolean): Setting = {
