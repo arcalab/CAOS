@@ -3,6 +3,8 @@ package caos.frontend.widgets
 import caos.frontend.Configurator
 import caos.frontend.widgets.Setable
 import caos.frontend.Configurator.Example
+import caos.frontend.Setting
+import caos.frontend.SettingParser
 import org.scalajs.dom
 import org.scalajs.dom.{DOMException, Event, FileReader, UIEvent}
 //import org.w3c.dom.DOMError
@@ -108,7 +110,7 @@ class ExampleWidget(title:String
   /**
    * Block of code that should read the dependencies and:
    *  - update its output value, and
-   *  - produce side-effects (e.g., redraw a diagram)
+   *  - produce side effects (e.g., redraw a diagram)
    */
   override def update(): Unit = ()
 
@@ -163,8 +165,9 @@ object ExampleWidget {
           val (name, rest) = unfix(ex).span(_ != ':')
           val rest2 = rest.drop(18) // drop "description"
           val (desc, rest3) = rest2.span(_ != '\n')
-          val code = rest3.tail
-          Example(code.trim, name.trim, desc.trim)
+          val (code, rest4) = rest3.span(_ != '@')
+          val setting = rest4.tail
+          Example(code.trim, name.trim, desc.trim, Some(SettingParser.parseSetting(setting.trim)))
         } catch {
           case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
         }
@@ -173,7 +176,7 @@ object ExampleWidget {
 
   def examplesToTxt(examples:Iterable[Example]): String =
     examples.map(e => s"module ${e.name}:\\n// description: ${
-      fix(e.description)}\\n${fix(e.example)}").mkString("\\n\\n")
+      fix(e.description)}\\n${fix(e.example)}\\n@${fix(e.setting.getOrElse(Setting()).toStringRaw)}").mkString("\\n\\n")
 
   private def fix(s:String): String = s
       .replaceAll("\\\\n","§NL;") // replaced in UTILS
@@ -184,6 +187,4 @@ object ExampleWidget {
 //    .replaceAll("\\\\n","\\n")
 //    .replaceAll("\\\"","\"")
     .replaceAll("§MODL;","module")
-
-
 }

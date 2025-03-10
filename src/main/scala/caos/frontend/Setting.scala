@@ -33,6 +33,10 @@ case class Setting(name: String = null, children: List[Setting] = List(), checke
     toStringAuxiliary()
   }
 
+  def toStringRaw: String = {
+    s"Setting($name, ${children.map(child => child.toStringRaw)}, $checked, $options)"
+  }
+
   private def resolvePathAuxiliary(remainingPath: List[String]): Option[Setting] = {
     remainingPath match
       case Nil => None
