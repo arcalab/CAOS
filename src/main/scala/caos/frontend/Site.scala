@@ -242,7 +242,12 @@ object Site:
       override protected val boxId: String = config.name + "Box"
 
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] =
-        List(Right("refresh") -> (() => reload(), s"Load the ${config.languageName} program (shift-enter)"))
+        List(
+          Right("refresh") -> (() => reload(), s"Load the ${config.languageName} program (shift-enter)"),
+          Right("download") -> (() => Utils.downloadTxt(ExampleWidget.examplesToTxt(
+            examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).getCurrentExample
+          ), "examples.txt"),
+          "Download Current Example"))
         :::
           Widget.mkHelper(config.languageName,config.documentation).toList
 
