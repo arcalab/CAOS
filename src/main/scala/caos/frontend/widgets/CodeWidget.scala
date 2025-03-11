@@ -28,9 +28,15 @@ abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
    */
   override def init(div: Block, visible: Boolean): Unit = {
     val textId = boxId+"Text"
+    def fix(s:String): String =
+      s.map(c => if (c.isLetterOrDigit || c=='-') then c else '_')
+    val down: (Either[String,String], (()=>Unit, String)) =
+      Right("download") -> (
+        () => Utils.downloadTxt(input, s"${fix(title)}.txt"),
+        "Download program")
     val inputDiv = panelBox(div, visible /*List("padding-right"->"25pt")*/
       /*, 80*/
-      , buttons = buttons)
+      , buttons = down :: buttons)
       .append("div")
       .attr("id", textId)
 
