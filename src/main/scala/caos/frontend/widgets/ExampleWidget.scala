@@ -1,10 +1,8 @@
 package caos.frontend.widgets
 
-import caos.frontend.Configurator
+import caos.frontend.{Configurator, SettingParser, Setting}
 import caos.frontend.widgets.Setable
 import caos.frontend.Configurator.Example
-import caos.frontend.Setting
-import caos.frontend.SettingParser
 import org.scalajs.dom
 import org.scalajs.dom.{DOMException, Event, FileReader, UIEvent}
 
@@ -108,7 +106,7 @@ object ExampleWidget {
     val btt = DomNode(bt)
   }
 
-  def txtToExamples(str:String): Iterable[Example] = {
+  def txtToExamples(str: String): Iterable[Example] = {
     val list = str.split("module *")
     for (ex <- list if ex != "") yield {
       try {
@@ -117,7 +115,7 @@ object ExampleWidget {
         val (desc, rest3) = rest2.span(_ != '\n')
         val (code, rest4) = rest3.span(_ != '@')
         val setting = rest4.tail
-        Example(unfix(code.trim), unfix(name.trim), unfix(desc.trim), Some(SettingParser.parseSetting(unfix(setting.trim))))
+        Example(unfix(code.trim), unfix(name.trim), unfix(desc.trim), Some(SettingParser(unfix(setting.trim))))
       } catch {
         case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
       }
@@ -125,11 +123,11 @@ object ExampleWidget {
   }
 
   def examplesToTxt(examples: Iterable[Example]): String = {
-    examples.map(example =>
-      s"module ${example.name}:\\n" +
-        s"// description: ${fix(example.description)}\\n" +
-        s"${fix(example.example)}\\n" +
-        s"@${fix(example.setting.getOrElse(Setting()).toStringRaw)}")
+    examples.map(e =>
+      s"module ${e.name}:\\n" +
+        s"// description: ${fix(e.description)}\\n" +
+        s"${fix(e.example)}\\n" +
+        s"@${fix(e.setting.getOrElse(Setting()).toStringRaw)}")
       .mkString("\\n\\n")
   }
 

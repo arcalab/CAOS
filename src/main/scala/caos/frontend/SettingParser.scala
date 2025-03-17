@@ -3,54 +3,41 @@ package caos.frontend
 import caos.frontend.Setting
 
 import scala.util.matching.Regex
+import scala.util.parsing.combinator.RegexParsers
 
+object SettingParser extends RegexParsers {
+  override val whiteSpace: Regex = "( |\t|\r|\f|\n|//.*)+".r
+  override def skipWhitespace: Boolean = true
 
-object SettingParser {
-  private val SettingRegex: Regex =
-    """Setting\(([^,]+),\s*List\((.*)\),\s*(true|false),\s*List\(([^)]*)\)\)""".r
+  private def nameID = """[\w\-_ ()]+""".r
+  private def optionID = """[\w\-_ ]+""".r
 
-  def parseSetting(input: String): Setting = {
-    def parseChildren(childrenStr: String): List[Setting] = {
-      if (childrenStr.trim.isEmpty) List()
-      else {
-        val children = splitTopLevel(childrenStr)
-        children.map(parseSetting)
-      }
-    }
+  private def bool: Parser[Boolean] = "true" ^^  (_ => true) | "false" ^^ (_ => false)
 
-    input match {
-      case SettingRegex(name, childrenStr, checked, optionsStr) =>
-        val children = parseChildren(childrenStr)
-        val options = if (optionsStr.trim.isEmpty) List() else optionsStr.split(",").map(_.trim).toList
-        Setting(name.trim, children, checked.toBoolean, options)
-      case "Setting()" =>
-        Setting()
-      case _ =>
-        throw new IllegalArgumentException(s"Invalid Setting format: $input")
+  private def maybeSetting: Parser[Setting] = {
+    opt(setting) ^^ (settingOption => settingOption.getOrElse(Setting()))
+  }
+
+  private def setting: Parser[Setting] = {
+    "Setting(" ~> nameID ~ "," ~ maybeChildren ~ "," ~ bool ~ "," ~ maybeOptions <~ ")" ^^ {
+      case name ~ _ ~ children ~ _ ~ checked ~ _ ~ options =>
+        Setting(name, children, checked, options)
     }
   }
 
+  private def maybeChildren: Parser[List[Setting]] = {
+    "List()" ^^ (_ => List.empty) | "List(" ~> repsep(setting, ",") <~ ")"
+  }
 
-  private def splitTopLevel(input: String): List[String] = {
-    var depth = 0
-    val buffer = new StringBuilder
-    val result = scala.collection.mutable.ListBuffer[String]()
+  private def maybeOptions: Parser[List[String]] = {
+    "List()" ^^ (_ => List.empty) | "List(" ~> repsep(optionID, ",") <~ ")"
+  }
 
-    input.foreach {
-      case '(' =>
-        depth += 1
-        buffer.append('(')
-      case ')' =>
-        depth -= 1
-        buffer.append(')')
-      case ',' if depth == 0 =>
-        result.append(buffer.toString().trim)
-        buffer.clear()
-      case c =>
-        buffer.append(c)
-    }
-
-    if (buffer.nonEmpty) result.append(buffer.toString().trim)
-    result.toList.filter(_.nonEmpty)
+  def apply(input: String): Setting = {
+    parseAll(maybeSetting, input) match
+      case Success(setting, _) =>
+        setting
+      case failure: NoSuccess =>
+        throw new RuntimeException(s"Parsing failed with msg=[${failure.msg}] and next=[${failure.next}]")
   }
 }

@@ -93,11 +93,17 @@ object Site {
     descriptionArea.init(leftColumn) // before the examples
     examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).init(leftColumn, true)
 
-    renderWidgets()
-
     mainExample match
-      case Some(ex) => if (ex.description.nonEmpty) descriptionArea.setValue(ex.description)
+      case Some(ex) =>
+        if (ex.description.nonEmpty) {
+          descriptionArea.setValue(ex.description)
+          val settingWidgetDefined = settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))
+          settingWidgetDefined.set(ex.setting.getOrElse(Setting()))
+          settingWidgetDefined.update()
+        }
       case _ =>
+
+    renderWidgets()
   }
 
   private def renderWidgets(): Unit = {

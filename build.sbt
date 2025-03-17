@@ -14,6 +14,7 @@ lazy val caos = project
       //("org.scala-lang.modules" %% "scala-parser-combinators" %  "1.1.2").withDottyCompat(scalaVersion.value),
       //("org.typelevel" %% "cats-core" % "2.1.1").withDottyCompat(scalaVersion.value),
       ///////
+      "org.scala-lang.modules" %%% "scala-parser-combinators" % "2.1.0",
       ("be.doeraene" %%% "scalajs-jquery" % "1.0.0").cross(CrossVersion.for3Use2_13),//.withDottyCompat(scalaVersion.value), //"0.9.1",
       ///////
       ("org.scala-js" %%% "scalajs-dom" % "1.2.0").cross(CrossVersion.for3Use2_13),//.withDottyCompat(scalaVersion.value),//"0.9.1",
