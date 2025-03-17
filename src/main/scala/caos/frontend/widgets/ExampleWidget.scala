@@ -110,18 +110,18 @@ object ExampleWidget {
 
   def txtToExamples(str:String): Iterable[Example] = {
     val list = str.split("module *")
-      for (ex <- list if ex != "") yield {
-        try {
-          val (name, rest) = ex.span(_ != ':')
-          val rest2 = rest.drop(18) // drop "description"
-          val (desc, rest3) = rest2.span(_ != '\n')
-          val (code, rest4) = rest3.span(_ != '@')
-          val setting = rest4.tail
-          Example(unfix(code.trim), unfix(name.trim), unfix(desc.trim), Some(SettingParser.parseSetting(unfix(setting.trim))))
-        } catch {
-          case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
-        }
+    for (ex <- list if ex != "") yield {
+      try {
+        val (name, rest) = ex.span(_ != ':')
+        val rest2 = rest.drop(18) // drop "description"
+        val (desc, rest3) = rest2.span(_ != '\n')
+        val (code, rest4) = rest3.span(_ != '@')
+        val setting = rest4.tail
+        Example(unfix(code.trim), unfix(name.trim), unfix(desc.trim), Some(SettingParser.parseSetting(unfix(setting.trim))))
+      } catch {
+        case e:Throwable => throw new RuntimeException(s"Failed to import when reading: $ex")
       }
+    }
   }
 
   def examplesToTxt(examples: Iterable[Example]): String = {
