@@ -133,6 +133,7 @@ object ExampleWidget {
 
   private def fix(unfixedString: String): String = {
     unfixedString
+      .replaceAll("\\\\n","§NL;") // replaced in UTILS
       .replaceAll("module","§MODL;")
       .replaceAll("@","§AT;")
   }
