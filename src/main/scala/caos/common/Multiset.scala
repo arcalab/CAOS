@@ -2,51 +2,68 @@ package caos.common
 
 import scala.annotation.targetName
 
-case class Multiset[A](var data: Map[A,Int] = Map()):
-  //    protected var data: Map[A,Int] = Map()
-
+case class Multiset[A](data: Map[A, Int] = Map.empty):
   override def toString: String =
-    (for e<-data yield (e._1.toString+",") * e._2)
-      .mkString("").dropRight(1)
+    data.flatMap { case element -> count =>
+      List.fill(count)(element.toString)
+    }.mkString(", ")
+  end toString
 
-  def isEmpty: Boolean = data.isEmpty
+  def isEmpty: Boolean =
+    data.isEmpty
+  end isEmpty
 
-  def contains(elem:A): Boolean = data.contains(elem)
+  def contains(element: A): Boolean =
+    data.contains(element)
+  end contains
 
   @targetName("add")
-  def +(act:A): Multiset[A] =
-    Multiset(data + (act -> (data.getOrElse(act,0)+1)))
+  def +(element: A): Multiset[A] =
+    val newCount = data.getOrElse(element, 0) + 1
+    Multiset(data + (element -> newCount))
+  end +
 
-  @targetName("union")
-  def ++(other: Multiset[A]): Multiset[A] =
+  @targetName("concat")
+  def ++(multisetB: Multiset[A]): Multiset[A] =
     Multiset(
-      data.filter( (pair:(A,Int)) => !other.contains(pair._1) )
-        ++
-        (for (a,nr)<-other.data yield data.get(a) match {
-    case Some(nr2) => a -> (nr+nr2)
-    case None => a->nr
-  }))
+      (data.keySet ++ multisetB.data.keySet).map ( element =>
+        val countA = data.getOrElse(element, 0)
+        val countB = multisetB.data.getOrElse(element, 0)
+        element -> (countA + countB)
+      ).toMap
+    )
+  end ++
+
+  @targetName("sub")
+  def -(element: A): Multiset[A] =
+    data.get(element) match
+      case Some(count) if count > 1 =>
+        val newCount = count - 1
+        Multiset(data + (element -> newCount))
+      case _ =>
+        Multiset(data - element)
+  end -
 
   @targetName("exclude")
-  def --(other: Multiset[A]): Multiset[A] =
-    Multiset((for at <- data if !other.data.contains(at._1)
-      yield at) ++ // all t1 that is not in t2
-      (for at <- data if other.data.contains(at._1) && other.data(at._1)>at._2
-        yield at._1->(at._2-other.data(at._1)))) // all `this` that is partially dropped by `other`
+  def --(multisetB: Multiset[A]): Multiset[A] =
+    val entriesA = data.map { case elementA -> countA =>
+      val newCountA = countA - multisetB.data.getOrElse(elementA, 0)
+      elementA -> newCountA
+    }.filter { case _ -> count =>
+      count > 0
+    }
+    Multiset(entriesA)
+  end --
 
-  @targetName("delete")
-  def -(act:A): Multiset[A] =
-    data.get(act) match
-      case Some(v) if v>1 =>
-        Multiset(data + (act -> (v-1)))
-      case _ =>
-        Multiset(data - act)
-
-  def included(other: Multiset[A]): Boolean =
-    data.forall(a1 => other.data.get(a1._1).exists(_>=a1._2))
-
+  def included(multisetB: Multiset[A]): Boolean =
+    data.forall { case elementA -> countA =>
+      multisetB.data.getOrElse(elementA, 0) >= countA
+    }
+  end included
+end Multiset
 
 object Multiset:
-  //    def apply[A](m:Map[A,Int]) = new Multiset[A]:
-  //      data = m
-  def apply[A]() = new Multiset[A](Map())
+  def apply[A](): Multiset[A] =
+    Multiset[A](Map.empty)
+  end apply
+end Multiset
