@@ -31,7 +31,7 @@ case class Multiset[A](var data: Map[A,Int] = Map()):
   def --(other: Multiset[A]): Multiset[A] =
     Multiset((for at <- data if !other.data.contains(at._1)
       yield at) ++ // all t1 that is not in t2
-      (for at <- data if other.data.contains(at._1) && other.data(at._1)>at._2
+      (for at <- data if other.data.contains(at._1) && other.data(at._1)<at._2
         yield at._1->(at._2-other.data(at._1)))) // all `this` that is partially dropped by `other`
 
   @targetName("delete")
