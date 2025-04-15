@@ -1,21 +1,19 @@
 package caos.frontend.widgets
 
-import caos.frontend.widgets.{DomElem, DomNode}
-import Widget.Block
 import caos.frontend.Documentation
 import org.scalajs.dom
-import org.scalajs.dom.{EventTarget, MouseEvent, html}
+import org.scalajs.dom.{MouseEvent, html}
 
 import scala.annotation.tailrec
-import scala.scalajs.js.{JavaScriptException, UndefOr}
+import scala.scalajs.js.JavaScriptException
 
 
 //panel boxes are the abstract entities which contain each panel displayed on the website
 abstract class Widget[A](val title: String, doc: Documentation = Documentation()){
   type Block = DomElem //Selection[dom.EventTarget]
 
-  protected val titleId = "id"+title.hashCode
-  var wrap:DomElem = _
+  protected val titleId: String = "id"+title.hashCode
+  private var wrap:DomElem = _
 
   /**
    * Creates a collapsable pannel
@@ -58,7 +56,7 @@ abstract class Widget[A](val title: String, doc: Documentation = Documentation()
 
 
     val allButtons =
-      Widget.mkHelper(title,doc).toList:::(buttons.reverse)
+      Widget.mkHelper(title,doc).toList::: buttons.reverse
 
     // Buttons
     for ((name,(action,title)) <- allButtons) {
@@ -195,7 +193,7 @@ object Widget {
   def mkHelper(title:String, doc:Documentation): Option[(Either[String, String], (() => Unit, String))] =
     //if doc.get(title).isEmpty then println(s"Not found documentation for '$title'. Only for ${doc.widgets.map(x=>"\n - "+x).mkString}")
     doc.get(title).map( hlp =>
-      (Right("help") -> (() =>{
+      Right("help") -> (() =>{
 //      org.scalajs.dom.window.open(hlp.get._2)
       dom.document.getElementById("CAOSPopup").innerHTML = hlp._2
       dom.document.getElementById("CAOSPopupTitle").innerHTML = title
@@ -203,7 +201,7 @@ object Widget {
       dom.document.getElementById("CAOSPopupWrp").setAttribute("style","display:block;")
       dom.document.location.replace(s"#")
     }, hlp._1
-    )))
+    ))
 
   def downloadSvgOld(block: Block): Unit = {
     val svg = block.append("svg")
@@ -237,7 +235,7 @@ object Widget {
       .attr("d","M 11 2 C 10.448 2 10 2.448 10 3 L 10 11 L 6 11 L 12 17 L 18 11 L 14 11 L 14 3 C 14 2.448 13.552 2 13 2 L 11 2 z M 2 20 L 2 22 L 22 22 L 22 20 L 2 20 z")
   }
 
-  def uploadSvg(block: Block): Unit = {
+  private def uploadSvg(block: Block): Unit = {
     val svg = block.append("svg")
       .attr("xmlns","http://www.w3.org/2000/svg")
       .attr("width","20")
@@ -253,7 +251,7 @@ object Widget {
       .attr("d","M 12 2 A 1 1 0 0 0 11.292969 2.2949219 L 6.1601562 7.1347656 A 0.5 0.5 0 0 0 6.1484375 7.1445312 L 6.1464844 7.1464844 A 0.5 0.5 0 0 0 6 7.5 A 0.5 0.5 0 0 0 6.5 8 L 10 8 L 10 16 C 10 16.552 10.448 17 11 17 L 12 17 L 13 17 C 13.552 17 14 16.552 14 16 L 14 8 L 17.5 8 A 0.5 0.5 0 0 0 18 7.5 A 0.5 0.5 0 0 0 17.853516 7.1464844 L 17.822266 7.1171875 L 12.716797 2.3027344 A 1 1 0 0 0 12.683594 2.2714844 A 1 1 0 0 0 12 2 z M 3 20 A 1.0001 1.0001 0 1 0 3 22 L 21 22 A 1.0001 1.0001 0 1 0 21 20 L 3 20 z")
   }
 
-  def helpSvg(block: Block): Unit = {
+  private def helpSvg(block: Block): Unit = {
     val svg = block.append("svg")
       .attr("xmlns", "http://www.w3.org/2000/svg")
       .attr("width", "20")

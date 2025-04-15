@@ -1,16 +1,9 @@
 package caos.frontend.widgets
 
-import WidgetInfo.Visualize
 import caos.frontend.Documentation
-import caos.view.{Mermaid, View}
+import caos.view.View
 import org.scalajs.dom
 import org.scalajs.dom.{MouseEvent, html}
-
-import scala.runtime.Nothing$
-
-/**
- * Created by   on 02/11/2020
- */
 
 
 class VisualiseText(text:()=>View, name:String, errorBox: OutputArea, doc:Documentation)
@@ -18,7 +11,7 @@ class VisualiseText(text:()=>View, name:String, errorBox: OutputArea, doc:Docume
 
   private var box:Block = _
   private var txt:Block = _
-  protected val divBox = name.replace(' ','_') + "Box"
+  protected val divBox: String = name.replace(' ','_') + "Box"
 
   override val get: Unit = () //mermaid()
 

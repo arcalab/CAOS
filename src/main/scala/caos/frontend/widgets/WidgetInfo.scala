@@ -1,6 +1,5 @@
 package caos.frontend.widgets
 
-import caos.frontend.widgets.Widget.Helper
 import caos.sos.SOS
 import caos.view.{OptionView, View, ViewType}
 
