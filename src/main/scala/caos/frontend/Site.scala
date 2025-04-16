@@ -1,12 +1,10 @@
 package caos.frontend
 
-import caos.frontend.Setting
 import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SettingWidget, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
-import caos.view.OptionView.*
 import org.scalajs.dom
-import org.scalajs.dom.{FileReader, document, html}
+import org.scalajs.dom.document
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -110,8 +108,7 @@ object Site {
     val config = lastConfig.getOrElse(throw RuntimeException("last config is undefined"))
     val code   = codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined"))
 
-    val widgets = (for (name, wi) <- config.smallWidgets yield (name, wi.moveTo(1))) ++ config.widgets
-    val boxes = for wc <- widgets if wc._2.getRender yield
+    val boxes = for wc <- config.widgets if wc._2.getRender yield
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],

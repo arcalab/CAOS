@@ -1,8 +1,6 @@
 package caos.frontend
 
-import caos.frontend.Setting
 import caos.frontend.Configurator.Example
-import caos.frontend.widgets.Widget.Helper
 import caos.frontend.widgets.WidgetInfo
 import caos.frontend.widgets.WidgetInfo.*
 import caos.sos
@@ -10,7 +8,6 @@ import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
 
-import scala.annotation.{tailrec, targetName}
 import scala.language.implicitConversions
 
 /**

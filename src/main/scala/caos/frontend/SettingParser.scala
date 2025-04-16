@@ -1,7 +1,5 @@
 package caos.frontend
 
-import caos.frontend.Setting
-
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
