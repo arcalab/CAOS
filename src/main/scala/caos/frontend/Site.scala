@@ -76,6 +76,7 @@ object Site {
   }
 
   def setSetting(setting: Setting): Unit = {
+    document.getElementById("rightbar").innerHTML = ""
     getSettingWidget.set(setting)
     getSettingWidget.update()
     renderWidgets()
@@ -107,9 +108,12 @@ object Site {
     descriptionArea.init(leftColumn)
     getExamplesWidget.init(leftColumn, true)
 
-    applySettingAndDescription(descriptionArea)
-
-    renderWidgets()
+    getMainExample match {
+      case example if example.description.nonEmpty =>
+        descriptionArea.setValue(example.description)
+        setSetting(example.setting.getOrElse(Setting()))
+      case _ =>
+    }
   }
 
   private def parseURLQuery: String = {
@@ -134,16 +138,6 @@ object Site {
     example
   }
 
-  private def applySettingAndDescription(descriptionArea: OutputArea): Unit = {
-    getMainExample match {
-      case example if example.description.nonEmpty =>
-        descriptionArea.setValue(example.description)
-        getSettingWidget.set(example.setting.getOrElse(Setting()))
-        getSettingWidget.update()
-      case _ =>
-    }
-  }
-
   private def renderWidgets(): Unit = {
     val config = getLastConfig
     val code   = getCodeWidget
@@ -160,7 +154,7 @@ object Site {
       w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
       w
 
-    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.partialReload)
+    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.reload)
   }
 
   /**
@@ -321,25 +315,17 @@ object Site {
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
         List(
           Right("refresh") -> (
-            () => reload(),
+            () =>
+              descriptionArea.clear()
+              reload(),
             s"Load settings"
           )
         ) ::: Widget.mkHelper("settingBox", config.documentation).toList
       }
 
-      override def partialReload(): Unit = {
-        errorArea.clear()
-        update()
-        document.getElementById("rightbar").innerHTML = ""
-        renderWidgets()
-      }
-
       override def reload(): Unit = {
-        descriptionArea.clear()
         errorArea.clear()
-        update()
-        document.getElementById("rightbar").innerHTML = ""
-        renderWidgets()
+        setSetting(getSetting)
       }
     }
   }
