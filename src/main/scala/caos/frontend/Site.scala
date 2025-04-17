@@ -15,13 +15,52 @@ object Site {
   private var errorArea:       OutputArea = _
   private var descriptionArea: OutputArea = _
   private var toReload:   List[() => Unit] = _
+
   private var lastConfig: Option[Configurator[_]] = None
 
-  private var codeWidget:     Option[CodeWidget[_]]        = None
-  private var examplesWidget: Option[ExampleWidget]        = None
-  private var mainExample:    Option[Configurator.Example] = None
+  private def getLastConfig: Configurator[_] = {
+    lastConfig.getOrElse(throw RuntimeException(s"lastConfig is undefined"))
+  }
 
-  private var settingWidget:  Option[SettingWidget[_]]     = None
+  private def setLastConfig(lastConfig: Configurator[_]): Configurator[_] = {
+    Site.lastConfig = Some(lastConfig)
+    getLastConfig
+  }
+
+  private var codeWidget: Option[CodeWidget[_]] = None
+
+  private def getCodeWidget: CodeWidget[_] = {
+    codeWidget.getOrElse(throw RuntimeException(s"codeWidget is undefined"))
+  }
+
+  private def setCodeWidget(codeWidget: CodeWidget[_]): CodeWidget[_] = {
+    Site.codeWidget = Some(codeWidget)
+    getCodeWidget
+  }
+
+  private var examplesWidget: Option[ExampleWidget] = None
+
+  private def getExamplesWidget: ExampleWidget = {
+    examplesWidget.getOrElse(throw RuntimeException(s"exampleWidget is undefined"))
+  }
+
+  private def setExamplesWidget(examplesWidget: ExampleWidget): ExampleWidget = {
+    Site.examplesWidget = Some(examplesWidget)
+    getExamplesWidget
+  }
+
+  private var mainExample: Option[Configurator.Example] = None
+
+  private def getMainExample: Configurator.Example = {
+    mainExample.getOrElse(throw RuntimeException(s"mainExample is undefined"))
+  }
+
+  private def setMainExample(mainExample: Configurator.Example): Configurator.Example = {
+    Site.mainExample = Some(mainExample)
+    getMainExample
+  }
+
+  private var settingWidget: Option[SettingWidget[_]] = None
 
   private def getSettingWidget: SettingWidget[_] = {
     settingWidget.getOrElse(throw RuntimeException(s"settingWidget is undefined"))
@@ -43,7 +82,7 @@ object Site {
   }
 
   def initSite[A](config: Configurator[A]): Unit = {
-    lastConfig = Some(config)
+    setLastConfig(config)
     initialiseContainers()
 
     // find the main example (from URL of first in the list)
@@ -61,18 +100,19 @@ object Site {
       .replaceAll("%22", "\"").replaceAll("%60", "`")
       .replaceAll("%28", "(").replaceAll("%29", ")")
 
-    mainExample = config.examples.find(_.name == urlQuery) match
+    setMainExample(config.examples.find(_.name == urlQuery) match
       case None =>
         if urlQuery.nonEmpty
-        then Some(Configurator.Example(urlQuery, "Custom", ""))
-        else config.examples.headOption
-      case ex => ex
+        then Configurator.Example(urlQuery, "Custom", "")
+        else config.examples.head
+      case ex => ex.get
+    )
 
     errorArea = new OutputArea
     descriptionArea = new OutputArea
 
-    codeWidget = Some(mkCodeBox(config, mainExample))
-    codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")).init(leftColumn, true)
+    setCodeWidget(mkCodeBox(config, Some(getMainExample)))
+    getCodeWidget.init(leftColumn, true)
 
     errorArea.init(leftColumn)
 
@@ -84,12 +124,12 @@ object Site {
     val toolTitle = document.getElementById("tool-title")
     toolTitle.textContent = config.name
 
-    examplesWidget = Some(
+    setExamplesWidget(
       new ExampleWidget(
         "Examples",
         config,
         globalReload(),
-        codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),
+        getCodeWidget,
         Some(descriptionArea),
         getSettingWidget
       )
@@ -97,29 +137,27 @@ object Site {
 
     // place examples and information area
     descriptionArea.init(leftColumn) // before the examples
-    examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).init(leftColumn, true)
+    getExamplesWidget.init(leftColumn, true)
 
-    mainExample match
-      case Some(ex) =>
-        if (ex.description.nonEmpty) {
-          descriptionArea.setValue(ex.description)
-          getSettingWidget.set(ex.setting.getOrElse(Setting()))
-          getSettingWidget.update()
-        }
+    getMainExample match
+      case ex if ex.description.nonEmpty =>
+        descriptionArea.setValue(ex.description)
+        getSettingWidget.set(ex.setting.getOrElse(Setting()))
+        getSettingWidget.update()
       case _ =>
 
     renderWidgets()
   }
 
   private def renderWidgets(): Unit = {
-    val config = lastConfig.getOrElse(throw RuntimeException("last config is undefined"))
-    val code   = codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined"))
+    val config = getLastConfig
+    val code   = getCodeWidget
 
     val boxes = for wc <- config.widgets if wc._2.getRender yield
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],
-        () => examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).get.map(kv => kv._1 -> config.parser(kv._2)),
+        () => getExamplesWidget.get.map(kv => kv._1 -> config.parser(kv._2)),
         errorArea,
         config.documentation
       )
@@ -237,10 +275,10 @@ object Site {
       .attr("style", "float:right;")
       .html("&#10006;")
 
-    if lastConfig.isDefined && lastConfig.get.footer != ""
+    if getLastConfig.footer != ""
     then contentDiv.append("div")
       .style("width: 100%;text-align: center; display: inline-block;")
-      .html(s"&nbsp;<br><p style=\"margin: 0px 30px 10px;\">${lastConfig.get.footer}</p>")
+      .html(s"&nbsp;<br><p style=\"margin: 0px 30px 10px;\">${getLastConfig.footer}</p>")
 
     Utils.resizeCols
   }
@@ -266,10 +304,7 @@ object Site {
             s"Load the ${config.languageName} program (shift-enter)"
           ),
           Right("download") -> (
-            () => Utils.downloadTxt(ExampleWidget.examplesToTxt(
-              examplesWidget.getOrElse(throw RuntimeException("examplesWidget is undefined")).getCurrentExample),
-              "example.txt"
-            ),
+            () => Utils.downloadTxt(ExampleWidget.examplesToTxt(getExamplesWidget.getCurrentExample), "example.txt"),
             "Download Current Example"
           ),
         ) ::: Widget.mkHelper(config.languageName, config.documentation).toList
@@ -321,8 +356,8 @@ object Site {
     reader.readAsText(ev)
     reader.onload = _ => {
       val resultAsString = Utils.unfix(reader.result.toString)
-      lastConfig match {
-        case Some(c: Configurator[A] @unchecked) =>
+      getLastConfig match {
+        case c: Configurator[A] @unchecked =>
           val c2 = new Configurator[A] {
             override val parser: String => A = c.parser
             override val name: String = c.name
