@@ -85,8 +85,35 @@ object Site {
     setLastConfig(config)
     initialiseContainers()
 
-    // find the main example (from URL of first in the list)
-    val urlQuery = document.URL.split('?').drop(1).mkString("?")
+    val urlQuery = parseURLQuery
+    setMainExample(resolveMainExample(config, urlQuery))
+
+    errorArea       = new OutputArea
+    descriptionArea = new OutputArea
+
+    setCodeWidget(mkCodeBox(config, Some(getMainExample)))
+    getCodeWidget.init(leftColumn, true)
+
+    errorArea.init(leftColumn)
+
+    setSettingWidget(mkSettingBox(config))
+    getSettingWidget.init(leftColumn, true)
+
+    document.getElementById("title").textContent      = config.name
+    document.getElementById("tool-title").textContent = config.name
+
+    setExamplesWidget(new ExampleWidget("Examples", config, globalReload(), getCodeWidget, Some(descriptionArea), getSettingWidget))
+
+    descriptionArea.init(leftColumn)
+    getExamplesWidget.init(leftColumn, true)
+
+    applySettingAndDescription(descriptionArea)
+
+    renderWidgets()
+  }
+
+  private def parseURLQuery: String = {
+    document.URL.split('?').drop(1).mkString("?")
       .replaceAll("%2F", "/").replaceAll("%3C", "<")
       .replaceAll("%26", "&").replaceAll("%3E", ">")
       .replaceAll("%20", " ").replaceAll("%23", "#")
@@ -99,54 +126,22 @@ object Site {
       .replaceAll("%40", "@").replaceAll("%5D", "]")
       .replaceAll("%22", "\"").replaceAll("%60", "`")
       .replaceAll("%28", "(").replaceAll("%29", ")")
+  }
 
-    setMainExample(config.examples.find(_.name == urlQuery) match
-      case None =>
-        if urlQuery.nonEmpty
-        then Configurator.Example(urlQuery, "Custom", "")
-        else config.examples.head
-      case ex => ex.get
-    )
+  private def resolveMainExample[A](config: Configurator[A], urlQuery: String): Configurator.Example = {
+    val example = config.examples.find(_.name == urlQuery)
+      .getOrElse(if urlQuery.nonEmpty then Configurator.Example(urlQuery, "Custom", "") else config.examples.head)
+    example
+  }
 
-    errorArea = new OutputArea
-    descriptionArea = new OutputArea
-
-    setCodeWidget(mkCodeBox(config, Some(getMainExample)))
-    getCodeWidget.init(leftColumn, true)
-
-    errorArea.init(leftColumn)
-
-    setSettingWidget(mkSettingBox(config))
-    getSettingWidget.init(leftColumn, true)
-
-    val title = document.getElementById("title")
-    title.textContent = config.name
-    val toolTitle = document.getElementById("tool-title")
-    toolTitle.textContent = config.name
-
-    setExamplesWidget(
-      new ExampleWidget(
-        "Examples",
-        config,
-        globalReload(),
-        getCodeWidget,
-        Some(descriptionArea),
-        getSettingWidget
-      )
-    )
-
-    // place examples and information area
-    descriptionArea.init(leftColumn) // before the examples
-    getExamplesWidget.init(leftColumn, true)
-
-    getMainExample match
-      case ex if ex.description.nonEmpty =>
-        descriptionArea.setValue(ex.description)
-        getSettingWidget.set(ex.setting.getOrElse(Setting()))
+  private def applySettingAndDescription(descriptionArea: OutputArea): Unit = {
+    getMainExample match {
+      case example if example.description.nonEmpty =>
+        descriptionArea.setValue(example.description)
+        getSettingWidget.set(example.setting.getOrElse(Setting()))
         getSettingWidget.update()
       case _ =>
-
-    renderWidgets()
+    }
   }
 
   private def renderWidgets(): Unit = {
