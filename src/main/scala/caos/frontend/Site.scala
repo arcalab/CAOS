@@ -10,27 +10,35 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 object Site {
-  private var leftColumn: DomElem = _
+  private var leftColumn:  DomElem = _
   private var rightColumn: DomElem = _
-  private var errorArea: OutputArea = _
+  private var errorArea:       OutputArea = _
   private var descriptionArea: OutputArea = _
-  private var toReload: List[() => Unit] = _
+  private var toReload:   List[() => Unit] = _
   private var lastConfig: Option[Configurator[_]] = None
 
-  private var codeWidget: Option[CodeWidget[_]] = None
-  private var examplesWidget: Option[ExampleWidget] = None
-  private var mainExample: Option[Configurator.Example] = None
+  private var codeWidget:     Option[CodeWidget[_]]        = None
+  private var examplesWidget: Option[ExampleWidget]        = None
+  private var mainExample:    Option[Configurator.Example] = None
 
-  private var settingWidget: Option[SettingWidget[_]] = None
+  private var settingWidget:  Option[SettingWidget[_]]     = None
+
+  private def getSettingWidget: SettingWidget[_] = {
+    settingWidget.getOrElse(throw RuntimeException(s"settingWidget is undefined"))
+  }
+
+  private def setSettingWidget(settingWidget: SettingWidget[_]): SettingWidget[_] = {
+    Site.settingWidget = Some(settingWidget)
+    getSettingWidget
+  }
 
   def getSetting: Setting = {
-    settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).get
+    getSettingWidget.get
   }
 
   def setSetting(setting: Setting): Unit = {
-    val settingWidgetDefined = settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))
-    settingWidgetDefined.set(setting)
-    settingWidgetDefined.update()
+    getSettingWidget.set(setting)
+    getSettingWidget.update()
     renderWidgets()
   }
 
@@ -68,8 +76,8 @@ object Site {
 
     errorArea.init(leftColumn)
 
-    settingWidget = Some(mkSettingBox(config))
-    settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).init(leftColumn, true)
+    setSettingWidget(mkSettingBox(config))
+    getSettingWidget.init(leftColumn, true)
 
     val title = document.getElementById("title")
     title.textContent = config.name
@@ -83,7 +91,7 @@ object Site {
         globalReload(),
         codeWidget.getOrElse(throw RuntimeException("codeWidget is undefined")),
         Some(descriptionArea),
-        settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))
+        getSettingWidget
       )
     )
 
@@ -95,9 +103,8 @@ object Site {
       case Some(ex) =>
         if (ex.description.nonEmpty) {
           descriptionArea.setValue(ex.description)
-          val settingWidgetDefined = settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined"))
-          settingWidgetDefined.set(ex.setting.getOrElse(Setting()))
-          settingWidgetDefined.update()
+          getSettingWidget.set(ex.setting.getOrElse(Setting()))
+          getSettingWidget.update()
         }
       case _ =>
 
@@ -120,7 +127,7 @@ object Site {
       w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
       w
 
-    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(settingWidget.getOrElse(throw RuntimeException("settingWidget is undefined")).partialReload)
+    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.partialReload)
   }
 
   /**
@@ -246,7 +253,6 @@ object Site {
   private def mkCodeBox[A](config: Configurator[A]
                            , ex: Option[Configurator.Example]): CodeWidget[A] = {
     new CodeWidget[A](config.languageName, Nil) {
-
       protected var input: String = ex match
         case Some(e) => e.example
         case _ => ""
