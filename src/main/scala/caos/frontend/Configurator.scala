@@ -31,7 +31,7 @@ trait Configurator[Stx]:
   /** Structure dedicated for establishing settings */
   def setting: Setting = Setting()
   /** Main widgets, on the right hand side of the screen */
-  val widgets: Iterable[(String,WidgetInfo[Stx])]
+  def widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
 
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
@@ -158,6 +158,7 @@ object Configurator:
    * @param pre2 is a function that produces the 2nd term from the program
    * @param show1 is a function that converts a state of SOS1 to a string
    * @param show2 is a function that converts a state of SOS2 to a string
+   * @param showAct is a function that converts an action to a string
    * @param maxDepth (optional) is the maximum number of steps that it can make when searching for a bisimulation
    * @tparam Stx is the type of the program (syntax)
    * @tparam A  is the type of the actions for both SOS objects

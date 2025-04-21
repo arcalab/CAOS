@@ -344,7 +344,7 @@ object Site {
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Setting = c.setting
-            override val widgets: Iterable[(String, WidgetInfo[A])] = c.widgets
+            override def widgets: Iterable[(String, WidgetInfo[A])] = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
           }
