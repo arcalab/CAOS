@@ -142,7 +142,7 @@ object Site {
     val config = getLastConfig
     val code   = getCodeWidget
 
-    val boxes = for wc <- config.widgets if wc._2.isDefined && wc._2.get.getRender yield
+    val boxes = for wc <- config.widgets if wc._2.isDefined yield
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],
