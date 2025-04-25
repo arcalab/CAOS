@@ -142,7 +142,7 @@ object Site {
     val config = getLastConfig
     val code   = getCodeWidget
 
-    val boxes = for wc <- config.widgets if wc._2.getRender yield
+    val boxes = for wc <- config.widgets if wc._2.isDefined && wc._2.get.getRender yield
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],
@@ -151,7 +151,7 @@ object Site {
         config.documentation
       )
       // place widget in the document
-      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+      w.init(if wc._2.get.location == 0 then rightColumn else leftColumn, wc._2.get.expanded)
       w
 
     toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.reload)
@@ -166,13 +166,13 @@ object Site {
    * @tparam Stx Type of the program to process
    * @return a box
    */
-  private def mkWidget[Stx](w: (String, WidgetInfo[Stx])
+  private def mkWidget[Stx](w: (String, Option[WidgetInfo[Stx]])
                             , get: () => Stx
                             , getAll: () => Seq[(String, Stx)]
                             , out: OutputArea
                             , doc: Documentation
                            ): Widget[Unit] = {
-    try w._2 match {
+    try w._2.get match {
       case Visualize(view, Mermaid, pre) => new VisualiseMermaid(() => view(pre(get())), w._1, out, doc)
       case Visualize(view, Text, pre) => new VisualiseText(() => view(pre(get())), w._1, out, doc)
       case Visualize(view, Code(lang), pre) => new VisualiseCode(() => view(pre(get())), w._1, lang, out, doc)
@@ -339,12 +339,12 @@ object Site {
       val resultAsString = Utils.unfix(reader.result.toString)
       getLastConfig match {
         case c: Configurator[A] @unchecked =>
-          val c2 = new Configurator[A] {
+          val c2: Configurator[A] = new Configurator[A] {
             override val parser: String => A = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
             override val setting: Setting = c.setting
-            override def widgets: Iterable[(String, WidgetInfo[A])] = c.widgets
+            override def widgets: Iterable[(String, Option[WidgetInfo[A]])] = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
           }

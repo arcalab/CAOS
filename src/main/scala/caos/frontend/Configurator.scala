@@ -31,11 +31,11 @@ trait Configurator[Stx]:
   /** Structure dedicated for establishing settings */
   def setting: Setting = Setting()
   /** Main widgets, on the right hand side of the screen */
-  def widgets: Iterable[(String,WidgetInfo[Stx])]
+  def widgets: Iterable[(String, Option[WidgetInfo[Stx]])]
   /** Secondary widgets, below the code */
 
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
-  val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
+  val smallWidgets: Iterable[(String, WidgetInfo[Stx])]=List()
   /** Documentation of the widgets. It can be presented as a list of triples `a->b->c`, representing
    *  (a) name of the widget being documented,
    *  (b) text when the mouse hovers over the "?", and
