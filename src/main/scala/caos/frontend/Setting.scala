@@ -3,7 +3,7 @@ package caos.frontend
 import scala.annotation.targetName
 import scala.language.implicitConversions
 
-case class Setting(name: String = null, children: List[Setting] = List(), checked: Boolean = false, options: List[String] = List.empty) {
+case class Setting(name: String = null, children: List[Setting] = List.empty, checked: Boolean = false, options: List[String] = List.empty) {
   @targetName("allowOne")
   def ||(setting: Setting): Setting = {
     val groupName = s"${this.name} || ${setting.name}"
