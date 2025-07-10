@@ -1,6 +1,6 @@
 package caos.frontend
 
-import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
+import widgets.{CodeWidget, CustomWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
 import caos.view.OptionView.*
@@ -135,6 +135,7 @@ object Site:
       case Explore(init,sos,vS,vA) => new widgets.Explore(()=>init(get()),sos,vS,vA,w._1,out,doc)
       case Analyse(a) =>
         new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()),w._1)
+      case Custom(divName,rld,bts) => new CustomWidget(w._1,divName,()=>rld(get()),out,bts,doc)
       case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': ${w._2}")
     } catch {
       case e: Throwable =>
