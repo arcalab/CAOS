@@ -104,28 +104,8 @@ case class Setting(name: String = null, children: List[Setting] = List.empty, ch
     }
   }
 
-  def allFromInclusive(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    resolvePath(path).map(Setting.allFromInclusive(_, filterCondition)).getOrElse(Set.empty)
-  }
-
   def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
     resolvePath(path).map(Setting.allFrom(_, filterCondition)).getOrElse(Set.empty)
-  }
-
-  def allFromOrderedInclusive(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    resolvePath(path).map(Setting.allFromOrderedInclusive(_, filterCondition)).getOrElse(List.empty)
-  }
-
-  def allFromOrdered(path: String, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    resolvePath(path).map(Setting.allFromOrdered(_, filterCondition)).getOrElse(List.empty)
-  }
-
-  def allLeavesFrom(path: String): Set[Setting] = {
-    resolvePath(path).map(Setting.allLeavesFrom).getOrElse(Set.empty)
-  }
-
-  def allActiveFrom(path: String): Set[Setting] = {
-    resolvePath(path).map(Setting.allActiveFrom).getOrElse(Set.empty)
   }
 
   def allActiveLeavesFrom(path: String): Set[Setting] = {
@@ -149,23 +129,6 @@ object Setting {
 
   def allFrom(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
     setting.children.flatMap(allFromInclusive(_, filterCondition)).toSet
-  }
-
-  def allFromOrderedInclusive(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    val filteredSetting = if (filterCondition(setting)) List(setting) else List.empty
-    filteredSetting ++ setting.children.flatMap(allFromOrderedInclusive(_, filterCondition))
-  }
-
-  def allFromOrdered(setting: Setting, filterCondition: Setting => Boolean = _ => true): List[Setting] = {
-    setting.children.flatMap(allFromOrderedInclusive(_, filterCondition))
-  }
-
-  def allLeavesFrom(setting: Setting): Set[Setting] = {
-    allFrom(setting, _.children.isEmpty)
-  }
-
-  def allActiveFrom(setting: Setting): Set[Setting] = {
-    allFrom(setting, _.checked)
   }
 
   def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
