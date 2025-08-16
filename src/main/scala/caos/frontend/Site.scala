@@ -21,10 +21,9 @@ object Site {
   /** simple setter for '''Setting''' under the current '''state''' */
   /* can be called upon by the final user */
   def setSetting(setting: Setting): Unit = {
-    dom.document.getElementById("rightbar").innerHTML = ""
     state.getSettingWidget.set(setting)
     state.getSettingWidget.update()
-    renderWidgets()
+    globalReload()
   }
 
   def initSite[A](config: Configurator[A]): Unit = {
@@ -101,7 +100,7 @@ object Site {
       w.init(if wc._2.get.location == 0 then state.getRightColumn else state.getLeftColumn, wc._2.get.expanded)
       w
 
-    state = state.withToReload((List(code) ++ boxes).map(b => () => b.update()) ++ List(state.getSettingWidget.reload))
+    state = state.withToReload(boxes.toList.map(b => () => b.update()))
   }
 
   private def initialiseContainers(): Unit = {
@@ -169,6 +168,9 @@ object Site {
 
   private def globalReload(): Unit = {
     state.getErrorArea.clear()
+    state.getDescriptionArea.clear()
+    dom.document.getElementById("rightbar").innerHTML = ""
+    renderWidgets()
     state.getToReload.foreach(f => f())
   }
 
@@ -198,10 +200,10 @@ object Site {
 
       override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
-      override def reload(): Unit =
-        state.getDescriptionArea.clear()
-        update()
+      override def reload(): Unit = {
         globalReload()
+        update()
+      }
     }
   }
 
@@ -210,17 +212,16 @@ object Site {
       override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
         List(
           Right("refresh") -> (
-            () =>
-              state.getDescriptionArea.clear()
-              reload(),
+            () => reload(),
             s"Load settings"
           )
         ) ::: Widget.mkHelper("settingBox", config.documentation).toList
       }
 
       override def reload(): Unit = {
-        state.getErrorArea.clear()
-        setSetting(getSetting)
+        globalReload()
+        state.getCodeWidget.update() // brings description back
+        update()
       }
     }
   }
