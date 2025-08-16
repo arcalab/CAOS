@@ -4,164 +4,64 @@ import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputAr
 import WidgetInfo.*
 import caos.view.*
 import org.scalajs.dom
-import org.scalajs.dom.document
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 object Site {
-  private var leftColumn: Option[DomElem] = None
-
-  private def getLeftColumn: DomElem = {
-    leftColumn.get
-  }
-
-  private def setLeftColumn(leftColumn: DomElem): Unit = {
-    Site.leftColumn = Some(leftColumn)
-  }
-
-  private var rightColumn: Option[DomElem] = None
-
-  private def getRightColumn: DomElem = {
-    rightColumn.get
-  }
-
-  private def setRightColumn(rightColumn: DomElem): Unit = {
-    Site.rightColumn = Some(rightColumn)
-  }
-
-  private var errorArea: Option[OutputArea] = None
-
-  private def getErrorArea: OutputArea = {
-    errorArea.get
-  }
-
-  private def setErrorArea(errorArea: OutputArea): Unit = {
-    Site.errorArea = Some(errorArea)
-  }
-
-  private var descriptionArea: Option[OutputArea] = None
-
-  private def getDescriptionArea: OutputArea = {
-    descriptionArea.get
-  }
-
-  private def setDescriptionArea(descriptionArea: OutputArea): Unit = {
-    Site.descriptionArea = Some(descriptionArea)
-  }
-
-  private var toReload: Option[List[() => Unit]] = None
-
-  private def getToReload: List[() => Unit] = {
-    toReload.get
-  }
-
-  private def setToReload(toReload: List[() => Unit]): Unit = {
-    Site.toReload = Some(toReload)
-  }
-
-  private var lastConfig: Option[Configurator[_]] = None
-
-  private def getLastConfig: Configurator[_] = {
-    lastConfig.getOrElse(throw RuntimeException(s"lastConfig is undefined"))
-  }
-
-  private def setLastConfig(lastConfig: Configurator[_]): Configurator[_] = {
-    Site.lastConfig = Some(lastConfig)
-    getLastConfig
-  }
-
-  private var codeWidget: Option[CodeWidget[_]] = None
-
-  private def getCodeWidget: CodeWidget[_] = {
-    codeWidget.getOrElse(throw RuntimeException(s"codeWidget is undefined"))
-  }
-
-  private def setCodeWidget(codeWidget: CodeWidget[_]): CodeWidget[_] = {
-    Site.codeWidget = Some(codeWidget)
-    getCodeWidget
-  }
-
-  private var examplesWidget: Option[ExampleWidget] = None
-
-  private def getExamplesWidget: ExampleWidget = {
-    examplesWidget.getOrElse(throw RuntimeException(s"exampleWidget is undefined"))
-  }
-
-  private def setExamplesWidget(examplesWidget: ExampleWidget): ExampleWidget = {
-    Site.examplesWidget = Some(examplesWidget)
-    getExamplesWidget
-  }
-
-  private var mainExample: Option[Configurator.Example] = None
-
-  private def getMainExample: Configurator.Example = {
-    mainExample.getOrElse(throw RuntimeException(s"mainExample is undefined"))
-  }
-
-  private def setMainExample(mainExample: Configurator.Example): Configurator.Example = {
-    Site.mainExample = Some(mainExample)
-    getMainExample
-  }
-
-  private var settingWidget: Option[SettingWidget[_]] = None
-
-  private def getSettingWidget: SettingWidget[_] = {
-    settingWidget.getOrElse(throw RuntimeException(s"settingWidget is undefined"))
-  }
-
-  private def setSettingWidget(settingWidget: SettingWidget[_]): SettingWidget[_] = {
-    Site.settingWidget = Some(settingWidget)
-    getSettingWidget
-  }
+  private var state: SiteState = SiteState()
 
   def getSetting: Setting = {
-    getSettingWidget.get
+    state.getSettingWidget.get
   }
 
   def setSetting(setting: Setting): Unit = {
-    document.getElementById("rightbar").innerHTML = ""
-    getSettingWidget.set(setting)
-    getSettingWidget.update()
+    dom.document.getElementById("rightbar").innerHTML = ""
+    state.getSettingWidget.set(setting)
+    state.getSettingWidget.update()
     renderWidgets()
   }
 
   def initSite[A](config: Configurator[A]): Unit = {
-    setLastConfig(config)
+    dom.document.getElementById("title").textContent = config.name
+    dom.document.getElementById("tool-title").textContent = config.name
+
+    state = state.withLastConfig(config)
     initialiseContainers()
 
     val urlQuery = parseURLQuery
-    setMainExample(resolveMainExample(config, urlQuery))
+    state = state.withMainExample(resolveMainExample(config, urlQuery))
 
-    setErrorArea(new OutputArea)
-    setDescriptionArea(new OutputArea)
+    state = state
+      .withErrorArea(new OutputArea)
+      .withDescriptionArea(new OutputArea)
 
-    setCodeWidget(mkCodeBox(config, Some(getMainExample)))
-    getCodeWidget.init(getLeftColumn, true)
+    val codeWidget = mkCodeBox(config, Some(state.getMainExample))
+    state = state.withCodeWidget(codeWidget)
+    codeWidget.init(state.getLeftColumn, true)
 
-    getErrorArea.init(getLeftColumn)
+    state.getErrorArea.init(state.getLeftColumn)
 
-    setSettingWidget(mkSettingBox(config))
-    getSettingWidget.init(getLeftColumn, true)
+    val settingWidget = mkSettingBox(config)
+    state = state.withSettingWidget(settingWidget)
+    settingWidget.init(state.getLeftColumn, true)
 
-    document.getElementById("title").textContent      = config.name
-    document.getElementById("tool-title").textContent = config.name
+    val examplesWidget = new ExampleWidget("Examples", config, globalReload(), codeWidget, Some(state.getDescriptionArea), settingWidget)
+    state = state.withExamplesWidget(examplesWidget)
 
-    setExamplesWidget(new ExampleWidget("Examples", config, globalReload(), getCodeWidget, Some(getDescriptionArea), getSettingWidget))
+    state.getDescriptionArea.init(state.getLeftColumn)
+    state.getExamplesWidget.init(state.getLeftColumn, true)
 
-    getDescriptionArea.init(getLeftColumn)
-    getExamplesWidget.init(getLeftColumn, true)
-
-    getMainExample match {
+    state.getMainExample match {
       case example if example.description.nonEmpty =>
-        getDescriptionArea.setValue(example.description)
-        setSetting(example.setting.getOrElse(Setting()))
+        state.getDescriptionArea.setValue(example.description)
+        setSetting(example.setting.get)
       case _ =>
     }
   }
 
   private def parseURLQuery: String = {
-    document.URL.split('?').drop(1).mkString("?")
+    dom.document.URL.split('?').drop(1).mkString("?")
       .replaceAll("%2F", "/").replaceAll("%3C", "<")
       .replaceAll("%26", "&").replaceAll("%3E", ">")
       .replaceAll("%20", " ").replaceAll("%23", "#")
@@ -183,22 +83,143 @@ object Site {
   }
 
   private def renderWidgets(): Unit = {
-    val config = getLastConfig
-    val code   = getCodeWidget
+    val config = state.getLastConfig
+    val code   = state.getCodeWidget
 
     val boxes = for wc <- config.widgets if wc._2.isDefined yield
       val w = mkWidget(
         wc,
         () => code.get.asInstanceOf[config.StxType],
-        () => getExamplesWidget.get.map(kv => kv._1 -> config.parser(kv._2)),
-        getErrorArea,
+        () => state.getExamplesWidget.get.map(kv => kv._1 -> config.parser(kv._2)),
+        state.getErrorArea,
         config.documentation
       )
       // place widget in the document
-      w.init(if wc._2.get.location == 0 then getRightColumn else getLeftColumn, wc._2.get.expanded)
+      w.init(if wc._2.get.location == 0 then state.getRightColumn else state.getLeftColumn, wc._2.get.expanded)
       w
 
-    setToReload((List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.reload))
+    state = state.withToReload((List(code) ++ boxes).map(b => () => b.update()) ++ List(state.getSettingWidget.reload))
+  }
+
+  private def initialiseContainers(): Unit = {
+    val contentDiv = DomNode.select("contentWrap").append("div")
+      .attr("class", "content")
+      .attr("id", "content")
+
+    val rowDiv = contentDiv.append("div")
+      .attr("id", "mytable")
+
+    val leftColumn = rowDiv.append("div")
+      .attr("id", "leftbar")
+      .attr("class", "leftside")
+
+    state = state.withLeftColumn(leftColumn)
+
+    state.getLeftColumn.append("div")
+      .attr("id", "dragbar")
+      .attr("class", "middlebar")
+
+    val rightColumn = rowDiv.append("div")
+      .attr("id", "rightbar")
+      .attr("class", "rightside")
+
+    state = state.withRightColumn(rightColumn)
+
+    val overlay = contentDiv.append("div")
+      .attr("class", "overlay")
+      .attr("id", "CAOSOverlay")
+
+    val popup = contentDiv.append("div")
+      .attr("class", "popup")
+      .attr("id", "CAOSPopupWrp")
+
+    val closePop = popup.append("div")
+      .attr("class", "closePopup")
+
+    popup.append("div")
+      .attr("id", "CAOSPopup")
+
+    closePop.on("click", () => {
+      dom.document.getElementById("CAOSOverlay").setAttribute("style", "display:none;")
+      dom.document.getElementById("CAOSPopupWrp").setAttribute("style", "display:none;")
+    })
+
+    overlay.on("click", () => {
+      dom.document.getElementById("CAOSOverlay").setAttribute("style", "display:none;")
+      dom.document.getElementById("CAOSPopupWrp").setAttribute("style", "display:none;")
+    })
+
+    closePop.append("div")
+      .attr("id", "CAOSPopupTitle")
+      .attr("style", "display:inline-block;font-weight: bold;")
+
+    closePop.append("div")
+      .attr("style", "float:right;")
+      .html("&#10006;")
+
+    if state.getLastConfig.footer != "" then contentDiv.append("div")
+      .style("width: 100%;text-align: center; display: inline-block;")
+      .html(s"&nbsp;<br><p style=\"margin: 0px 30px 10px;\">${state.getLastConfig.footer}</p>")
+
+    Utils.resizeCols
+  }
+
+  private def globalReload(): Unit = {
+    state.getErrorArea.clear()
+    state.getToReload.foreach(f => f())
+  }
+
+  private def mkCodeBox[A](config: Configurator[A], ex: Option[Configurator.Example]): CodeWidget[A] = {
+    new CodeWidget[A](config.languageName, Nil) {
+      protected var input: String = ex match {
+        case Some(e) => e.example
+        case _       => ""
+      }
+
+      override protected val boxId: String = config.name + "Box"
+
+      override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
+        List(
+          Right("refresh") -> (
+            () => reload(),
+            s"Load the ${config.languageName} program (shift-enter)"
+          ),
+          Right("download") -> (
+            () => Utils.downloadTxt(ExampleWidget.examplesToTxt(state.getExamplesWidget.getCurrentExample), "example.txt"),
+            "Download Current Example"
+          ),
+        ) ::: Widget.mkHelper(config.languageName, config.documentation).toList
+      }
+
+      override def get: A = config.parser(input)
+
+      override protected val codemirror: String = "caos" //config.name.toLowerCase()
+
+      override def reload(): Unit =
+        state.getDescriptionArea.clear()
+        update()
+        globalReload()
+    }
+  }
+
+  private def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] = {
+    new SettingWidget[A]("Settings", Documentation(), config) {
+      override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
+        List(
+          Right("refresh") -> (
+            () =>
+              state.getDescriptionArea.clear()
+              reload(),
+            s"Load settings"
+          )
+        ) ::: Widget.mkHelper("settingBox", config.documentation).toList
+      }
+
+      override def reload(): Unit = {
+        state.getErrorArea.clear()
+        setSetting(getSetting)
+      }
+    }
   }
 
   /**
@@ -250,130 +271,9 @@ object Site {
   }
 
   private def cleanContainers(): Unit = {
-    val d = document.getElementById("contentWrap")
-    val d_nested = document.getElementById("content")
+    val d = dom.document.getElementById("contentWrap")
+    val d_nested = dom.document.getElementById("content")
     d.removeChild(d_nested)
-  }
-
-
-  private def initialiseContainers(): Unit = {
-    val contentDiv = DomNode.select("contentWrap").append("div")
-      .attr("class", "content")
-      .attr("id", "content")
-
-    val rowDiv = contentDiv.append("div")
-      .attr("id", "mytable")
-
-    setLeftColumn(rowDiv.append("div")
-      .attr("id", "leftbar")
-      .attr("class", "leftside")
-    )
-
-    getLeftColumn.append("div")
-      .attr("id", "dragbar")
-      .attr("class", "middlebar")
-
-    setRightColumn(rowDiv.append("div")
-      .attr("id", "rightbar")
-      .attr("class", "rightside")
-    )
-
-    val overlay = contentDiv.append("div")
-      .attr("class", "overlay")
-      .attr("id", "CAOSOverlay")
-
-    val popup = contentDiv.append("div")
-      .attr("class", "popup")
-      .attr("id", "CAOSPopupWrp")
-
-    val closePop = popup.append("div")
-      .attr("class", "closePopup")
-
-    popup.append("div")
-      .attr("id", "CAOSPopup")
-
-    closePop.on("click", () => {
-      dom.document.getElementById("CAOSOverlay").setAttribute("style", "display:none;")
-      dom.document.getElementById("CAOSPopupWrp").setAttribute("style", "display:none;")
-    })
-
-    overlay.on("click", () => {
-      dom.document.getElementById("CAOSOverlay").setAttribute("style", "display:none;")
-      dom.document.getElementById("CAOSPopupWrp").setAttribute("style", "display:none;")
-    })
-
-    closePop.append("div")
-      .attr("id", "CAOSPopupTitle")
-      .attr("style", "display:inline-block;font-weight: bold;")
-
-    closePop.append("div")
-      .attr("style", "float:right;")
-      .html("&#10006;")
-
-    if getLastConfig.footer != ""
-    then contentDiv.append("div")
-      .style("width: 100%;text-align: center; display: inline-block;")
-      .html(s"&nbsp;<br><p style=\"margin: 0px 30px 10px;\">${getLastConfig.footer}</p>")
-
-    Utils.resizeCols
-  }
-
-  private def globalReload(): Unit = {
-    getErrorArea.clear()
-    getToReload.foreach(f => f())
-  }
-
-  private def mkCodeBox[A](config: Configurator[A]
-                           , ex: Option[Configurator.Example]): CodeWidget[A] = {
-    new CodeWidget[A](config.languageName, Nil) {
-      protected var input: String = ex match
-        case Some(e) => e.example
-        case _ => ""
-
-      override protected val boxId: String = config.name + "Box"
-
-      override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
-        List(
-          Right("refresh") -> (
-            () => reload(),
-            s"Load the ${config.languageName} program (shift-enter)"
-          ),
-          Right("download") -> (
-            () => Utils.downloadTxt(ExampleWidget.examplesToTxt(getExamplesWidget.getCurrentExample), "example.txt"),
-            "Download Current Example"
-          ),
-        ) ::: Widget.mkHelper(config.languageName, config.documentation).toList
-      }
-
-      override def get: A = config.parser(input)
-
-      override protected val codemirror: String = "caos" //config.name.toLowerCase()
-
-      override def reload(): Unit =
-        getDescriptionArea.clear()
-        update()
-        globalReload()
-    }
-  }
-
-  private def mkSettingBox[A](config: Configurator[A]): SettingWidget[A] = {
-    new SettingWidget[A]("Settings", Documentation(), config) {
-      override protected val buttons: List[(Either[String, String], (() => Unit, String))] = {
-        List(
-          Right("refresh") -> (
-            () =>
-              getDescriptionArea.clear()
-              reload(),
-            s"Load settings"
-          )
-        ) ::: Widget.mkHelper("settingBox", config.documentation).toList
-      }
-
-      override def reload(): Unit = {
-        getErrorArea.clear()
-        setSetting(getSetting)
-      }
-    }
   }
 
   /** This method loads the examples from a local file. */
@@ -383,7 +283,7 @@ object Site {
     reader.readAsText(ev)
     reader.onload = _ => {
       val resultAsString = Utils.unfix(reader.result.toString)
-      getLastConfig match {
+      state.getLastConfig match {
         case c: Configurator[A] @unchecked =>
           val c2: Configurator[A] = new Configurator[A] {
             override val parser: String => A = c.parser
