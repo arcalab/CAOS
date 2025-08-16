@@ -1,14 +1,8 @@
 package caos.frontend.widgets
 
 import caos.frontend.{Configurator, SettingParser, Setting}
-import caos.frontend.widgets.Setable
 import caos.frontend.Configurator.Example
 import org.scalajs.dom
-import org.scalajs.dom.{DOMException, Event, FileReader, UIEvent}
-
-import scala.scalajs.js
-import scala.scalajs.js.annotation.JSExportTopLevel
-
 
 class ExampleWidget(title:String
                     , config:Configurator[_]
