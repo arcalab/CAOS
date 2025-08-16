@@ -5,7 +5,7 @@ import caos.frontend.{Configurator, Documentation, Setting}
 
 
 abstract class SettingWidget[A](title: String, doc: Documentation, config: Configurator[A]) extends Widget[Setting](title, doc):
-  protected var setting: Setting = config.setting
+  protected var setting: Option[Setting] = Some(config.setting)
 
   protected val buttons: List[(Either[String, String], (() => Unit, String))]
 
@@ -19,15 +19,15 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     update()
   end init
 
-  override def get: Setting = setting
+  override def get: Setting = setting.get
 
-  def set(setting: Setting): Unit = this.setting = setting
+  def set(setting: Setting): Unit = this.setting = Some(setting)
 
   override def update(): Unit =
     val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
     settingContainerDiv.innerHTML = ""
 
-    if setting != Setting() then renderSetting(setting, settingContainerDiv, currentPath = setting.name)
+    if setting.isDefined then renderSetting(setting.get, settingContainerDiv, currentPath = setting.get.name)
   end update
 
   private def renderSetting(currentSetting: Setting, parentDiv: html.Div, indentationLevel: Int = 0, currentPath: String): Unit =
@@ -52,21 +52,21 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     checkbox.onchange = (_: Event) => {
       val isChecked = checkbox.checked
 
-      setting.parentOf(currentPath) match
+      setting.get.parentOf(currentPath) match
         case Some(parentSetting) if parentSetting.options.contains("allowOne") && isChecked =>
           parentSetting.children.foreach(childSetting => setting =
             val parentPath = currentPath.reverse.replaceFirst(s".${currentSetting.name}".reverse, "").reverse
-            setting.setChecked(s"$parentPath.${childSetting.name}", false))
-          setting = setting.setCheckedUpstream(currentPath, true)
+            Some(setting.get.setChecked(s"$parentPath.${childSetting.name}", false)))
+          setting = Some(setting.get.setCheckedUpstream(currentPath, true))
         case _ if isChecked =>
-          setting = setting.setCheckedUpstream(currentPath, true)
+          setting = Some(setting.get.setCheckedUpstream(currentPath, true))
         case _ =>
-          setting = setting.setCheckedDownstream(currentPath, false)
-      setting = setting.setChecked(currentPath, isChecked)
+          setting = Some(setting.get.setCheckedDownstream(currentPath, false))
+      setting = Some(setting.get.setChecked(currentPath, isChecked))
 
       val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
       settingContainerDiv.innerHTML = ""
-      renderSetting(setting, settingContainerDiv, currentPath = setting.name)
+      renderSetting(setting.get, settingContainerDiv, currentPath = setting.get.name)
     }
 
     currentDiv.appendChild(checkbox)
