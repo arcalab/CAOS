@@ -1,6 +1,6 @@
 package caos.frontend
 
-import widgets.{CodeWidget, DomElem, DomNode, ExampleWidget, Invisible, OutputArea, SettingWidget, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
+import widgets.{CodeWidget, DomNode, ExampleWidget, Invisible, OutputArea, SettingWidget, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
 import caos.view.*
 import org.scalajs.dom
@@ -9,12 +9,17 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 object Site {
+  /* currently using '''state''' as the sole 'global var' */
   private var state: SiteState = SiteState()
 
+  /** simple getter for '''Setting''' under the current '''state'''*/
+  /* can be called upon by the final user */
   def getSetting: Setting = {
     state.getSettingWidget.get
   }
 
+  /** simple setter for '''Setting''' under the current '''state''' */
+  /* can be called upon by the final user */
   def setSetting(setting: Setting): Unit = {
     dom.document.getElementById("rightbar").innerHTML = ""
     state.getSettingWidget.set(setting)
@@ -29,14 +34,12 @@ object Site {
     state = state.withLastConfig(config)
     initialiseContainers()
 
-    val urlQuery = parseURLQuery
-    state = state.withMainExample(resolveMainExample(config, urlQuery))
-
     state = state
       .withErrorArea(new OutputArea)
       .withDescriptionArea(new OutputArea)
 
-    val codeWidget = mkCodeBox(config, Some(state.getMainExample))
+    val mainExample = resolveMainExample(config, parseURLQuery)
+    val codeWidget  = mkCodeBox(config, Some(mainExample))
     state = state.withCodeWidget(codeWidget)
     codeWidget.init(state.getLeftColumn, true)
 
@@ -52,7 +55,7 @@ object Site {
     state.getDescriptionArea.init(state.getLeftColumn)
     state.getExamplesWidget.init(state.getLeftColumn, true)
 
-    state.getMainExample match {
+    mainExample match {
       case example if example.description.nonEmpty =>
         state.getDescriptionArea.setValue(example.description)
         setSetting(example.setting.get)

@@ -11,7 +11,6 @@ case class SiteState(leftColumn:      Option[DomElem] = None,
                      lastConfig:      Option[Configurator[_]] = None,
                      codeWidget:      Option[CodeWidget[_]] = None,
                      examplesWidget:  Option[ExampleWidget] = None,
-                     mainExample:     Option[Configurator.Example] = None,
                      settingWidget:   Option[SettingWidget[_]] = None,
                     ) {
   def getLeftColumn: DomElem = {
@@ -76,14 +75,6 @@ case class SiteState(leftColumn:      Option[DomElem] = None,
 
   def withExamplesWidget(examplesWidget: ExampleWidget): SiteState = {
     this.copy(examplesWidget = Some(examplesWidget))
-  }
-
-  def getMainExample: Configurator.Example = {
-    this.mainExample.get
-  }
-
-  def withMainExample(mainExample: Configurator.Example): SiteState = {
-    this.copy(mainExample = Some(mainExample))
   }
 
   def getSettingWidget: SettingWidget[_] = {
