@@ -10,11 +10,55 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 object Site {
-  private var leftColumn:  DomElem = _
-  private var rightColumn: DomElem = _
-  private var errorArea:       OutputArea = _
-  private var descriptionArea: OutputArea = _
-  private var toReload:   List[() => Unit] = _
+  private var leftColumn: Option[DomElem] = None
+
+  private def getLeftColumn: DomElem = {
+    leftColumn.get
+  }
+
+  private def setLeftColumn(leftColumn: DomElem): Unit = {
+    Site.leftColumn = Some(leftColumn)
+  }
+
+  private var rightColumn: Option[DomElem] = None
+
+  private def getRightColumn: DomElem = {
+    rightColumn.get
+  }
+
+  private def setRightColumn(rightColumn: DomElem): Unit = {
+    Site.rightColumn = Some(rightColumn)
+  }
+
+  private var errorArea: Option[OutputArea] = None
+
+  private def getErrorArea: OutputArea = {
+    errorArea.get
+  }
+
+  private def setErrorArea(errorArea: OutputArea): Unit = {
+    Site.errorArea = Some(errorArea)
+  }
+
+  private var descriptionArea: Option[OutputArea] = None
+
+  private def getDescriptionArea: OutputArea = {
+    descriptionArea.get
+  }
+
+  private def setDescriptionArea(descriptionArea: OutputArea): Unit = {
+    Site.descriptionArea = Some(descriptionArea)
+  }
+
+  private var toReload: Option[List[() => Unit]] = None
+
+  private def getToReload: List[() => Unit] = {
+    toReload.get
+  }
+
+  private def setToReload(toReload: List[() => Unit]): Unit = {
+    Site.toReload = Some(toReload)
+  }
 
   private var lastConfig: Option[Configurator[_]] = None
 
@@ -89,28 +133,28 @@ object Site {
     val urlQuery = parseURLQuery
     setMainExample(resolveMainExample(config, urlQuery))
 
-    errorArea       = new OutputArea
-    descriptionArea = new OutputArea
+    setErrorArea(new OutputArea)
+    setDescriptionArea(new OutputArea)
 
     setCodeWidget(mkCodeBox(config, Some(getMainExample)))
-    getCodeWidget.init(leftColumn, true)
+    getCodeWidget.init(getLeftColumn, true)
 
-    errorArea.init(leftColumn)
+    getErrorArea.init(getLeftColumn)
 
     setSettingWidget(mkSettingBox(config))
-    getSettingWidget.init(leftColumn, true)
+    getSettingWidget.init(getLeftColumn, true)
 
     document.getElementById("title").textContent      = config.name
     document.getElementById("tool-title").textContent = config.name
 
-    setExamplesWidget(new ExampleWidget("Examples", config, globalReload(), getCodeWidget, Some(descriptionArea), getSettingWidget))
+    setExamplesWidget(new ExampleWidget("Examples", config, globalReload(), getCodeWidget, Some(getDescriptionArea), getSettingWidget))
 
-    descriptionArea.init(leftColumn)
-    getExamplesWidget.init(leftColumn, true)
+    getDescriptionArea.init(getLeftColumn)
+    getExamplesWidget.init(getLeftColumn, true)
 
     getMainExample match {
       case example if example.description.nonEmpty =>
-        descriptionArea.setValue(example.description)
+        getDescriptionArea.setValue(example.description)
         setSetting(example.setting.getOrElse(Setting()))
       case _ =>
     }
@@ -147,14 +191,14 @@ object Site {
         wc,
         () => code.get.asInstanceOf[config.StxType],
         () => getExamplesWidget.get.map(kv => kv._1 -> config.parser(kv._2)),
-        errorArea,
+        getErrorArea,
         config.documentation
       )
       // place widget in the document
-      w.init(if wc._2.get.location == 0 then rightColumn else leftColumn, wc._2.get.expanded)
+      w.init(if wc._2.get.location == 0 then getRightColumn else getLeftColumn, wc._2.get.expanded)
       w
 
-    toReload = (List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.reload)
+    setToReload((List(code) ++ boxes).map(b => () => b.update()) ++ List(getSettingWidget.reload))
   }
 
   /**
@@ -220,17 +264,19 @@ object Site {
     val rowDiv = contentDiv.append("div")
       .attr("id", "mytable")
 
-    leftColumn = rowDiv.append("div")
+    setLeftColumn(rowDiv.append("div")
       .attr("id", "leftbar")
       .attr("class", "leftside")
+    )
 
-    leftColumn.append("div")
+    getLeftColumn.append("div")
       .attr("id", "dragbar")
       .attr("class", "middlebar")
 
-    rightColumn = rowDiv.append("div")
+    setRightColumn(rowDiv.append("div")
       .attr("id", "rightbar")
       .attr("class", "rightside")
+    )
 
     val overlay = contentDiv.append("div")
       .attr("class", "overlay")
@@ -273,8 +319,8 @@ object Site {
   }
 
   private def globalReload(): Unit = {
-    errorArea.clear()
-    toReload.foreach(f => f())
+    getErrorArea.clear()
+    getToReload.foreach(f => f())
   }
 
   private def mkCodeBox[A](config: Configurator[A]
@@ -304,7 +350,7 @@ object Site {
       override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
       override def reload(): Unit =
-        descriptionArea.clear()
+        getDescriptionArea.clear()
         update()
         globalReload()
     }
@@ -316,7 +362,7 @@ object Site {
         List(
           Right("refresh") -> (
             () =>
-              descriptionArea.clear()
+              getDescriptionArea.clear()
               reload(),
             s"Load settings"
           )
@@ -324,7 +370,7 @@ object Site {
       }
 
       override def reload(): Unit = {
-        errorArea.clear()
+        getErrorArea.clear()
         setSetting(getSetting)
       }
     }
