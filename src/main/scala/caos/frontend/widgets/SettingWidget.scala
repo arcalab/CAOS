@@ -21,6 +21,8 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
 
   override def get: Setting = setting.get
 
+  def isSettingDefined: Boolean = setting.isDefined
+
   def set(setting: Setting): Unit = this.setting = Some(setting)
 
   override def update(): Unit =

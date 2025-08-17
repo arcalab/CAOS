@@ -46,7 +46,7 @@ object Site {
 
     val settingWidget = mkSettingBox(config)
     state = state.withSettingWidget(settingWidget)
-    settingWidget.init(state.getLeftColumn, true)
+    if settingWidget.isSettingDefined then settingWidget.init(state.getLeftColumn, true)
 
     val examplesWidget = new ExampleWidget("Examples", config, globalReload(), codeWidget, Some(state.getDescriptionArea), settingWidget)
     state = state.withExamplesWidget(examplesWidget)
