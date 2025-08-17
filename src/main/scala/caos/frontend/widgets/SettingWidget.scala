@@ -57,11 +57,11 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
           parentSetting.children.foreach(childSetting => setting =
             val parentPath = currentPath.reverse.replaceFirst(s".${currentSetting.name}".reverse, "").reverse
             Some(setting.get.setChecked(s"$parentPath.${childSetting.name}", false)))
-          setting = Some(setting.get.setCheckedUpstream(currentPath, true))
+          setting = Some(setting.get.checkUpstream(currentPath, true))
         case _ if isChecked =>
-          setting = Some(setting.get.setCheckedUpstream(currentPath, true))
+          setting = Some(setting.get.checkUpstream(currentPath, true))
         case _ =>
-          setting = Some(setting.get.setCheckedDownstream(currentPath, false))
+          setting = Some(setting.get.checkDownstream(currentPath, false))
       setting = Some(setting.get.setChecked(currentPath, isChecked))
 
       val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]

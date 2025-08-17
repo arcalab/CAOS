@@ -24,29 +24,29 @@ case class Setting(name: String = null, children: List[Setting] = List.empty, ch
     }
   }
 
+  override def toString: String = {
+    toStringAuxiliary()
+  }
+
   private def toStringAuxiliary(ident: String = ""): String = {
     val childrenString = this.children.map(_.toStringAuxiliary(ident + " ")).mkString
     s"$ident- ${this.name} | ${this.checked} | ${this.options}\n$childrenString"
-  }
-
-  override def toString: String = {
-    toStringAuxiliary()
   }
 
   def toStringRaw: String = {
     s"Setting($name, ${children.map(child => child.toStringRaw)}, $checked, $options)"
   }
 
+  def resolvePath(path: String): Option[Setting] = {
+    resolvePathAuxiliary(path.split("\\.").toList)
+  }
+
   private def resolvePathAuxiliary(remainingPath: List[String]): Option[Setting] = {
     remainingPath match
       case Nil => None
-      case this.name :: Nil  => Some(this)
+      case this.name :: Nil => Some(this)
       case this.name :: tail => this.children.collectFirst(Function.unlift(_.resolvePathAuxiliary(tail)))
       case head :: tail => None
-  }
-
-  def resolvePath(path: String): Option[Setting] = {
-    resolvePathAuxiliary(path.split("\\.").toList)
   }
 
   def setChecked(path: String, value: Boolean): Setting = {
@@ -63,83 +63,64 @@ case class Setting(name: String = null, children: List[Setting] = List.empty, ch
 
   def parentOf(path: String): Option[Setting] = {
     resolvePath(path) match
-      case Some(setting) => parentOf(setting)
+      case Some(setting) => parentOf(this, setting)
       case _ => None
   }
 
-  def parentOf(child: Setting): Option[Setting] = {
-    Setting.allFromInclusive(this, _.children.exists(_ eq child)).headOption
+  private def parentOf(root: Setting, child: Setting): Option[Setting] = {
+    allFromAuxiliary(root, _.children.exists(_ eq child)).headOption
   }
 
-  def setCheckedPath(path: String, value: Boolean): Setting = {
-    setCheckedUpstream(path, value).setChecked(path, value)
+  def checkAll(path: String, value: Boolean): Setting = {
+    checkUpstream(path, value).setChecked(path, value)
   }
 
-  def setCheckedUpstream(path: String, value: Boolean): Setting = {
-    resolvePath(path).map(setCheckedUpstream(_, value)).getOrElse(this)
+  def checkUpstream(path: String, value: Boolean): Setting = {
+    resolvePath(path).map(checkUpstreamAuxiliary(_, value)).getOrElse(this)
   }
 
-  def setCheckedUpstream(setting: Setting, value: Boolean): Setting = {
-    parentOf(setting) match
+  private def checkUpstreamAuxiliary(setting: Setting, value: Boolean): Setting = {
+    parentOf(this, setting) match
       case Some(parentSetting) =>
-        val updatedParent = setCheckedUpstream(parentSetting, value)
+        val updatedParent = checkUpstreamAuxiliary(parentSetting, value)
         updatedParent.setChecked(parentSetting, value)
       case None =>
         this
   }
 
-  def setCheckedDownstream(path: String, value: Boolean): Setting = {
-    resolvePath(path).map(setCheckedDownstream(_, value)).getOrElse(this)
+  def checkDownstream(path: String, value: Boolean): Setting = {
+    resolvePath(path).map(checkDownstreamAuxiliary(_, value)).getOrElse(this)
   }
 
-  private def setCheckedDownstreamAuxiliary(value: Boolean): Setting = {
-    this.copy(checked = value, children = this.children.map(_.setCheckedDownstreamAuxiliary(value)))
-  }
-
-  def setCheckedDownstream(setting: Setting, value: Boolean): Setting = {
+  private def checkDownstreamAuxiliary(setting: Setting, value: Boolean): Setting = {
     if (this eq setting) {
-      this.copy(children = this.children.map(_.setCheckedDownstreamAuxiliary(value)))
+      this.copy(children = this.children.map(_.setCheckDownstream(value)))
     } else {
-      this.copy(children = this.children.map(_.setCheckedDownstream(setting, value)))
+      this.copy(children = this.children.map(_.checkDownstreamAuxiliary(setting, value)))
     }
   }
 
-  def allFrom(path: String, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    resolvePath(path).map(Setting.allFrom(_, filterCondition)).getOrElse(Set.empty)
+  private def setCheckDownstream(value: Boolean): Setting = {
+    this.copy(checked = value, children = this.children.map(_.setCheckDownstream(value)))
+  }
+
+  def allFrom(path: String, predicate: Setting => Boolean = _ => true): Set[Setting] = {
+    resolvePath(path).map(allFromAuxiliary(_, predicate)).getOrElse(Set.empty)
+  }
+
+  private def allFromAuxiliary(setting: Setting, predicate: Setting => Boolean): Set[Setting] = {
+    (if predicate(setting) then Set(setting) else Set.empty) ++ setting.children.flatMap(allFromAuxiliary(_, predicate))
   }
 
   def allActiveLeavesFrom(path: String): Set[Setting] = {
-    resolvePath(path).map(Setting.allActiveLeavesFrom).getOrElse(Set.empty)
+    resolvePath(path).map(allFromAuxiliary(_, setting => setting.checked && setting.children.isEmpty)).getOrElse(Set.empty)
   }
 
   def apply(path: String): Set[Setting] = {
-    resolvePath(path).map(Setting.apply).getOrElse(Set.empty)
+    allActiveLeavesFrom(path)
   }
 
   def unapply: Option[(String, List[Setting], Boolean, List[String])] = {
-    Setting.unapply(this)
-  }
-}
-
-object Setting {
-  def allFromInclusive(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    val filteredSetting = if (filterCondition(setting)) Set(setting) else Set.empty
-    filteredSetting ++ setting.children.flatMap(allFromInclusive(_, filterCondition))
-  }
-
-  def allFrom(setting: Setting, filterCondition: Setting => Boolean = _ => true): Set[Setting] = {
-    setting.children.flatMap(allFromInclusive(_, filterCondition)).toSet
-  }
-
-  def allActiveLeavesFrom(setting: Setting): Set[Setting] = {
-    allFrom(setting, setting => setting.children.isEmpty && setting.checked)
-  }
-
-  def apply(setting: Setting): Set[Setting] = {
-    allActiveLeavesFrom(setting)
-  }
-
-  def unapply(setting: Setting): Option[(String, List[Setting], Boolean, List[String])] = {
-    Some((setting.name, setting.children, setting.checked, setting.options))
+    Some(this.name, this.children, this.checked, this.options)
   }
 }
