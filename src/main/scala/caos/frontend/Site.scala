@@ -206,7 +206,6 @@ object Site {
       override def reload(): Unit = {
         state.getDescriptionArea.clear()
         globalReload()
-        update()
       }
     }
   }
@@ -225,7 +224,6 @@ object Site {
       override def reload(): Unit = {
         // settingWidget reload's should not clear description
         globalReload()
-        update()
       }
     }
   }
