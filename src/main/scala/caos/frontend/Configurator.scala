@@ -29,7 +29,7 @@ trait Configurator[Stx]:
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
   /** Structure dedicated for establishing settings */
-  def setting: Setting = Setting()
+  def setting: Option[Setting] = None
   /** Main widgets, on the right hand side of the screen */
   def widgets: Iterable[(String, Option[WidgetInfo[Stx]])]
   /** Secondary widgets, below the code */
@@ -237,7 +237,11 @@ object Configurator:
   implicit def toExampleDescSetting(nameCodeDescSetting: (((String,String),String),Setting)): Example =
     Example(nameCodeDescSetting._1._1._2,nameCodeDescSetting._1._1._1,nameCodeDescSetting._1._2,Some(nameCodeDescSetting._2))
 
-  /** Helper to build settings without employing Setting(...) */
+  /** Helper to build setting options without using Some(...) */
+  implicit def toSetting(setting: Setting): Option[Setting] =
+    Some(setting)
+
+  /** Helper to build settings without using Setting(...) */
   implicit def toSetting(name: String): Setting =
     Setting(name)
 

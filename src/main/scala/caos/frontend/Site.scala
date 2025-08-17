@@ -295,7 +295,7 @@ object Site {
             override val parser: String => A = c.parser
             override val name: String = c.name
             override val languageName: String = c.languageName
-            override val setting: Setting = c.setting
+            override val setting: Option[Setting] = c.setting
             override def widgets: Iterable[(String, Option[WidgetInfo[A]])] = c.widgets
             override val examples: Iterable[Configurator.Example] =
               ExampleWidget.txtToExamples(resultAsString)
