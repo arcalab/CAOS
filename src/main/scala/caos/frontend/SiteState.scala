@@ -1,17 +1,18 @@
 package caos.frontend
 
-import caos.frontend.widgets.{CodeWidget, DomElem, ExampleWidget, OutputArea, SettingWidget}
+import caos.frontend.widgets.{DomElem, OutputArea, CodeWidget, ExampleWidget, SettingWidget, Widget}
 
 
 case class SiteState(leftColumn:      Option[DomElem] = None,
                      rightColumn:     Option[DomElem] = None,
                      errorArea:       Option[OutputArea] = None,
                      descriptionArea: Option[OutputArea] = None,
-                     toReload:        Option[List[() => Unit]] = None,
+                     toReload:        List[() => Unit] = List.empty,
                      lastConfig:      Option[Configurator[_]] = None,
                      codeWidget:      Option[CodeWidget[_]] = None,
                      examplesWidget:  Option[ExampleWidget] = None,
                      settingWidget:   Option[SettingWidget[_]] = None,
+                     previouslyExpandedWidgets: Set[Widget[_]] = Set.empty
                     ) {
   def getLeftColumn: DomElem = {
     this.leftColumn.get
@@ -46,11 +47,11 @@ case class SiteState(leftColumn:      Option[DomElem] = None,
   }
 
   def getToReload: List[() => Unit] = {
-    this.toReload.get
+    this.toReload
   }
 
   def withToReload(toReload: List[() => Unit]): SiteState = {
-    this.copy(toReload = Some(toReload))
+    this.copy(toReload = toReload)
   }
 
   def getLastConfig: Configurator[_] = {
@@ -83,5 +84,13 @@ case class SiteState(leftColumn:      Option[DomElem] = None,
 
   def withSettingWidget(settingWidget: SettingWidget[_]): SiteState = {
     this.copy(settingWidget = Some(settingWidget))
+  }
+
+  def getPreviouslyExpandedWidgets: Set[Widget[_]] = {
+    this.previouslyExpandedWidgets
+  }
+
+  def withPreviouslyExpandedWidgets(previouslyExpandedWidgets: Set[Widget[_]]): SiteState = {
+    this.copy(previouslyExpandedWidgets = previouslyExpandedWidgets)
   }
 }

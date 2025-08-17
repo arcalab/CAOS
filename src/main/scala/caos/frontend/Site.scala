@@ -97,9 +97,9 @@ object Site {
         config.documentation
       )
       // place widget in the document
-      w.init(if wc._2.get.location == 0 then state.getRightColumn else state.getLeftColumn, wc._2.get.expanded)
+      w.init(if wc._2.get.location == 0 then state.getRightColumn else state.getLeftColumn, wc._2.get.expanded || state.getPreviouslyExpandedWidgets.exists(widget => widget.title == w.title))
       w
-
+    state = state.withPreviouslyExpandedWidgets(boxes.toSet)
     state = state.withToReload(boxes.toList.map(b => () => b.update()))
   }
 
@@ -168,6 +168,8 @@ object Site {
 
   private def globalReload(): Unit = {
     state.getErrorArea.clear()
+    val expandedWidgets = state.getPreviouslyExpandedWidgets.filter(widget => widget.isVisible)
+    state = state.withPreviouslyExpandedWidgets(expandedWidgets)
     dom.document.getElementById("rightbar").innerHTML = ""
     renderWidgets()
     state.getCodeWidget.update()
