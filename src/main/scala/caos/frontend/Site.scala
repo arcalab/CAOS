@@ -168,9 +168,10 @@ object Site {
 
   private def globalReload(): Unit = {
     state.getErrorArea.clear()
-    state.getDescriptionArea.clear()
     dom.document.getElementById("rightbar").innerHTML = ""
     renderWidgets()
+    state.getCodeWidget.update()
+    state.getSettingWidget.update()
     state.getToReload.foreach(f => f())
   }
 
@@ -201,6 +202,7 @@ object Site {
       override protected val codemirror: String = "caos" //config.name.toLowerCase()
 
       override def reload(): Unit = {
+        state.getDescriptionArea.clear()
         globalReload()
         update()
       }
@@ -219,8 +221,8 @@ object Site {
       }
 
       override def reload(): Unit = {
+        // settingWidget reload's should not clear description
         globalReload()
-        state.getCodeWidget.update() // brings description back
         update()
       }
     }
