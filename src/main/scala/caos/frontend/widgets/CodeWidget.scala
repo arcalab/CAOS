@@ -2,7 +2,6 @@ package caos.frontend.widgets
 
 import org.scalajs.dom
 import org.scalajs.dom.html
-import caos.frontend.widgets.Setable
 
 abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
   extends Widget[A](title) with Setable[String]{

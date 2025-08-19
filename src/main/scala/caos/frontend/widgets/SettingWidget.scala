@@ -9,7 +9,7 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
 
   protected val buttons: List[(Either[String, String], (() => Unit, String))]
 
-  def reload(): Unit
+  protected def reload(): Unit
 
   override def init(div: Block, visible: Boolean): Unit =
     panelBox(div, visible, buttons = buttons)
@@ -19,11 +19,11 @@ abstract class SettingWidget[A](title: String, doc: Documentation, config: Confi
     update()
   end init
 
+  final def isSettingDefined: Boolean = setting.isDefined
+
   override def get: Setting = setting.get
 
-  def isSettingDefined: Boolean = setting.isDefined
-
-  def set(setting: Setting): Unit = this.setting = Some(setting)
+  final def set(setting: Setting): Unit = this.setting = Some(setting)
 
   override def update(): Unit =
     val settingContainerDiv = document.getElementById("setting-container").asInstanceOf[html.Div]
