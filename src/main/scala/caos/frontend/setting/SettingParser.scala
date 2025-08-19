@@ -1,6 +1,7 @@
-package caos.frontend
+package caos.frontend.setting
 
 import caos.common.ParsingException
+import caos.frontend.setting.Setting
 
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers

@@ -1,7 +1,8 @@
 package caos.frontend.widgets
 
-import caos.frontend.{Configurator, SettingParser, Setting}
+import caos.frontend.Configurator
 import caos.frontend.Configurator.Example
+import caos.frontend.setting.{Setting, SettingParser}
 import org.scalajs.dom
 
 class ExampleWidget(title:String

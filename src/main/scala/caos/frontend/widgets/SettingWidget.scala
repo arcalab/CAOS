@@ -1,7 +1,8 @@
 package caos.frontend.widgets
 
+import caos.frontend.setting.Setting
 import org.scalajs.dom.{Event, document, html}
-import caos.frontend.{Configurator, Documentation, Setting}
+import caos.frontend.{Configurator, Documentation}
 
 
 abstract class SettingWidget[A](title: String, doc: Documentation, config: Configurator[A]) extends Widget[Setting](title, doc):

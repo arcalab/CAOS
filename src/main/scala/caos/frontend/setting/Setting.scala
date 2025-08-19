@@ -1,4 +1,4 @@
-package caos.frontend
+package caos.frontend.setting
 
 import scala.annotation.targetName
 

@@ -1,6 +1,7 @@
 package caos.frontend
 
 import caos.frontend.Configurator.Example
+import caos.frontend.setting.Setting
 import caos.frontend.widgets.WidgetInfo
 import caos.frontend.widgets.WidgetInfo.*
 import caos.sos

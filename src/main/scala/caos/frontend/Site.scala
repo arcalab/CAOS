@@ -2,6 +2,7 @@ package caos.frontend
 
 import widgets.{CodeWidget, DomNode, ExampleWidget, Invisible, OutputArea, SettingWidget, SimulateMermaid, SimulateText, Tabs, Utils, VisualiseCode, VisualiseMermaid, VisualiseOptMermaid, VisualiseText, Widget, WidgetInfo}
 import WidgetInfo.*
+import caos.frontend.setting.Setting
 import caos.view.*
 import org.scalajs.dom
 
