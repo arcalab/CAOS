@@ -1,5 +1,7 @@
 package caos.frontend
 
+import caos.common.ParsingException
+
 import scala.util.matching.Regex
 import scala.util.parsing.combinator.RegexParsers
 
@@ -36,6 +38,6 @@ object SettingParser extends RegexParsers {
       case Success(setting, _) =>
         setting
       case failure: NoSuccess =>
-        throw new RuntimeException(s"Parsing failed with msg=[${failure.msg}] and next=[${failure.next}]")
+        throw new ParsingException(s"Parsing failed with msg=[${failure.msg}] and next=[${failure.next}]")
   }
 }
