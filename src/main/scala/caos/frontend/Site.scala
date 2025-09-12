@@ -135,7 +135,9 @@ object Site:
       case Explore(init,sos,vS,vA) => new widgets.Explore(()=>init(get()),sos,vS,vA,w._1,out,doc)
       case Analyse(a) =>
         new Invisible[Stx,Unit](get, stx =>  (a(stx),Nil,()),w._1)
-      case Custom(divName,rld,bts) => new CustomWidget(w._1,divName,()=>rld(get()),out,bts,doc)
+      case Custom(divName,rld,bts) =>
+        new CustomWidget(w._1,divName,()=>rld(get()),out,
+                         bts.map(kv=>(kv._1,(()=>kv._2._1(get()),kv._2._2))),doc)
       case _ => throw new RuntimeException(s"case not covered when compiling widget '${w._1}': ${w._2}")
     } catch {
       case e: Throwable =>

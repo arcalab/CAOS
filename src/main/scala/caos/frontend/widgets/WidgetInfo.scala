@@ -31,7 +31,7 @@ object WidgetInfo:
     extends WidgetInfo[Stx]
   case class Analyse[Stx](a:Stx=>Seq[String])
     extends WidgetInfo[Stx]
-  case class Custom[Stx](divName:String,reload:Stx=>Unit, buttons: List[(String,(()=>Unit,String))])
+  case class Custom[Stx](divName:String,reload:Stx=>Unit, buttons: List[(String,(Stx=>Unit,String))])
     extends WidgetInfo[Stx]
   // experiment
   case class VisualizeOpt[Stx,S](v:S=>OptionView,t:ViewType,pre:Stx=>S)
