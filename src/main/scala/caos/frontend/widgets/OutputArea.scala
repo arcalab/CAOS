@@ -24,7 +24,7 @@ class OutputArea extends Setable[String]:
 
   private def addBox(msg:String, style:String): Unit = // style is "danger", "warning", or "info"
     val out = outputs.append("div").attr("class", s"alert alert-$style")
-    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
+    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").html(s)
 
   def clear(): Unit =
     outputs.text("")

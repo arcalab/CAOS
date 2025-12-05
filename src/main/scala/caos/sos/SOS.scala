@@ -120,15 +120,15 @@ object SOS:
 
   /**
    * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
-   * stopping after visiting `max` states,
-   * and produces the set of visited states and number of visited transitions.
+   * stopping after visiting `max` edges,
+   * and produces the set of visited edges and number of visited transitions.
    *
    * @param sos Operational semantics to calculate next steps
    * @param s Initial stae
-   * @param max Maximum number of states to visit
+   * @param max Maximum number of edges to visit
    * @tparam A Type of actions (labels)
-   * @tparam S Type of states
-   * @return (1) a set of traversed states, (2) the number of visited edges, and
+   * @tparam S Type of edges
+   * @return (1) a set of traversed edges, (2) the number of visited edges, and
    *         (3) a boolean indicating if the traversal was complete.
    */
   def traverse[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
@@ -142,7 +142,7 @@ object SOS:
           aux(next-st,done,edges,limit)
         case Some(st) => //visiting new state
           val more = sos.next(st)
-          aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-1)
+          aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-more.size)
 
     aux(Set(s), Set(), 0, max)
 
