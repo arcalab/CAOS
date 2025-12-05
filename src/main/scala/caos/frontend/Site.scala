@@ -54,7 +54,7 @@ object Site:
 
     val title = document.getElementById("title")
     val toolTitle = document.getElementById("tool-title")
-    title.innerHTML = "A-Team" //config.name
+    title.innerHTML = config.name
     toolTitle.innerHTML = config.name
 //    title.textContent = config.name
 //    toolTitle.textContent = config.name
