@@ -38,7 +38,8 @@ Examples of such projects include:
  - [Apoo: animator of a simple assembly language](https://cister-labs.github.io/apoo) [(Apoo's main page)](https://www.dcc.fc.up.pt/~rvr/naulas/apoo/)
  - [CCS: animator of Milner's Calculus of Communicating Systems](http://lmf.di.uminho.pt/ccs-caos/) [(source)](https://github.com/arcalab/ccs-caos)
  - [MARGe: Animator of Labelled Reactive Graphs](https://fm-dcc.github.io/MARGe/index.html) [(source)](https://github.com/FM-DCC/MARGe)
-- [RebeCaos: animator of Rebeca](https://fm-dcc.github.io/rebecaos) [(source)](https://github.com/FM-DCC/rebecaos)
+ - [RebeCaos: animator of Rebeca](https://fm-dcc.github.io/rebecaos) [(source)](https://github.com/FM-DCC/rebecaos)
+ - [Lince 2.0: restructuring Lince with CAOS](https://lmf.di.uminho.pt/lince-2.0/) [(source)](https://github.com/arcalab/lince-2.0)
 
 Alternatively, it is possible to start from a CAOS template, following the instructions described [here](https://github.com/arcalab/caos.g8) (this template uses an older version of CAOS).
 
