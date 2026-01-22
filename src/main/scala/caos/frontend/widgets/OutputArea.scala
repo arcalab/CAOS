@@ -37,7 +37,7 @@ class OutputArea extends Setable[String]:
     bt.on("click", () =>
       DomElem(dom.document.getElementById(rnd)).style("display","none"))
     
-    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
+    for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").html(s)
 
   def clear(): Unit =
     outputs.text("")

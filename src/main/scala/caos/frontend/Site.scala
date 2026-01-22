@@ -54,8 +54,10 @@ object Site:
 
     val title = document.getElementById("title")
     val toolTitle = document.getElementById("tool-title")
-    title.textContent = config.name
-    toolTitle.textContent = config.name
+    title.innerHTML = config.name
+    toolTitle.innerHTML = config.name
+//    title.textContent = config.name
+//    toolTitle.textContent = config.name
 
 
     //val ex = (for ((n,e) <- config.examples) yield n::e::n::Nil).toSeq
