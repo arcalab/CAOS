@@ -14,6 +14,23 @@
     display: none;
 }
 
+p,h1,h2,h3,h4 {
+    margin-left: 5pt;
+    margin-right: 5pt;
+}
+
+.close-btn {
+    position: absolute; /* Position the button absolutely within the div */
+    top: -22px; /* Distance from the top */
+    right: -18px; /* Distance from the right */
+    background: none; /* No background */
+    border: none; /* No border */
+    font-size: 20px; /* Increase font size */
+    cursor: pointer; /* Change cursor to pointer */
+}
+.mydiv{
+    position: relative;
+}
 /*.active{
     display: block;
 }*/

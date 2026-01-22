@@ -116,6 +116,13 @@ object Configurator:
                    viewAct:A=>String=((x:A)=>x.toString),maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
+  def ltsCustom[Stx, A, S](initAndSOS: Stx => 
+                            (Set[S], SOS[A, S], S => String,  A => String),
+                           maxSt: Int = 80): WidgetInfo[Stx] =
+    Visualize[Stx, Stx](x =>
+      val (ini,sos,viewSt,viewAct) = initAndSOS(x)
+      View(SOS.toMermaids(sos, ini, viewSt, viewAct, maxSt)), Mermaid, x => x)
+
 
   /**
    * * Creates a widget that depicts an LTS, similar to `lts`, with all reachable states,
@@ -214,6 +221,15 @@ object Configurator:
    */
   def check[Stx](a: Stx=>Seq[String]): WidgetInfo[Stx] =
     Analyse(a)
+
+  /**
+   * Creates a simple widget with plain htm content (wich cannot be minimised)
+   * @param block
+   * @tparam Stx
+   * @return
+   */
+  def html[Stx](block: String): (String,WidgetInfo[Stx]) =
+    "Custom HTML" -> WHtml[Stx](block)
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)

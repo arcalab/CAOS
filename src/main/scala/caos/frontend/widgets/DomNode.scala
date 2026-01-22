@@ -21,7 +21,7 @@ class DomNode(node: dom.Node) {
   }
 }
 
-class DomElem(elem: dom.Element) extends DomNode(elem) {
+class DomElem(val elem: dom.Element) extends DomNode(elem) {
   def attr(name:String, value:String): DomElem = {
     elem.setAttribute(name,value)
     this

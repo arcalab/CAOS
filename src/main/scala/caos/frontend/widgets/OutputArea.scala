@@ -23,7 +23,20 @@ class OutputArea extends Setable[String]:
     }}
 
   private def addBox(msg:String, style:String): Unit = // style is "danger", "warning", or "info"
-    val out = outputs.append("div").attr("class", s"alert alert-$style")
+    val rnd = math.random().toString
+    val out = outputs.append("div")
+      .attr("id",rnd)
+      .attr("class", s"alert alert-$style")
+
+    val bt = out.append("div")
+      .attr("class","mydiv")
+      .append("button")
+      .attr("id","close-btn")
+      .attr("class","close-btn")
+    bt.text("x")
+    bt.on("click", () =>
+      DomElem(dom.document.getElementById(rnd)).style("display","none"))
+    
     for(s <- msg.split('\n')) out.append("p").attr("style","margin-top: 0px;").text(s)
 
   def clear(): Unit =

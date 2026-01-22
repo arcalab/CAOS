@@ -36,5 +36,7 @@ object WidgetInfo:
   // experiment
   case class VisualizeOpt[Stx,S](v:S=>OptionView,t:ViewType,pre:Stx=>S)
     extends WidgetInfo[Stx]
+  case class WHtml[Stx](html: String)
+    extends WidgetInfo[Stx]
 
 
