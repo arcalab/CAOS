@@ -3,6 +3,7 @@ package caos.sos
 import caos.common.Multiset._
 import caos.sos.SOS._
 import caos.sos._
+import scala.util.boundary
 
 /** Strong bisimulation.
  * Built based on simplifications of BranchBisim.
@@ -30,6 +31,7 @@ object StrongBisim extends Bisimulation:
   : BResult[A,G,L] =
     if i >= stopAt /*5000/800000*/ then
       return Left(BEvid(Set(List(Timeout(visited,missing))),triedHash,i))
+    else boundary {
     missing.headOption match
       // Success!
       case None => Right(visited)
@@ -51,10 +53,10 @@ object StrongBisim extends Bisimulation:
 
         // Collect all candidates to add to the bisimulation
         val moreGL = collectMore(g,l,t) match
-          case Left(err) => return Left(BEvid(Set(err),triedHash,i))
+          case Left(err) => boundary.break(Left(BEvid(Set(err),triedHash,i)))
           case Right(m) => m
         val moreLG = collectMore(l,g,t) match
-          case Left(err) => return Left(BEvid(Set(err.map(swap)),triedHash,i))
+          case Left(err) => boundary.break(Left(BEvid(Set(err.map(swap)),triedHash,i)))
           case Right(m) => swap(m)
         var more:S[A,G,L] = and( moreGL, moreLG)
 
@@ -64,7 +66,7 @@ object StrongBisim extends Bisimulation:
         /// Avoiding recurrent paths...
         val newTry = (missing.keys,more.map(_.keys)).hashCode
         if triedHash contains newTry then
-          return Left(BEvid(Set(),triedHash,i))
+          boundary.break(Left(BEvid(Set(),triedHash,i)))
 
         // check if, for any m<-more, a bisimulation can be found with `visited + m`
         var failed: Option[BEvid[A,G,L]] = None
@@ -77,10 +79,10 @@ object StrongBisim extends Bisimulation:
           val m = more.head // next option to try
           findWBisim2Aux(visited + ((g,l)->t), missing++m, newTries, go::history, round+1) match
             case Right(value) =>
-              return Right(value)
+              boundary.break(Right(value))
             case Left(err) =>
               err.msgs.headOption match
-                case Some(Timeout(_,_)::_) => return Left(err)
+                case Some(Timeout(_,_)::_) => boundary.break(Left(err))
                 case _ =>
               newTries ++= err.tried
               round = err.count
@@ -94,11 +96,13 @@ object StrongBisim extends Bisimulation:
         failed match
           case Some(err) => Left(err)
           case None => Right(visited)
+    }
 
 
   private def collectMore[A,G,L](g:G, l:L, t:List[A])
                                          (using gs:SOS[A,G], ls:SOS[A,L]): Either[List[BError[A,G,L]], S[A,G,L]] =
     var more:S[A,G,L] = none
+    boundary {
     // for every g--a->g2
     for (a,g2)<- gs.next(g) do
         // find matching l--a1->* s2
@@ -109,8 +113,9 @@ object StrongBisim extends Bisimulation:
             // found l--a->l2 to match g--a->g2
             one(g2,l2,a::t)
         if mbMatch.isEmpty then
-          return Left(List(CanDo(a,t,g,l)))
+          boundary.break(Left(List(CanDo(a,t,g,l))))
         more = and(more , ors(mbMatch)) //mbMatch.flatten
+    }
     Right(more)
 
 

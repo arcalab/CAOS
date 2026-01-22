@@ -3,7 +3,9 @@ package caos.sos
 import caos.common.Multiset._
 import caos.sos.SOS._
 import caos.sos._
+import scala.util.boundary
 
+/** Branching bisimulation. */
 
 object BranchBisim extends Bisimulation:
   //////////////////////////////
@@ -97,22 +99,24 @@ object BranchBisim extends Bisimulation:
   private def collectMore[A,G,L](g:G, l:L, t:List[A])
                                          (using gs:SOS[A,G], ls:SOS[A,L]): Either[List[BError[A,G,L]], S[A,G,L]] =
     var more:S[A,G,L] = none
-    // for every g--a->g2
-    for (a,g2)<- gs.next(g) do
-      if isTau(a) then more = add(more,g2,l,t) //a::t)
-      else
-        // find matching l--a1->* s2
-        val tr = nextWeak(ls,l) //SOS.nextWeak(ls,l)
-        val mbMatch = for (a2,l2,l3opt)<-tr if a==a2
-          yield l3opt match
-            // found l--a->l2 to match g--a->g2
-            case None => one(g2,l2,a::t)
-            // found l--tau+->l3--a->l2
-            case Some(l3) => and( one(g,l3,t) , one(g2,l2,a::t) )
-                             //and( one(g,l3,Tau::t) , one(g2,l2,a::Tau::t) )
-        if mbMatch.isEmpty then
-          return Left(List(CanDo(a,t,g,l)))
-        more = and(more , ors(mbMatch)) //mbMatch.flatten
+    boundary {
+      // for every g--a->g2
+      for (a,g2)<- gs.next(g) do
+        if isTau(a) then more = add(more,g2,l,t) //a::t)
+        else
+          // find matching l--a1->* s2
+          val tr = nextWeak(ls,l) //SOS.nextWeak(ls,l)
+          val mbMatch = for (a2,l2,l3opt)<-tr if a==a2
+            yield l3opt match
+              // found l--a->l2 to match g--a->g2
+              case None => one(g2,l2,a::t)
+              // found l--tau+->l3--a->l2
+              case Some(l3) => and( one(g,l3,t) , one(g2,l2,a::t) )
+                              //and( one(g,l3,Tau::t) , one(g2,l2,a::Tau::t) )
+          if mbMatch.isEmpty then
+            boundary.break(Left(List(CanDo(a,t,g,l))))
+          more = and(more , ors(mbMatch)) //mbMatch.flatten
+    }
     Right(more)
 
   private def isTau[A](a:A): Boolean =

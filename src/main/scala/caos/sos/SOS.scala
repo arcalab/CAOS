@@ -84,6 +84,10 @@ object SOS:
         sos.accepting(s)
 
   def toMermaid[A,S](sos:SOS[A,S], s:S, showSt:S=>String,
+                      showAct: A => String, maxNodes: Int): String =
+    toMermaids(sos, List(s), showSt, showAct, maxNodes)
+
+  def toMermaids[A,S](sos:SOS[A,S], ss:Iterable[S], showSt:S=>String,
                      showAct:A=>String, maxNodes:Int): String =
     var i = 0
     var _ids: Map[S,Int] = Map()
@@ -108,15 +112,20 @@ object SOS:
       next.dequeueOption match
         case Some((st,next2)) if done contains st => aux(next2,done,limit)
         case Some((st,next2)) =>
+          var res = if sos.accepting(st)
+            then s"\n  style ${ids(st)} fill:#eff;"
+            else ""
           val done2 = done+st
-          var res = s"\n  ${ids(st)}([${fix(showSt(st))}]);"
+          res += s"\n  ${ids(st)}([${fix(showSt(st))}]);"
           var next3 = next2
           for (a,s2) <- sos.next(st) do
             next3 = next3.enqueue(s2)
             res += s"\n  ${ids(s2)}([${fix(showSt(s2))}]);\n  ${ids(st)} -->|${fix(showAct(a))}| ${ids(s2)};"
           res + aux(next3,done2,limit-1)
         case None => ""
-    "graph TD\n  style 0 fill:#8f7,stroke:#363,stroke-width:4px;" + aux(Queue(s),Set(),maxNodes)
+    s"graph TD\n  ${
+      (for s<-ss yield s"style ${ids(s)} fill:#8f7,stroke:#363,stroke-width:4px;\n").mkString}\n  ${
+      aux(Queue(ss.toList: _*),Set(),maxNodes)}"
 
   /**
    * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
@@ -175,5 +184,4 @@ object SOS:
     aux(Set(s), Set(), 0, max)
 
 
-          
 
