@@ -115,7 +115,10 @@ object Site:
             if div == null then
               println(s"Warning: toggle target with id 'id${tg.hashCode}' not found in the document.")
             else
-              div.classList.toggle("hidden")
+              if div.classList.contains("panel-default") then
+                div.parentNode.asInstanceOf[html.Element].classList.toggle("hidden")
+              else
+                div.classList.toggle("hidden")
               val widgetCont = 
                 div.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
               if widgetCont != null then
