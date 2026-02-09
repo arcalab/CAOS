@@ -113,6 +113,7 @@ class ExampleWidget(title:String
 
   protected def genButton(ex:Example,buttonsDiv:Block): Unit = {
     val button = buttonsDiv.append("button").textEl(ex.name)
+    button.attr("id",s"id${ex.name.hashCode}")
     button.on("click",() => {
       setableExample.setValue(ex.example)
       for sd <- setableDescription yield

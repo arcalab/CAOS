@@ -102,6 +102,7 @@ object StrongBisim extends Bisimulation:
   private def collectMore[A,G,L](g:G, l:L, t:List[A])
                                          (using gs:SOS[A,G], ls:SOS[A,L]): Either[List[BError[A,G,L]], S[A,G,L]] =
     var more:S[A,G,L] = none
+    var res: Either[List[BError[A,G,L]], S[A,G,L]] = Right(more)
     boundary {
     // for every g--a->g2
     for (a,g2)<- gs.next(g) do
@@ -113,10 +114,12 @@ object StrongBisim extends Bisimulation:
             // found l--a->l2 to match g--a->g2
             one(g2,l2,a::t)
         if mbMatch.isEmpty then
-          boundary.break(Left(List(CanDo(a,t,g,l))))
+          res = Left(List(CanDo(a,t,g,l)))
+          boundary.break()
         more = and(more , ors(mbMatch)) //mbMatch.flatten
+    res = Right(more)
     }
-    Right(more)
+    res
 
 
   ///// utils /////

@@ -28,8 +28,10 @@ trait Configurator[Stx]:
   val parser: String=>Stx
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
+  /** Type alias for widgets (to avoid repeating the type parameterization). */
+  type Widget = WidgetInfo[Stx]
   /** Main widgets, on the right hand side of the screen */
-  val widgets: Iterable[(String,WidgetInfo[Stx])]
+  val widgets: Iterable[(String,Widget)]
   /** Secondary widgets, below the code */
   @deprecated(message = "Instead, for each WidgetInfo w, move it using `w.moveTo(1)`.")
   val smallWidgets: Iterable[(String,WidgetInfo[Stx])]=List()
@@ -41,6 +43,8 @@ trait Configurator[Stx]:
   val documentation: Documentation = Documentation()
   /** Footer message (HTML) */
   val footer: String = ""
+  /** Maps button IDs to sets of headers that should be "toggled" visibility.*/
+  val toggles: Map[String,Set[String]] = Map()
 
 /**
  * Provides functions that produce WidgetInfos, which describe widgets.
@@ -224,12 +228,20 @@ object Configurator:
 
   /**
    * Creates a simple widget with plain htm content (wich cannot be minimised)
-   * @param block
-   * @tparam Stx
+   * @param block html content
+   * @tparam Stx type of the program (syntax)
    * @return
    */
   def html[Stx](block: String): (String,WidgetInfo[Stx]) =
     "Custom HTML" -> WHtml[Stx](block)
+  /**
+    * Creates a simple widget with plain htm content (which is placed on the left side)
+    * @param block html content
+    * @tparam Stx type of the program (syntax)
+    * @return
+    */
+  def htmlLeft[Stx](block: String): (String,WidgetInfo[Stx]) =
+    "Custom HTML" -> WHtml[Stx](block).moveTo(1)
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)

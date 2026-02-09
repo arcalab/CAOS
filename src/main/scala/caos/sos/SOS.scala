@@ -141,6 +141,9 @@ object SOS:
    *         (3) a boolean indicating if the traversal was complete.
    */
   def traverse[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
+    traverse(sos,Set(s),max)
+
+  def traverse[A,S](sos:SOS[A,S], ss:Set[S], max:Int): (Set[S],Int,Boolean) =
     def aux(next:Set[S],done:Set[S],edges:Int, limit:Int): (Set[S],Int,Boolean) =
       if limit <=0 then
         return (done,edges,false)
@@ -153,7 +156,7 @@ object SOS:
           val more = sos.next(st)
           aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-more.size)
 
-    aux(Set(s), Set(), 0, max)
+    aux(ss, Set(), 0, max)
 
 /**
    * Traverses state `s` using an SOS `sos`, using a (pseudo-random) algorithm,
@@ -165,23 +168,25 @@ object SOS:
    * @param max Maximum number of edges to try to traverse
    * @tparam A Type of actions (labels)
    * @tparam S Type of states
-   * @return (1) a set of traversed states, (2) the number of visited edges, and
-   *         (3) a boolean indicating if the traversal was complete.
+   * @return (1) a set of traversed states, (2) the number of visited edges,
+   *         (3) a set of visited edges, and
+   *         (4) a boolean indicating if the traversal was complete.
    */
-  def traverseEdges[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
-    def aux(next:Set[S],done:Set[S],edges:Int, limit:Int): (Set[S],Int,Boolean) =
+  def traverseEdges[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Set[(S,A,S)],Int,Boolean) =
+    def aux(next:Set[S],done:Set[S],passed:Set[(S,A,S)],edges:Int, limit:Int): (Set[S],Set[(S,A,S)],Int,Boolean) =
       if limit <=0 then
-        return (done,edges,false)
+        return (done,passed,edges,false)
       next.headOption match
         case None =>
-          (done, edges, true)
+          (done, passed, edges, true)
         case Some(st) if done contains st =>
-          aux(next-st,done,edges,limit)
+          aux(next-st,done,passed,edges,limit)
         case Some(st) => //visiting new state
           val more = sos.next(st)
-          aux((next-st)++more.map(_._2), done+st, edges+more.size,limit-more.size)
+          val passed2 = passed ++ more.map(e => (st,e._1,e._2))
+          aux((next-st)++more.map(_._2), done+st, passed2, edges+more.size,limit-more.size)
 
-    aux(Set(s), Set(), 0, max)
+    aux(Set(s), Set(), Set(), 0, max)
 
 
 

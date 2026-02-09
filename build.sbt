@@ -8,7 +8,8 @@ lazy val caos = project
     name := "caos",
     version := "0.1.0",
     scalaVersion := scala3Version,
-    scalacOptions ++= Seq("-indent"),
+    scalacOptions ++= Seq("-indent","-deprecation","-feature"),
+
     libraryDependencies ++= Seq(
       //"com.novocode" % "junit-interface" % "0.11" % "test",
       //("org.scala-lang.modules" %% "scala-parser-combinators" %  "1.1.2").withDottyCompat(scalaVersion.value),

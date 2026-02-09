@@ -13,6 +13,9 @@ case class Multiset[A](var data: Map[A,Int] = Map()):
 
   def contains(elem:A): Boolean = data.contains(elem)
 
+  def filter(pred: A => Boolean): Multiset[A] =
+    Multiset(data.filter(kv => pred(kv._1)))
+
   @targetName("add")
   def +(act:A): Multiset[A] =
     Multiset(data + (act -> (data.getOrElse(act,0)+1)))

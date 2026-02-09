@@ -37,6 +37,10 @@ object Site:
       .replaceAll("%40", "@") .replaceAll("%5D", "]")
       .replaceAll("%22", "\"").replaceAll("%60", "`")
       .replaceAll("%28", "(") .replaceAll("%29", ")")
+      .replaceAll("%0A", "\n")
+
+    // todo: if urlQuery starts with "s=", then set the scenario to hide/expand/collaps widgets
+    // based on the knonwn scenarios in config.scenarios
 
     val mainExample = config.examples.find(_.name == urlQuery) match
       case None =>
@@ -77,6 +81,7 @@ object Site:
         errorArea,
         config.documentation
       )
+      // todo: update expansion based on scenario from URL
       // place widget in the document
       w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
       w
@@ -98,6 +103,54 @@ object Site:
 
     toReload = (List(code)++boxes).map(b => ()=>b.update())
 
+    // only at the end, link toggle-buttons to DIVs that should be toggled
+    for (bt,tgs)<-config.toggles do
+      val button = document.getElementById(bt)
+      if button == null then
+        println(s"Warning: toggle button '$bt' not found in the document.")
+      else
+        button.addEventListener("click", (e: org.scalajs.dom.Event) => {
+          for tg <- tgs do
+            val div = document.getElementById(s"id${tg.hashCode}")
+            if div == null then
+              println(s"Warning: toggle target with id 'id${tg.hashCode}' not found in the document.")
+            else
+              div.classList.toggle("hidden")
+              val widgetCont = 
+                div.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+              if widgetCont != null then
+                widgetCont.classList.add("collapsed")
+                widgetCont.setAttribute("aria-expanded", "false")
+              val widgetBody = div.lastChild.asInstanceOf[html.Element]
+              if widgetBody != null then
+                widgetBody.classList.remove("in")
+                widgetBody.style = "height: 0px"
+                widgetBody.setAttribute("aria-expanded", "false")
+      
+          button.classList.toggle("offBt")
+        })
+      //println(s"Getting button '$bt' and toggling ids '${tgs.mkString(" / ")}'")
+      // val toRun = s"""
+      // |const button$bt = document.getElementById("$bt");
+      // |
+      // |button$bt.addEventListener("click", () => {
+      // |${(for tg<-tgs yield
+      //   s"  document.getElementById(\"id${tg.hashCode}\").classList.toggle(\"hidden\");").mkString("\n")}
+      // |  button$bt.classList.toggle("offBt")
+      // |});
+      // """.stripMargin
+      // //println(toRun)
+      // scalajs.js.eval(toRun)
+
+// <script>
+//   const button = document.getElementById("tttoggleBtn");
+
+//   button.addEventListener("click", () => {
+//     const div = document.getElementById("id-344744587");
+//     div.classList.toggle("hidden");
+//     button.classList.toggle("offBt")
+//   });
+// </script>"""),
     globalReload()
 
   /**
@@ -212,12 +265,6 @@ object Site:
       .style("width: 100%;text-align: center; display: inline-block;")
       .html(s"&nbsp;<br><p style=\"margin: 0px 30px 10px;\">${lastConfig.get.footer}</p>")
 
-    //<div style="width: 100%;text-align: center; display: inline-block;">
-    //    &nbsp;<br>
-    //    <p style="margin: 0px 30px 10px;">Source code at: <a href="https://github.com/arcalab/choreo/tree/ceta" target="#">https://github.com/arcalab/choreo/tree/ceta</a>.
-    //    This is a companion tool for a paper under revision.
-    //    </p>
-    //</div>
 
     Utils.resizeCols
 

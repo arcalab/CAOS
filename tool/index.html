@@ -42,6 +42,7 @@
         </ul>
     </div>
 </div>
+<div id="mermaidDiv" class="mermaidFix"><div id="mermaidSvg"></div></div>
 <div id="contentWrap"></div>
 </body>
 <script type="text/javascript" src="js/static/prism.js"></script>
@@ -62,6 +63,13 @@
         arrowMarkerAbsolute:true
     };
     mermaid.mermaidAPI.initialize(config);
+
+    // fix for mermaid rendering issues inside hidden divs
+    var display = document.getElementById('mermaidDiv');
+    var text = `flowchart LR\n`
+    var graph = mermaid.mermaidAPI.render('mermaidSvg', text, function(svgCode){
+      display.innerHTML = svgCode
+    });
 </script>
 <script type="text/javascript" src="js/gen/main.js"></script>
 <script>
