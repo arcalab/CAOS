@@ -11,10 +11,13 @@ import caos.view.{OptionView, View, ViewType}
 sealed trait WidgetInfo[-Stx]:
   var expanded = false
   var location = 0
+  var hidden = false
   /** Sets whether the widget is initially collapsed or expanded */
   def expand: WidgetInfo[Stx] = {expanded = true; this}
   /** Sets the location where the widget should be placed */
   def moveTo(i:Int): WidgetInfo[Stx] = {location = i; this}
+  /** Sets the widget to be hidden */
+  def hide: WidgetInfo[Stx] = {hidden = true; this}
 
 object WidgetInfo:
   case class Visualize[Stx,S](v:S=>View, typ:ViewType, pre:Stx=>S)

@@ -32,9 +32,10 @@ class SimulateText[Stx,Act,St](stx: () => Stx, simulate:Simulate[Stx,Act,St],
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean=false): Unit = {
-    val box = panelBox(div, visible, buttons = List(
+  override def init(div: Block, visible: Boolean=false, hidden:Boolean=false): Unit = {
+    val box = panelBox(div, visible, hidden=hidden, buttons = List(
       Right("refresh") -> (() =>
         update(), "Simulate next actions of current program")
     ))

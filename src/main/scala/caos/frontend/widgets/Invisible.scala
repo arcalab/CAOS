@@ -14,9 +14,10 @@ class Invisible[A,B](stx:()=>A, analyse: A => (Seq[String],Seq[String], B),title
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible ignored, since this box will never be hidden.
+   * @param hidden ignored, since this box will never be hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit =
-    content.init(div)
+  override def init(div: Block, visible: Boolean, hidden: Boolean): Unit =
+    content.init(div, hidden)
     content.outputs.style("padding: 0px 5px 0px 5px;")
     update()
 
@@ -37,6 +38,7 @@ class Invisible[A,B](stx:()=>A, analyse: A => (Seq[String],Seq[String], B),title
 
   override protected def panelBox(parent:Block,
                          visible:Boolean,
+                         hidden:Boolean = false,
                          headerStyle: List[(String,String)] = Nil,
                          buttons:List[(Either[String,String], (()=>Unit,String) )] = Nil) : Block =
     parent

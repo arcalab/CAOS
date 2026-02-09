@@ -30,9 +30,10 @@ class ExampleWidget(title:String
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit = {
-    val buttonsDiv = super.panelBox(div,visible,buttons=buttons).append("div")
+  override def init(div: Block, visible: Boolean, hidden:Boolean=false): Unit = {
+    val buttonsDiv = super.panelBox(div,visible,hidden=hidden,buttons=buttons).append("div")
       .attr("id", "buttons")
       .attr("style","padding: 2pt;")
 

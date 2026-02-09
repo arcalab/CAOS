@@ -83,7 +83,7 @@ object Site:
       )
       // todo: update expansion based on scenario from URL
       // place widget in the document
-      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded)
+      w.init(if wc._2.location == 0 then rightColumn else leftColumn, wc._2.expanded, wc._2.hidden)
       w
 
 //    // build main boxes

@@ -8,7 +8,9 @@ class OutputArea extends Setable[String]:
 
   var outputs: Block = _
 
-  def init(div: Block): Unit = outputs = div.append("div").attr("class","alertContainer")
+  def init(div: Block, hidden: Boolean = false): Unit = outputs =
+    if !hidden then div.append("div").attr("class","alertContainer")
+    else div.append("div").attr("class","alertContainer").style("display","none")
 
   def message(msg:String): Unit = addBox(msg,"info")
   def error(msg:String): Unit = addBox(msg,"danger")

@@ -29,9 +29,10 @@ case class Tabs(
      *
      * @param div     Placeholder that will receive the "append" with the content of the box
      * @param visible is true when this box is initially visible (i.e., expanded).
+     * @param hidden  if true, the box is hidden.
      */
-    override def init(div: Block, visible: Boolean): Unit = {
-      box = panelBox(div, visible,buttons= Nil).append("div")
+    override def init(div: Block, visible: Boolean, hidden: Boolean): Unit = {
+      box = panelBox(div, visible, hidden=hidden,buttons= Nil).append("div")
 //        List(
 //        Right("copy")-> (() => Utils.copyText(divBox,Some("tab-content active")), "copy text from active tab")
 //        )

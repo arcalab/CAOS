@@ -35,9 +35,10 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea, doc:D
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden is true when this box is initially hidden (i.e., not visible).
    */
-  override def init(div: Block, visible: Boolean): Unit = {
-    box = panelBox(div, visible, buttons = List(
+  override def init(div: Block, visible: Boolean, hidden: Boolean): Unit = {
+    box = panelBox(div, visible, hidden, buttons = List(
       Right("download") -> (() => Utils.downloadSvg(svgBox), "Download SVG")
     )).append("div")
       .attr("class", "mermaid")

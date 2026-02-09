@@ -22,12 +22,14 @@ abstract class Widget[A](val title: String, doc: Documentation = Documentation()
    * */
   protected def panelBox(parent:Block,
                          visible:Boolean,
+                         hidden:Boolean = false,
                          headerStyle: List[(String,String)] = Nil,
                          buttons:List[(Either[String,String], (()=>Unit,String) )] = Nil) : Block = {
     //    val percentage=100
 
     //var expander: Block = parent
-    wrap = parent.append("div").attr("class","panel-group")
+    val panel = parent.append("div").attr("class","panel-group")
+    wrap = panel
       .append("div").attr("class","panel panel-default").attr("id",titleId)
     var expander = wrap
       .append("div").attr("class", "panel-heading my-panel-heading")
@@ -55,6 +57,8 @@ abstract class Widget[A](val title: String, doc: Documentation = Documentation()
       .attr("style",if (visible) "" else "height: 0px;")
       .attr("aria-expanded",visible.toString)
       .append("div").attr("class","panel-body my-panel-body")
+    if (hidden)
+      panel.attr("class","panel-group hidden")
 
 
     val allButtons =
@@ -170,8 +174,9 @@ abstract class Widget[A](val title: String, doc: Documentation = Documentation()
    * Executed once at creation time, to append the content to the inside of this box
    * @param div Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden is true when this box is initially hidden (i.e., not visible).
    */
-  def init(div: Block, visible: Boolean): Unit
+  def init(div: Block, visible: Boolean = true, hidden: Boolean = false): Unit
 
   /**
    * Block of code that should read the dependencies and:

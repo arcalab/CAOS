@@ -10,9 +10,11 @@ class HtmlBlock(block:String, title: String) extends Widget[Unit](title):
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible ignored, since this box will never be hidden.
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit =
-    div.append("div").html(block)
+  override def init(div: Block, visible: Boolean, hidden: Boolean): Unit =
+    val content = div.append("div").html(block)
+    if hidden then content.style("display","none")
 //    content.outputs.style("padding: 0px 5px 0px 5px;")
 //    update()
 
@@ -25,6 +27,7 @@ class HtmlBlock(block:String, title: String) extends Widget[Unit](title):
 
   override protected def panelBox(parent:Block,
                          visible:Boolean,
+                         hidden:Boolean = false,
                          headerStyle: List[(String,String)] = Nil,
                          buttons:List[(Either[String,String], (()=>Unit,String) )] = Nil) : Block =
     parent

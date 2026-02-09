@@ -25,8 +25,9 @@ abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit = {
+  override def init(div: Block, visible: Boolean, hidden:Boolean=false): Unit = {
     val textId = boxId+"Text"
     def fix(s:String): String =
       s.map(c => if (c.isLetterOrDigit || c=='-') then c else '_')
@@ -36,6 +37,7 @@ abstract class CodeWidget[A](title: String, dep: List[Widget[_]])
         "Download program")
     val inputDiv = panelBox(div, visible /*List("padding-right"->"25pt")*/
       /*, 80*/
+      , hidden=hidden
       , buttons = down :: buttons)
       .append("div")
       .attr("id", textId)

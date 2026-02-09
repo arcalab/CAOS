@@ -35,9 +35,10 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean=false): Unit = {
-    val box = panelBox(div, visible, buttons = List(
+  override def init(div: Block, visible: Boolean=false, hidden:Boolean=false): Unit = {
+    val box = panelBox(div, visible, hidden=hidden, buttons = List(
       Right("refresh") -> (() =>
         update(), "Explore next actions of the current program")
     ))

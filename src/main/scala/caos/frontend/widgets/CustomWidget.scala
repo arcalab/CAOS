@@ -24,9 +24,10 @@ class CustomWidget(name:String, divName:String, reload:()=>Unit, errorBox: Outpu
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit = {
-    panelBox(div, visible,buttons=moreButtons.map(kv=>(Left(kv._1) -> kv._2))).append("div")
+  override def init(div: Block, visible: Boolean, hidden:Boolean=false): Unit = {
+    panelBox(div, visible,hidden=hidden,buttons=moreButtons.map(kv=>(Left(kv._1) -> kv._2))).append("div")
       .attr("id", divName)
 
     dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]

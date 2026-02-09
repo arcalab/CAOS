@@ -25,9 +25,10 @@ class VisualiseCode(text:()=>View, name:String, language:String, errorBox: Outpu
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden  if true, the box is hidden.
    */
-  override def init(div: Block, visible: Boolean): Unit = {
-    box = panelBox(div, visible,buttons=Nil).append("div")
+  override def init(div: Block, visible: Boolean, hidden: Boolean): Unit = {
+    box = panelBox(div, visible, hidden=hidden,buttons=Nil).append("div")
 //      .attr("class","text")
       .attr("id", divBox)
 //      .append("pre")

@@ -32,8 +32,9 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
    *
    * @param div     Placeholder that will receive the "append" with the content of the box
    * @param visible is true when this box is initially visible (i.e., expanded).
+   * @param hidden is true when this box is initially hidden (i.e., not visible).
    */
-  override def init(div: Block, visible: Boolean): Unit = {
+  override def init(div: Block, visible: Boolean, hidden: Boolean): Unit = {
     box = panelBox(div, visible,buttons=List())
       .append("div") // outside box to center grid
       .style("text-align","center")
