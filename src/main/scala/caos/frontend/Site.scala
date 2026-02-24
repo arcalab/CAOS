@@ -115,22 +115,22 @@ object Site:
             if div == null then
               println(s"Warning: toggle target with id 'id${tg.hashCode}' not found in the document.")
             else
-              if div.classList.contains("panel-default") then
+              if div.classList.contains("panel-default") then // if it's a panel, toggle the whole panel, not just the body
                 div.parentNode.asInstanceOf[html.Element].classList.toggle("hidden")
+                val widgetCont = 
+                  div.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+                if widgetCont != null then
+                  widgetCont.classList.add("collapsed")
+                  widgetCont.setAttribute("aria-expanded", "false")
+                val widgetBody = div.lastChild.asInstanceOf[html.Element]
+                if widgetBody != null then
+                  widgetBody.classList.remove("in")
+                  widgetBody.style = "height: 0px"
+                  widgetBody.setAttribute("aria-expanded", "false")
               else
                 div.classList.toggle("hidden")
-              val widgetCont = 
-                div.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-              if widgetCont != null then
-                widgetCont.classList.add("collapsed")
-                widgetCont.setAttribute("aria-expanded", "false")
-              val widgetBody = div.lastChild.asInstanceOf[html.Element]
-              if widgetBody != null then
-                widgetBody.classList.remove("in")
-                widgetBody.style = "height: 0px"
-                widgetBody.setAttribute("aria-expanded", "false")
-      
-          button.classList.toggle("offBt")
+              
+          button.classList.toggle("onBt")
         })
       //println(s"Getting button '$bt' and toggling ids '${tgs.mkString(" / ")}'")
       // val toRun = s"""
