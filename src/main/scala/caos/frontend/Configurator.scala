@@ -20,8 +20,10 @@ import scala.language.implicitConversions
  * @tparam Stx Type of the data structure to be analysed.
  */
 trait Configurator[Stx]:
-  /** Name of the header of the web frontend. */
+  /** Name of the header of the web frontend (HTML). */
   val name: String
+  /** Possible different Nname of the title of the page (plain text). */
+  val shortName: Option[String] = None
   /** Possible alternative name for the input widget. */
   def languageName: String = name // override to rename the input widget
   /** Parser to build the data structure under analysis */

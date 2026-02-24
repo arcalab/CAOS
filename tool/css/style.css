@@ -171,12 +171,40 @@ p,h1,h2,h3,h4 {
 .hidden {
   display: none;
 }
-.offBt {
+.offBtOLF {
     background-color: #ff000040 !important;
 }
-.tgBtn {
+.tgBtnOLD {
     background-color: #00ff0040;
     margin-left: 5px;
+}
+.tgBtn {
+    --bg-off: #f3e3e3;
+    --bg-on: #225935;
+    --text-off: #313a49;
+    --text-on: #ffffff;
+    padding: 5px 8px;
+    border-radius: 12px;
+    border: black;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    background: var(--bg-off);
+    color: var(--text-off);
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    margin-left: 6px;
+}
+
+.tgBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+.offBt {
+  background: var(--bg-on);
+  color: var(--text-on);
 }
 .overlay { 
     position: fixed;

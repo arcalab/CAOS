@@ -58,7 +58,7 @@ object Site:
 
     val title = document.getElementById("title")
     val toolTitle = document.getElementById("tool-title")
-    title.innerHTML = config.name
+    title.innerHTML = config.shortName.getOrElse(config.name)
     toolTitle.innerHTML = config.name
 //    title.textContent = config.name
 //    toolTitle.textContent = config.name
@@ -324,6 +324,7 @@ object Site:
           val c2 = new Configurator[A] {
             override val parser = c.parser
             override val name: String = c.name
+            override val shortName: Option[String] = c.shortName
             override val languageName: String = c.languageName
             override val widgets = c.widgets
             override val examples: Iterable[Configurator.Example] =
