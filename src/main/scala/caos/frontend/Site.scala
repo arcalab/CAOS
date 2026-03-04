@@ -37,7 +37,7 @@ object Site:
       .replaceAll("%40", "@") .replaceAll("%5D", "]")
       .replaceAll("%22", "\"").replaceAll("%60", "`")
       .replaceAll("%28", "(") .replaceAll("%29", ")")
-      .replaceAll("%0A", "\n")
+      .replaceAll("%27", "'") .replaceAll("%0A", "\n")
 
     // todo: if urlQuery starts with "s=", then set the scenario to hide/expand/collaps widgets
     // based on the knonwn scenarios in config.scenarios

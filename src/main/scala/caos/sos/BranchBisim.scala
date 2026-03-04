@@ -99,6 +99,7 @@ object BranchBisim extends Bisimulation:
   private def collectMore[A,G,L](g:G, l:L, t:List[A])
                                          (using gs:SOS[A,G], ls:SOS[A,L]): Either[List[BError[A,G,L]], S[A,G,L]] =
     var more:S[A,G,L] = none
+    var res: Either[List[BError[A,G,L]], S[A,G,L]] = Right(more)
     boundary {
       // for every g--a->g2
       for (a,g2)<- gs.next(g) do
@@ -114,10 +115,13 @@ object BranchBisim extends Bisimulation:
               case Some(l3) => and( one(g,l3,t) , one(g2,l2,a::t) )
                               //and( one(g,l3,Tau::t) , one(g2,l2,a::Tau::t) )
           if mbMatch.isEmpty then
-            boundary.break(Left(List(CanDo(a,t,g,l))))
+            //return Left(List(CanDo(a,t,g,l)))
+            res = Left(List(CanDo(a,t,g,l)))
+            boundary.break()
           more = and(more , ors(mbMatch)) //mbMatch.flatten
     }
-    Right(more)
+    //Right(more)
+    if res.isLeft then res else Right(more)
 
   private def isTau[A](a:A): Boolean =
     a match
