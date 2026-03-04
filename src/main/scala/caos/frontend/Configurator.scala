@@ -8,6 +8,7 @@ import caos.sos
 import caos.sos.*
 import caos.view.OptionView.OptMermaid
 import caos.view.*
+import Configurator.Toggle
 
 import scala.language.implicitConversions
 
@@ -46,7 +47,8 @@ trait Configurator[Stx]:
   /** Footer message (HTML) */
   val footer: String = ""
   /** Maps button IDs to sets of headers that should be "toggled" visibility.*/
-  val toggles: Map[String,Set[String]] = Map()
+  // val toggles: Map[String,Set[String]] = Map()
+  val toggles: List[Toggle] = List()
 
 /**
  * Provides functions that produce WidgetInfos, which describe widgets.
@@ -247,7 +249,8 @@ object Configurator:
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)
-
+  case class Toggle(name: String,  trgs: Set[String],
+                    on: Boolean, hidden: Boolean, desc: String)
   /** Helper to build examples as `examples = List("name" -> "code")` */
   implicit def toExample(nameCode:(String,String)): Example =
     Example(nameCode._2,nameCode._1,"")
@@ -256,5 +259,16 @@ object Configurator:
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
   implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
     Documentation().add(docs)
+  implicit def toToggle2(t: (String, Set[String])): Toggle =
+    Toggle(t._1, t._2, on = true, hidden = false, desc = "")
+  implicit def toToggle3(t: ((String, Set[String]), Boolean)): Toggle =
+    Toggle(t._1._1, t._1._2, t._2, hidden = false, desc = "")
+  implicit def toToggle3b(t: ((String, Set[String]), String)): Toggle =
+    Toggle(t._1._1, t._1._2, on = true, hidden = false, desc = t._2)
+  implicit def toToggle4(t: (((String, Set[String]), Boolean), Boolean)): Toggle =
+    Toggle(t._1._1._1, t._1._1._2, t._1._2, t._2, desc = "")
+  implicit def toToggle5(t: ((((String, Set[String]), Boolean), Boolean), String)): Toggle =
+    Toggle(t._1._1._1._1, t._1._1._1._2, t._1._1._2, t._1._2, t._2)
+  
 
 

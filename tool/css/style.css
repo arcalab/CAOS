@@ -195,6 +195,7 @@ p,h1,h2,h3,h4 {
     transition: all 0.25s ease;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
     margin-left: 6px;
+    margin-top: 3px;
 }
 
 .tgBtn:hover {

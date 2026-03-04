@@ -53,6 +53,9 @@ object Site:
     descriptionArea = new OutputArea
     val code = mkCodeBox(config,mainExample)
 
+    initToggles(leftColumn,config)
+
+    // place code and error area
     code.init(leftColumn,true)
     errorArea.init(leftColumn)
 
@@ -104,8 +107,10 @@ object Site:
     toReload = (List(code)++boxes).map(b => ()=>b.update())
 
     // only at the end, link toggle-buttons to DIVs that should be toggled
-    for (bt,tgs)<-config.toggles do
-      val button = document.getElementById(bt)
+    for (toggs)<-config.toggles do
+      val bt = toggs._1
+      val tgs = toggs._2
+      val button = document.getElementById(s"id${bt.hashCode}")
       if button == null then
         println(s"Warning: toggle button '$bt' not found in the document.")
       else
@@ -203,6 +208,16 @@ object Site:
         out.error(e.getMessage)
         throw e
     }
+
+  protected def initToggles[A](el:DomElem, config: Configurator[A]): Unit =
+    for t <- config.toggles do
+      var classStr = "tgBtn"
+      if t.on then classStr += " onBt"
+      if t.hidden then classStr += " hidden"
+      val button = el.append("button")
+        .attr("id", s"id${t.name.hashCode}")
+        .attr("class", classStr)
+        .html(t.name)
 
   protected def cleanContainers():Unit = {
     //    val contentDiv = DomNode.select("contentWrap")

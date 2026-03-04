@@ -143,6 +143,19 @@ object SOS:
   def traverse[A,S](sos:SOS[A,S], s:S, max:Int=5000): (Set[S],Int,Boolean) =
     traverse(sos,Set(s),max)
 
+  /**
+    * Traverses states in `ss` using an SOS `sos`, using a (pseudo-random) algorithm,
+    * stopping after visiting `max` edges,
+    * and produces the set of visited states and number of visited transitions.
+    *
+    * @param sos Operational semantics to calculate next steps
+    * @param ss Initial states
+    * @param max Maximum number of edges to visit
+    * @tparam A Type of actions (labels)
+    * @tparam S Type of states
+    * @return (1) a set of traversed states, (2) the number of visited edges, and
+    *         (3) a boolean indicating if the traversal was complete.
+    */
   def traverse[A,S](sos:SOS[A,S], ss:Set[S], max:Int): (Set[S],Int,Boolean) =
     def aux(next:Set[S],done:Set[S],edges:Int, limit:Int): (Set[S],Int,Boolean) =
       if limit <=0 then
