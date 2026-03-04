@@ -210,11 +210,13 @@ object Site:
     }
 
   protected def initToggles[A](el:DomElem, config: Configurator[A]): Unit =
+    val togglesPanel = el.append("div")
+      .attr("class", "togglesPanel")
     for t <- config.toggles do
       var classStr = "tgBtn"
       if t.on then classStr += " onBt"
       if t.hidden then classStr += " hidden"
-      val button = el.append("button")
+      val button = togglesPanel.append("button")
         .attr("id", s"id${t.name.hashCode}")
         .attr("class", classStr)
         .html(t.name)
