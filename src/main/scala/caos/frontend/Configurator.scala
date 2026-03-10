@@ -124,12 +124,21 @@ object Configurator:
                    viewAct:A=>String=((x:A)=>x.toString),maxSt:Int=80): WidgetInfo[Stx] =
     Visualize[Stx,Stx](x=>View(SOS.toMermaid(sos,initialSt(x),viewSt,viewAct,maxSt)), Mermaid, x=>x)
 
+  /** Variation of `lts` that produces a step-by-step widget, where the user can click on a state to expand it. */
   def ltsCustom[Stx, A, S](initAndSOS: Stx => 
                             (Set[S], SOS[A, S], S => String,  A => String),
                            maxSt: Int = 80): WidgetInfo[Stx] =
     Visualize[Stx, Stx](x =>
       val (ini,sos,viewSt,viewAct) = initAndSOS(x)
       View(SOS.toMermaids(sos, ini, viewSt, viewAct, maxSt)), Mermaid, x => x)
+  
+  /** Variation of `lts` that produces a step-by-step widget, where the user can click on a state to expand it. */
+  def ltsCustomMany[Stx, A, S](initAndSOS: Stx => List[(String,
+                            (Set[S], SOS[A, S], S => String,  A => String))],
+                           maxSt: Int = 80): WidgetInfo[Stx] =
+    VisualizeOpt[Stx,Stx](stx => OptMermaid(initAndSOS(stx).map(
+        x => (x._1, SOS.toMermaid(x._2._2, x._2._1.head, x._2._3, x._2._4, maxSt))
+      ).toMap), Mermaid, x=>x)
 
 
   /**
@@ -249,8 +258,6 @@ object Configurator:
 
   /** Simple class to capture an example with a name and a description. */
   case class Example(example:String, name:String, description:String)
-  case class Toggle(name: String,  trgs: Set[String],
-                    on: Boolean, hidden: Boolean, desc: String)
   /** Helper to build examples as `examples = List("name" -> "code")` */
   implicit def toExample(nameCode:(String,String)): Example =
     Example(nameCode._2,nameCode._1,"")
@@ -259,6 +266,19 @@ object Configurator:
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
   implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
     Documentation().add(docs)
+
+  /** Simple class to capture buttons that toggle the visibility of headers or other DIVs.
+   * If multiple buttons toggle the same header, then the target will be visible when any of the buttons is "on".
+   * It has implicit conversions to build it from tuples of different sizes, where the missing fields are filled with default values.
+    *
+    * @param name button name
+    * @param trgs targets (headers or DIVs) to toggle when the button is clicked
+    * @param on true when the button should start "on" and the targets should be shown (not hidden) - default is true
+    * @param hidden true when the button should be hidden (not shown) in the UI - default is false
+    * @param desc description to show when the mouse hovers over the button - default is empty string
+    */
+  case class Toggle(name: String,  trgs: Set[String],
+                    on: Boolean, hidden: Boolean, desc: String)
   implicit def toToggle2(t: (String, Set[String])): Toggle =
     Toggle(t._1, t._2, on = true, hidden = false, desc = "")
   implicit def toToggle3(t: ((String, Set[String]), Boolean)): Toggle =

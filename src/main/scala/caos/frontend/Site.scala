@@ -9,6 +9,7 @@ import org.scalajs.dom.{FileReader, document, html}
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
+import org.scalajs.dom.raw
 
 object Site:
 
@@ -53,6 +54,7 @@ object Site:
     descriptionArea = new OutputArea
     val code = mkCodeBox(config,mainExample)
 
+    // creation of toggle buttons (before assigning actions to them, which can be done after all is created)
     initToggles(leftColumn,config)
 
     // place code and error area
@@ -106,59 +108,8 @@ object Site:
 
     toReload = (List(code)++boxes).map(b => ()=>b.update())
 
-    // only at the end, link toggle-buttons to DIVs that should be toggled
-    for (toggs)<-config.toggles do
-      val bt = toggs._1
-      val tgs = toggs._2
-      val button = document.getElementById(s"id${bt.hashCode}")
-      if button == null then
-        println(s"Warning: toggle button '$bt' not found in the document.")
-      else
-        button.addEventListener("click", (e: org.scalajs.dom.Event) => {
-          for tg <- tgs do
-            val div = document.getElementById(s"id${tg.hashCode}")
-            if div == null then
-              println(s"Warning: toggle target with id 'id${tg.hashCode}' not found in the document.")
-            else
-              if div.classList.contains("panel-default") then // if it's a panel, toggle the whole panel, not just the body
-                div.parentNode.asInstanceOf[html.Element].classList.toggle("hidden")
-                val widgetCont = 
-                  div.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
-                if widgetCont != null then
-                  widgetCont.classList.add("collapsed")
-                  widgetCont.setAttribute("aria-expanded", "false")
-                val widgetBody = div.lastChild.asInstanceOf[html.Element]
-                if widgetBody != null then
-                  widgetBody.classList.remove("in")
-                  widgetBody.style = "height: 0px"
-                  widgetBody.setAttribute("aria-expanded", "false")
-              else
-                div.classList.toggle("hidden")
-              
-          button.classList.toggle("onBt")
-        })
-      //println(s"Getting button '$bt' and toggling ids '${tgs.mkString(" / ")}'")
-      // val toRun = s"""
-      // |const button$bt = document.getElementById("$bt");
-      // |
-      // |button$bt.addEventListener("click", () => {
-      // |${(for tg<-tgs yield
-      //   s"  document.getElementById(\"id${tg.hashCode}\").classList.toggle(\"hidden\");").mkString("\n")}
-      // |  button$bt.classList.toggle("offBt")
-      // |});
-      // """.stripMargin
-      // //println(toRun)
-      // scalajs.js.eval(toRun)
+    mkToggleActions(config)
 
-// <script>
-//   const button = document.getElementById("tttoggleBtn");
-
-//   button.addEventListener("click", () => {
-//     const div = document.getElementById("id-344744587");
-//     div.classList.toggle("hidden");
-//     button.classList.toggle("offBt")
-//   });
-// </script>"""),
     globalReload()
 
   /**
@@ -220,6 +171,109 @@ object Site:
         .attr("id", s"id${t.name.hashCode}")
         .attr("class", classStr)
         .html(t.name)
+
+  protected def mkToggleActions[A](config: Configurator[A]): Unit =
+        // only at the end, link toggle-buttons to DIVs that should be toggled
+    for (toggs)<-config.toggles do
+      val bt = toggs._1
+      val tgs = toggs._2
+      val button = document.getElementById(s"id${bt.hashCode}")
+      if button == null then
+        println(s"Warning: toggle button '$bt' not found in the document.")
+      else
+        button.addEventListener("click", (e: org.scalajs.dom.Event) => {
+          val on = button.classList.contains("onBt")
+          for tg <- tgs do toggleTarget(tg,on)
+          button.classList.toggle("onBt")
+        })
+        if button.classList.contains("onBt") then
+          // count # targets turned on by this button
+          for tg <- tgs; div<-getRootTarget(tg) do
+            if div.getAttribute("oncounter") == null
+            then div.setAttribute("oncounter", "1")
+            else div.setAttribute("oncounter", (div.getAttribute("oncounter").toInt + 1).toString)
+    for (toggs)<-config.toggles do
+      val bt = toggs._1
+      val tgs = toggs._2
+      val button = document.getElementById(s"id${bt.hashCode}")
+      if button == null then
+        println(s"Warning: toggle button '$bt' not found in the document.")
+      else
+        if !button.classList.contains("onBt") then
+          for tg <- tgs; div<-getRootTarget(tg) do
+            if div.getAttribute("oncounter") == null // no counter was created (hide!)
+            then div.classList.add("hidden")
+
+  protected def toggleTarget(tg: String, on: Boolean): Unit =
+    getRootTarget(tg) match
+      case None => println(s"Warning: toggle target '$tg'(id: id${tg.hashCode}) not found in the document.")
+      case Some(target) => 
+        var hide = false
+        if on && target.getAttribute("oncounter") != null &&
+           target.getAttribute("oncounter").toInt > 1
+        then
+          val newCount = target.getAttribute("oncounter").toInt - 1
+          target.setAttribute("oncounter", newCount.toString)
+        else if on && target.getAttribute("oncounter") != null
+        then
+            target.removeAttribute("oncounter")
+            hide = true
+
+        else if !on then
+          val newCount = if target.getAttribute("oncounter") == null
+                         then 1 else target.getAttribute("oncounter").toInt + 1
+          target.setAttribute("oncounter", newCount.toString)
+        
+        if !hide then
+          target.classList.remove("hidden")
+        else
+          // hide and collapse widget if it is a panel-group
+          target.classList.add("hidden")
+          // collapse widget if it is a panel-group
+          if target.asInstanceOf[html.Element].classList.contains("panel-group")
+          then
+            val widgetCont = 
+              target.firstChild.firstChild.firstChild.firstChild.asInstanceOf[html.Element]
+            if widgetCont != null then
+              widgetCont.classList.add("collapsed")
+              widgetCont.setAttribute("aria-expanded", "false")
+            val widgetBody = target.firstChild.lastChild.asInstanceOf[html.Element]
+            if widgetBody != null then
+              widgetBody.classList.remove("in")
+              widgetBody.style = "height: 0px"
+              widgetBody.setAttribute("aria-expanded", "false")
+
+  protected def getRootTarget(tg: String): Option[raw.Element] =
+    val div = document.getElementById(s"id${tg.hashCode}")
+    if div == null then None
+    else
+      if div.classList.contains("panel-default") then
+        Some(div.parentNode.asInstanceOf[html.Element])
+      else
+        Some(div)
+
+      //println(s"Getting button '$bt' and toggling ids '${tgs.mkString(" / ")}'")
+      // val toRun = s"""
+      // |const button$bt = document.getElementById("$bt");
+      // |
+      // |button$bt.addEventListener("click", () => {
+      // |${(for tg<-tgs yield
+      //   s"  document.getElementById(\"id${tg.hashCode}\").classList.toggle(\"hidden\");").mkString("\n")}
+      // |  button$bt.classList.toggle("offBt")
+      // |});
+      // """.stripMargin
+      // //println(toRun)
+      // scalajs.js.eval(toRun)
+
+      // <script>
+      //   const button = document.getElementById("tttoggleBtn");
+
+      //   button.addEventListener("click", () => {
+      //     const div = document.getElementById("id-344744587");
+      //     div.classList.toggle("hidden");
+      //     button.classList.toggle("offBt")
+      //   });
+      // </script>"""),
 
   protected def cleanContainers():Unit = {
     //    val contentDiv = DomNode.select("contentWrap")

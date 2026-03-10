@@ -44,6 +44,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
       .style("padding","5px 0px 5px 0px")
       .style("display", "inline-flex")
       .style("flex-wrap", "wrap")
+
     dom.document.getElementById(titleId).firstChild.firstChild.firstChild.asInstanceOf[html.Element]
       .onclick = {(_: MouseEvent) => if(!isVisible) showOptions() }
   }
@@ -66,7 +67,7 @@ class VisualiseOptMermaid(mermaid:()=>OptionView,name:String, errorBox: OutputAr
 
   def showOption(name:String,code:String):Unit = {
     try {
-      val namefix = fix(name)
+      val namefix = name.hashCode() //fix(name)
       val mbox = box.append("div")
         .style("text-align","center")
       mbox.append("h4")
