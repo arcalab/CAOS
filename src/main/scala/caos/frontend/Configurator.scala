@@ -1,6 +1,7 @@
 package caos.frontend
 
 import caos.frontend.Configurator.Example
+import caos.frontend.setting.Setting
 import caos.frontend.widgets.Widget.Helper
 import caos.frontend.widgets.WidgetInfo
 import caos.frontend.widgets.WidgetInfo.*
@@ -28,6 +29,8 @@ trait Configurator[Stx]:
   val parser: String=>Stx
   /** Sequence of examples */
   val examples: Iterable[Example] // name -> value
+  /** Setting widget, on the left hand side of the screen */
+  val setting: Option[Setting] = None
   /** Main widgets, on the right hand side of the screen */
   val widgets: Iterable[(String,WidgetInfo[Stx])]
   /** Secondary widgets, below the code */
