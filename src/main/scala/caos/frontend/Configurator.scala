@@ -229,8 +229,6 @@ object Configurator:
   /** Helper to build examples as `examples = List("name" -> "code" -> "description")` */
   implicit def toExampleDesc(nameCodeDesc:((String,String),String)): Example =
     Example(nameCodeDesc._1._2,nameCodeDesc._1._1,nameCodeDesc._2)
-  implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
-    Documentation().add(docs)
 
   /**
    * Helper method to build an optional Setting without the explicit reference to type wrapper `Some`
@@ -262,3 +260,13 @@ object Configurator:
     val (name, setting) = nameSetting
     Setting(name, setting.children, setting.checked, setting.options)
   end toNamedSetting
+
+/**
+ * Helper method to build the documentation
+ *
+ * @param docs the documentation itself
+ * @return the documentation widget
+ */
+implicit def toDocumentation(docs: List[((String, String), String)]): Documentation =
+  Documentation().add(docs)
+end toDocumentation
