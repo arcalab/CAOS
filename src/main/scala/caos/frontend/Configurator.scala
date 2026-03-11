@@ -232,4 +232,33 @@ object Configurator:
   implicit def toDocumentation(docs:List[((String,String),String)]): Documentation =
     Documentation().add(docs)
 
+  /**
+   * Helper method to build an optional Setting without the explicit reference to type wrapper `Some`
+   *
+   * @param setting setting to be wrapped by `Some`
+   * @return the type wrapped setting
+   */
+  implicit def toSetting(setting: Setting): Option[Setting] =
+    Some(setting)
+  end toSetting
 
+  /**
+   * Helper method to build a named Setting (to be created)
+   *
+   * @param name the name for the Setting (to be created)
+   * @return the named Setting
+   */
+  implicit def toSetting(name: String): Setting =
+    Setting(name)
+  end toSetting
+
+  /**
+   * Helper method to build a named Setting (already created)
+   *
+   * @param nameSetting a tuple with the name for the Setting and the setting itself
+   * @return the named Setting
+   */
+  implicit def toNamedSetting(nameSetting: (String, Setting)): Setting =
+    val (name, setting) = nameSetting
+    Setting(name, setting.children, setting.checked, setting.options)
+  end toNamedSetting
