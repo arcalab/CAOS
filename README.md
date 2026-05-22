@@ -40,6 +40,7 @@ Examples of such projects include:
  - [MARGe: Animator of Labelled Reactive Graphs](https://fm-dcc.github.io/MARGe/index.html) [(source)](https://github.com/FM-DCC/MARGe)
  - [RebeCaos: animator of Rebeca](https://fm-dcc.github.io/rebecaos) [(source)](https://github.com/FM-DCC/rebecaos)
  - [Lince 2.0: restructuring Lince with CAOS](https://lmf.di.uminho.pt/lince-2.0/) [(source)](https://github.com/arcalab/lince-2.0)
+ - [A-Team: Animator of Team Automata with asynchronous communication](https://fm-dcc.github.io/a-team/) - best-artifact award @ [FM 2026](https://jose.proenca.org/publication/fm-ateam-2026/) [(source)](https://github.com/FM-DCC/a-team)
 
 Alternatively, it is possible to start from a CAOS template, following the instructions described [here](https://github.com/arcalab/caos.g8) (this template uses an older version of CAOS).
 
