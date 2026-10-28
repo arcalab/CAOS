@@ -9,16 +9,17 @@ object MermaidJS {
    * @return
    */
   def apply(graph:String,boxId:String,svgId:String):String =
+    val varid = boxId.replaceAll("-","n")
     val res = s"""
-       |  var display$boxId = document.getElementById('$boxId');
-       |  var text$boxId = `$graph`
-       |  mermaid.render('$svgId', text$boxId).then(function(svgCode){
-       |    display$boxId.innerHTML = svgCode.svg;
-       |    if (svgCode.bindFunctions) svgCode.bindFunctions(display$boxId.querySelector("svg"));
+       |  var display$varid = document.getElementById('$boxId');
+       |  var text$varid = `$graph`
+       |  mermaid.render('$svgId', text$varid).then(function(svgCode){
+       |    display$varid.innerHTML = svgCode.svg;
+       |    if (svgCode.bindFunctions) svgCode.bindFunctions(display$varid.querySelector("svg"));
        |
        |    // d3 zoom must run INSIDE the callback, since rendering is now async
-       |    var svgs$boxId = d3.selectAll("#$boxId svg");
-       |  	svgs$boxId.each(function () {
+       |    var svgs$varid = d3.selectAll("#$boxId svg");
+       |  	svgs$varid.each(function () {
        |      var svg = d3.select(this);
        |    	svg.html("<g>" + svg.html() + "</g>");
        |    	var inner = svg.select("g");
@@ -29,7 +30,7 @@ object MermaidJS {
        |    });
        |  }).catch(function (err) {
        |    console.error("Mermaid render failed:", err);
-       |    display$boxId.textContent = "Mermaid error: " + (err && err.message ? err.message : err);
+       |    display$varid.textContent = "Mermaid error: " + (err && err.message ? err.message : err);
        |  });
             """.stripMargin
     //println("MermaidJS:\n"+res)
