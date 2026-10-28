@@ -49,8 +49,14 @@ class VisualiseText(text:()=>View, name:String, errorBox: OutputArea, doc:Docume
 
   def showText():Unit = {
     try {
+      box.text("Processing...") //.replace("\n","\\n"))
+      // println("processing...")
+      val top = box.elem.asInstanceOf[html.Element].offsetTop
+      // var el = document.getElementById("my-element");
+      // var top = el.offsetTop;
       val toShow = text().code//view(pre(mermaid()))
       box.text(toShow) //.replace("\n","\\n"))
+      // println("processed")
     } catch Widget.checkExceptions(errorBox,name)
   }
 

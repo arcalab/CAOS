@@ -9,22 +9,30 @@ object MermaidJS {
    * @return
    */
   def apply(graph:String,boxId:String,svgId:String):String =
-    s"""
-       |  var display = document.getElementById('$boxId');
-       |  var text = `$graph`
-       |  var graph = mermaid.mermaidAPI.render('$svgId', text, function(svgCode){
-       |    display.innerHTML = svgCode
-       |    });
+    val res = s"""
+       |  var display$boxId = document.getElementById('$boxId');
+       |  var text$boxId = `$graph`
+       |  mermaid.render('$svgId', text$boxId).then(function(svgCode){
+       |    display$boxId.innerHTML = svgCode.svg;
+       |    if (svgCode.bindFunctions) svgCode.bindFunctions(display$boxId.querySelector("svg"));
        |
-       |  var svgs = d3.selectAll("#$boxId svg");
-       |	svgs.each(function () {
-       |    var svg = d3.select(this);
-       |  	svg.html("<g>" + svg.html() + "</g>");
-       |  	var inner = svg.select("g");
-       |  	var zoom = d3.zoom().on("zoom", function(event) {
-       |  	  inner.attr("transform", event.transform);
-       |  		});
-       |  	svg.call(zoom);
+       |    // d3 zoom must run INSIDE the callback, since rendering is now async
+       |    var svgs$boxId = d3.selectAll("#$boxId svg");
+       |  	svgs$boxId.each(function () {
+       |      var svg = d3.select(this);
+       |    	svg.html("<g>" + svg.html() + "</g>");
+       |    	var inner = svg.select("g");
+       |    	var zoom = d3.zoom().on("zoom", function(event) {
+       |    	  inner.attr("transform", event.transform);
+       |    		});
+       |    	svg.call(zoom);
+       |    });
+       |  }).catch(function (err) {
+       |    console.error("Mermaid render failed:", err);
+       |    display$boxId.textContent = "Mermaid error: " + (err && err.message ? err.message : err);
        |  });
             """.stripMargin
+    //println("MermaidJS:\n"+res)
+    res
+    
 }

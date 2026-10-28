@@ -85,6 +85,7 @@ class Explore[Act,St](init:()=>St,sos:SOS[Act,St],vS:St=>String,vA:Act=>String,
     scalajs.js.eval(mermaidJs)
     //println("----\nDDONE - leafs:\n"+leafs.map(st=>mkStId(st)).mkString("\n"))
     for st <- leafs do
+      // problem: the div is not yet created when this code runs, so we need to delay it a bit (or control it better).
       document.getElementById(mkStId(st)).asInstanceOf[html.Element].
         onclick = { (e: MouseEvent) => expandState(st) }
   } catch Widget.checkExceptions(errorBox,"333"+name)

@@ -67,7 +67,7 @@
     // fix for mermaid rendering issues inside hidden divs
     var display = document.getElementById('mermaidDiv');
     var text = `flowchart LR\n`
-    var graph = mermaid.mermaidAPI.render('mermaidSvg', text, function(svgCode){
+    var graph = mermaid.render('mermaidSvg', text).then(function(svgCode){
       display.innerHTML = svgCode
     });
 </script>

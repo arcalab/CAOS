@@ -72,8 +72,8 @@ class VisualiseMermaid(mermaid:()=>View,name:String, errorBox: OutputArea, doc:D
         .attr("id", divBox)
         .style("text-align", "center")
         .append("div").attr("id", svgBox)
-      val flush = MermaidJS(s"graph TD\n ",divBox,svgBox) // flush!!!
-      scalajs.js.eval(flush) // harder flush to clean when mermaid() throws an error.
+      //val flush = MermaidJS(s"graph TD\n ",divBox,svgBox) // flush!!!
+      //scalajs.js.eval(flush) // harder flush to clean when mermaid() throws an error.
 
       val diagramFixed = diagram
         .replaceAll("\\\\","\\\\\\\\")
